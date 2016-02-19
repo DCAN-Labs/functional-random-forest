@@ -55,6 +55,12 @@ function [accuracy,permute_accuracy,treebag,proxmat] = ConstructModelTreeBag(gro
 %
 %
 %See also: TestTreeBags
+if isstruct(group1_data)
+    group1_data = struct2array(load(group1_data.path,group1_data.variable));
+end
+if isstruct(group2_data)
+    group2_data = struct2array(load(group2_data.path,group2_data.variable));
+end
 weight_forest = 0;
 estimate_trees = 0;
 if isempty(varargin) == 0
