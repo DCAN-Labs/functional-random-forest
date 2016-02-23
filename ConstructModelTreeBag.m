@@ -77,15 +77,15 @@ nsubs_group1 = size(group1_data,1);
 nsubs_group2 = size(group2_data,1);
 if (weight_forest)
     if (estimate_trees)
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,200,'WeightForest','EstimateTrees');
+        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees');
     else
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,200,'WeightForest');
+        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest');
     end
 else
     if (estimate_trees)
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,200,'EstimateTrees');
+        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees');
     else
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,200);
+        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500);
     end   
 end
 if nrepsPM > 0
