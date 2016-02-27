@@ -59,15 +59,11 @@ if nsubs_group1 + nsubs_group2 <= proximity_sub_limit
             ntrees_est = ntrees;
         end
         if (weight_forest)
-            tree_weights = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees');
-            if (estimate_trees)
-                [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_weighted',tree_weights);
-            else
-                [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB_weighted',tree_weights);
-            end
+            [tree_weights,treebag{i,1}] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees');
+            accuracy(:,i) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag{i,1},tree_weights);
         else
             if (estimate_trees)
-                [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation');
+                [accuracy(:,i),treebag{i,1}] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation');
             else
                 [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB');
             end
@@ -91,16 +87,12 @@ else
         end
         if (weight_forest)
             [tree_weights,treebag{i,1}] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees');
-            if (estimate_trees)
-                accuracy(:,i) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag{i,1},tree_weights);
-            else
-                [accuracy(:,i),~,outofbag_error(i,:)] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validationPlusOOB_weighted',treebag{i,1},tree_weights);
-            end
+            accuracy(:,i) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag{i,1},tree_weights);
         else
             if (estimate_trees)
-                accuracy(:,i) = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation');
+                [accuracy(:,i),treebag{i,1}] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation');
             else
-                [accuracy(:,i),~,outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB');
+                [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB');
             end
         end
         all_data = learning_data;
