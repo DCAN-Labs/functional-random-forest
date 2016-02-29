@@ -95,8 +95,8 @@ else
                 [accuracy(:,i),treebag{i,1},outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB');
             end
         end
-        all_data = learning_data;
-        all_data(end+1:end+size(testing_data,1),:) = testing_data;
+        all_data = group1_data(sort(group1_subjects),:);
+        all_data(end+1:end+matchsubs_group2,:) = group2_data(sort(group2_subjects),:);
         proxmat{i,1} = proximity(treebag{i,1}.compact,all_data);
     end
 end
