@@ -1,4 +1,4 @@
-function [accuracy,permute_accuracy,treebag,proxmat] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,varargin)
+function [accuracy,permute_accuracy,treebag,proxmat,trimmed_features] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,varargin)
 %ConstructModelTreeBag generates a model comprising ensembles of trees and 
 %examines the accuracy on data left out of the sample. One can select a
 %number of permutations to generate permuted accuracy under the assumptions
@@ -63,6 +63,7 @@ if isstruct(group2_data)
 end
 weight_forest = 0;
 estimate_trees = 0;
+trim_features = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
@@ -70,6 +71,9 @@ if isempty(varargin) == 0
                 estimate_trees = 1;
             case('WeightForest')
                 weight_forest = 1;
+            case('TrimFeatures')
+                trim_features = 1;
+                nfeatures = varargin{i+1};
         end
     end
 end
@@ -77,15 +81,35 @@ nsubs_group1 = size(group1_data,1);
 nsubs_group2 = size(group2_data,1);
 if (weight_forest)
     if (estimate_trees)
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees');
+        if (trim_features)
+            [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees','TrimFeatures',nfeatures);
+        else
+            trimmed_features = NaN;
+            [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees');
+        end
     else
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest');
+        if (trim_features)
+            [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','TrimFeatures',nfeatures);        
+        else
+            trimmed_features = NaN;
+            [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'WeightForest');
+        end
     end
 else
     if (estimate_trees)
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees');
+        if (trim_features)
+            [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees','TrimFeatures',nfeatures);            
+        else
+            trimmed_features = NaN;
+            [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees');
+        end
     else
-        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500);
+        if (trim_features)
+            [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500,'TrimFeatures',nfeatures);
+        else
+            trimmed_features = NaN;
+            [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500);
+        end
     end   
 end
 if nrepsPM > 0
@@ -111,15 +135,31 @@ if nrepsPM > 0
         perm2_data = permall_data(matchsubs_group1+1:matchsubs_group1+matchsubs_group2,:);
         if (weight_forest)
             if (estimate_trees)
-                permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees');
+                if (trim_features)
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees','TrimFeatures',nfeatures);
+                else
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','EstimateTrees');
+                end
             else
-                permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest');
+                if (trim_features)
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest','TrimFeatures',nfeatures);
+                else
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'WeightForest');
+                end
             end
         else
             if (estimate_trees)
-                permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees');
+                if (trim_features)
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees','TrimFeatures',nfeatures);
+                else
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'EstimateTrees');
+                end
             else
-                permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500);
+                if (trim_features)
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500,'TrimFeatures',nfeatures);
+                else
+                    permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(perm1_data,perm2_data,datasplit,ntrees,nrepsCI,500);                    
+                end
             end   
         end
     end
@@ -128,7 +168,7 @@ else
     permute_accuracy = NaN;
 end
 tic
-save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','-v7.3');
+save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','trimmed_features','-v7.3');
 toc
 end
 

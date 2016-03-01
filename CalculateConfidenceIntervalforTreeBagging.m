@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,trimmed_feature_sets] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -6,6 +6,7 @@ if exist('proximity_sub_limit','var') == 0
 end
 estimate_trees = 0;
 weight_forest = 0;
+trim_features = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
@@ -13,6 +14,9 @@ if isempty(varargin) == 0
                 estimate_trees = 1;
             case('WeightForest')
                 weight_forest = 1;
+            case('TrimFeatures')
+                trim_features = 1;
+                nfeatures = varargin{i+1};
         end
     end
 end
@@ -32,6 +36,10 @@ accuracy = zeros(3,nreps);
 treebag = cell(nreps,1);
 proxmat = cell(nreps,1);
 outofbag_error = zeros(nreps,ntrees);
+if (trim_features)
+    trimmed_feature_sets = zeros(nreps,nfeatures);
+    nvars = nfeatures;
+end
 learning_groups = zeros(floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),1);
 testing_groups = zeros(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),1);
 learning_groups(1:floor(matchsubs_group1*datasplit),1) = 0;
@@ -49,6 +57,13 @@ if nsubs_group1 + nsubs_group2 <= proximity_sub_limit
         group2_subjects = randperm(nsubs_group2,matchsubs_group2);
         resample_group1_data = group1_data(group1_subjects,:);
         resample_group2_data = group2_data(group2_subjects,:);
+        if (trim_features)
+            [~,~,trimmed_features] = KSFeatureTrimmer(resample_group1_data(1:floor(matchsubs_group1*datasplit),:),resample_group2_data(1:floor(matchsubs_group2*datasplit),:),nfeatures);
+            resample_group1_data = group1_data(group1_subjects,trimmed_features);
+            resample_group2_data = group2_data(group2_subjects,trimmed_features);
+            trimmed_feature_sets(i,:) = trimmed_features;
+            all_data = all_data(:,trimmed_features);
+        end
         learning_data(1:floor(matchsubs_group1*datasplit),:) = resample_group1_data(1:floor(matchsubs_group1*datasplit),:);
         learning_data(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),:) = resample_group2_data(1:floor(matchsubs_group2*datasplit),:);
         testing_data(1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)),:) = resample_group1_data(floor(matchsubs_group1*datasplit)+1:matchsubs_group1,:);
@@ -76,6 +91,12 @@ else
         group2_subjects = randperm(nsubs_group2,matchsubs_group2);
         resample_group1_data = group1_data(group1_subjects,:);
         resample_group2_data = group2_data(group2_subjects,:);
+        if (trim_features)
+            [~,~,trimmed_features] = KSFeatureTrimmer(resample_group1_data(1:floor(matchsubs_group1*datasplit),:),resample_group2_data(1:floor(matchsubs_group2*datasplit),:),nfeatures);
+            resample_group1_data = group1_data(group1_subjects,trimmed_features);
+            resample_group2_data = group2_data(group2_subjects,trimmed_features);
+            trimmed_feature_sets(i) = trimmed_features;
+        end
         learning_data(1:floor(matchsubs_group1*datasplit),:) = resample_group1_data(1:floor(matchsubs_group1*datasplit),:);
         learning_data(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),:) = resample_group2_data(1:floor(matchsubs_group2*datasplit),:);
         testing_data(1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)),:) = resample_group1_data(floor(matchsubs_group1*datasplit)+1:matchsubs_group1,:);
@@ -97,6 +118,9 @@ else
         end
         all_data = group1_data(sort(group1_subjects),:);
         all_data(end+1:end+matchsubs_group2,:) = group2_data(sort(group2_subjects),:);
+        if (trim_features)
+            all_data = all_data(:,trimmed_features);
+        end
         proxmat{i,1} = proximity(treebag{i,1}.compact,all_data);
     end
 end
