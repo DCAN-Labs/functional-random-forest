@@ -124,6 +124,7 @@ if holdout == 0
                 treebag{i,1} = treebag_temp;
             end
             clear treebag_temp
+            sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
         end
     else
         for i = 1:nreps
@@ -176,6 +177,7 @@ if holdout == 0
                 treebag{i,1} = treebag_temp;
             end
             clear treebag_temp
+            sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
         end
     end
     toc
@@ -272,6 +274,7 @@ else
                     treebag{i,1,j} = treebag_temp;
                 end
                 clear treebag_temp
+                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
             end
         else
             for i = 1:nreps
@@ -335,6 +338,7 @@ else
                     treebag{i,1,j} = treebag_temp;
                 end
                 clear treebag_temp
+                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
             end
         end
         toc    
