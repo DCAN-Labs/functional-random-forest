@@ -19,11 +19,11 @@ switch(type)
         outofbag_error_first = oobError(treebag);
         outofbag_error_first = outofbag_error_first(end);
         final_trees = initial_trees + tree_step;
-        while final_trees <= ntrees || optimize == 0
+        while final_trees <= ntrees && optimize == 0
             treebag = growTrees(treebag,tree_step);
             outofbag_error_second = oobError(treebag);
             outofbag_error_second = outofbag_error_second(end);
-            if abs(outofbag_error_second - outofbag_error_first) < 0.01
+            if abs(outofbag_error_second - outofbag_error_first) < 0.001
                 optimize = 1;
                 accuracy = final_trees - tree_step;
             else
