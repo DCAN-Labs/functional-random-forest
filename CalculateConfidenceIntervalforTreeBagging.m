@@ -1,7 +1,6 @@
 function [accuracy,treebag,outofbag_error,proxmat,trimmed_feature_sets] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-rng('shuffle');
 if exist('proximity_sub_limit','var') == 0
     proximity_sub_limit = 500;
 end
@@ -77,6 +76,7 @@ if holdout == 0
     tic
     if nsubs_group1 + nsubs_group2 <= proximity_sub_limit
         for i = 1:nreps
+            rng('shuffle');
             all_data = group1_data;
             all_data(end+1:end+nsubs_group2,:) = group2_data;
             group1_subjects = randperm(nsubs_group1,matchsubs_group1);
@@ -128,6 +128,7 @@ if holdout == 0
         end
     else
         for i = 1:nreps
+            rng('shuffle');
             group1_subjects = randperm(nsubs_group1,matchsubs_group1);
             group2_subjects = randperm(nsubs_group2,matchsubs_group2);
             resample_group1_data = group1_data(group1_subjects,:);
@@ -220,6 +221,7 @@ else
             all_data = group1_data;
             all_data(end+1:end+nsubs_group2_holdout,:) = group2_data;
             for i = 1:nreps
+                rng('shuffle');
                 group1_subjects = randperm(nsubs_group1_holdout,matchsubs_group1_holdout);
                 group2_subjects = randperm(nsubs_group2_holdout,matchsubs_group2_holdout);
                 resample_group1_data = group1_data_holdout(group1_subjects,:);
@@ -274,10 +276,11 @@ else
                     treebag{i,1,j} = treebag_temp;
                 end
                 clear treebag_temp
-                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
+                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i,j)))))
             end
         else
             for i = 1:nreps
+                rng('shuffle');
                 group1_subjects = randperm(nsubs_group1_holdout,matchsubs_group1_holdout);
                 group2_subjects = randperm(nsubs_group2_holdout,matchsubs_group2_holdout);
                 resample_group1_data = group1_data_holdout(group1_subjects,:);
@@ -338,7 +341,7 @@ else
                     treebag{i,1,j} = treebag_temp;
                 end
                 clear treebag_temp
-                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
+                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i,j)))))
             end
         end
         toc    
