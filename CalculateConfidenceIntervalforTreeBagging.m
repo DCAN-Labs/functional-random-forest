@@ -301,18 +301,18 @@ else
                     clear perm1_data perm2_data permall_data permall_data_temp
                 end
                 if group_holdout == 1
-                    all_data = group1_data(sort([group1_subjects data_to_remove]),trimmed_features); 
+                    all_data = group1_data(sort([group1_subjects data_to_remove.']),trimmed_features); 
                     all_data(end+1:end+matchsubs_group2_holdout,:) = group2_data(sort(group2_subjects),trimmed_features); 
                     learning_data(1:matchsubs_group1_holdout,:) = resample_group1_data;
                     learning_data(matchsubs_group1_holdout+1:matchsubs_group1_holdout+matchsubs_group2_holdout - ncomps_to_remove,:) = resample_group2_data(1:matchsubs_group2_holdout - ncomps_to_remove,:);
                     testing_data(1:ncomps_to_remove,:) = group1_data(data_to_remove,trimmed_features);
-                    testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = resample_group2_data(matchsubs_group2_holdout-ncomps_to_remove+1:matchsubs_group2_holdout+ncomps_to_remove,:);
+                    testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = resample_group2_data(matchsubs_group2_holdout-ncomps_to_remove+1:matchsubs_group2_holdout,:);
                 else
                     all_data = group1_data(sort(group1_subjects),trimmed_features); 
                     all_data(end+1:end+matchsubs_group2_holdout+ncomps_to_remove,:) = group2_data(sort([group2_subjects data_to_remove]),trimmed_features);                     
                     learning_data(1:matchsubs_group1_holdout-ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout - ncomps_to_remove,:);
                     learning_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout+matchsubs_group2_holdout - ncomps_to_remove,:) = resample_group2_data;
-                    testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout+ncomps_to_remove,:);
+                    testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout,:);
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
                 if (estimate_trees)
