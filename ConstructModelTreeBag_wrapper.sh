@@ -33,13 +33,13 @@ filename=${filename:-'thenamelessone'}
 estimate_trees=${estimate_trees:-'EstimateTrees'}
 weight_trees=${weight_trees:-'WeightForest'}
 trim_features=${trim_features:-'blah'}
-nfeatures=${nfeatures:-'blahblah'}
+nfeatures=${nfeatures:-0}
 fisher_z_transform=${fisher_z_transform:-'blahblahblah'}
 disable_treebag=${disable_treebag:-'TreebagsOff'}
 holdout=${holdout:-'yada'}
 holdout_data=${holdout_data:-'yadayada'}
-group_holdout=${group_holdout:-'yadayadayada'}
+group_holdout=${group_holdout:-0}
 proxsublimit_set=${proxsublimit_set:-'ProximitySubLimit'}
 proxsublimit_num=${proxsublimit_num:-500}
 #Construct the model, which will save outputs to a filename.mat file
-matlab14b -nojvm -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/PSYCH/code/testing/analyses/treebag') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),struct('path','"${group2path}"','variable','"${group2var}"'),"$datasplit","$nreps","$ntrees","$nperms",'"${filename}"','"${estimate_trees}"','"${weight_trees}"','"${trim_features}"','"${nfeatures}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${proxsublimit_set}"',"$proxsublimit_num") ; exit"
+matlab14b -nojvm -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/PSYCH/code/testing/analyses/treebag') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),struct('path','"${group2path}"','variable','"${group2var}"'),"$datasplit","$nreps","$ntrees","$nperms",'"${filename}"','"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${proxsublimit_set}"',"$proxsublimit_num") ; exit"
