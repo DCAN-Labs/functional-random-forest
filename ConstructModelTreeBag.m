@@ -1,4 +1,4 @@
-function [accuracy,permute_accuracy,treebag,proxmat,trimmed_features] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,varargin)
+function [accuracy,permute_accuracy,treebag,proxmat,features,trimmed_features] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,proximity_sub_limit,varargin)
 %ConstructModelTreeBag generates a model comprising ensembles of trees and 
 %examines the accuracy on data left out of the sample. One can select a
 %number of permutations to generate permuted accuracy under the assumptions
@@ -61,321 +61,59 @@ end
 if isstruct(group2_data)
     group2_data = struct2array(load(group2_data.path,group2_data.variable));
 end
-weight_forest = 0;
-estimate_trees = 0;
-trim_features = 0;
 holdout = 0;
-zform = 0;
-disable_treebag = 0;
-proximity_sub_limit = 500;
+if exist('proximity_sub_limit','var') == 0
+    proximity_sub_limit = 500;
+end
+if isempty(proximity_sub_limit)
+    proximity_sub_limit = 500;
+end
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
-            case('EstimateTrees')
-                estimate_trees = 1;
-            case('WeightForest')
-                weight_forest = 1;
-            case('TrimFeatures')
-                trim_features = 1;
-                nfeatures = varargin{i+1};
             case('Holdout')
                 holdout = 1;
                 holdout_data = varargin{i+1};
-                group_holdout = varargin{i+2};
-            case('FisherZ')
-                zform = 1;
-            case('TreebagsOff')
-                disable_treebag = 1;
-                treebag = NaN;
-            case('ProximitySubLimit')
-                proximity_sub_limit = varargin{i+1};
         end
     end
 end
-if (weight_forest)
-    if (estimate_trees)
-        if (trim_features)
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ');    
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data);
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'TreebagsOff');    
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures);                            
-                    end
-                end
-            end
-        else
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data,group_holdout,'TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data);                        
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees');                        
-                    end
-                end
-            end
-        end
-    else
-        if (trim_features)
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');  
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ');                          
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff');     
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data);                         
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'FisherZ','TreebagsOff');     
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'FisherZ');                         
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'TreebagsOff');      
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures);                              
-                    end
-                end
-            end
-        else
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                       [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data,group_holdout,'TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data);                        
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest');                        
-                    end
-                end
-            end
-        end
-    end
-else
-    if (estimate_trees)
-        if (trim_features)
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data);
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures);                        
-                    end
-                end
-            end    
-        else
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data,group_holdout,'TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data);                        
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','FisherZ','TreebagsOff');    
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','FisherZ');                            
-                    end
-                else
-                    if (disable_treebag)
-                    trimmed_features = NaN;
-                    [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TreebagsOff');
-                    else
-                    trimmed_features = NaN;
-                    [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees');                        
-                    end
-                end
-            end
-        end
-    else
-        if (trim_features)
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff');  
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data);                          
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'FisherZ','TreebagsOff');
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        [accuracy,~,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'TreebagsOff');          
-                    else
-                        [accuracy,treebag,~,proxmat,trimmed_features] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures);          
-                    end
-                end
-            end                
-        else
-            if (holdout)
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff');
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data,group_holdout,'FisherZ');                        
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data,group_holdout,'TreebagsOff');                    
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data);                                            
-                    end
-                end
-            else
-                if (zform)
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'FisherZ','TreebagsOff');              
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'FisherZ');                                      
-                    end
-                else
-                    if (disable_treebag)
-                        trimmed_features = NaN;
-                        [accuracy,~,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TreebagsOff');                        
-                    else
-                        trimmed_features = NaN;
-                        [accuracy,treebag,~,proxmat] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,500);                              
-                    end
-                end
-            end
-        end
-    end   
+switch(size(varargin,2))
+    case(0)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit);
+    case(1)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1});
+    case(2)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2});        
+    case(3)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3});         
+    case(4)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4});                 
+    case(5)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5});                         
+    case(6)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6});                                 
+    case(7)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7});                                         
+    case(8)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8});                                         
+    case(9)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9});                                                 
+    case(10)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10});                                                         
+    case(11)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11});                                                                 
+    case(12)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12});                                                                         
+    case(13)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13});                                                                                 
+    case(14)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14});
+    case(15)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15});                                                                                         
+    case(16)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16});                                                                                         
+    case(17)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17});                                                                                                 
 end
 if nrepsPM > 0
     if (holdout)
@@ -385,130 +123,48 @@ if nrepsPM > 0
     end
     tic
     for i = 1:nrepsPM
-        if (weight_forest)
-            if (estimate_trees)
-                if (trim_features)
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');       
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'FisherZ','TreebagsOff','Permute'); 
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TrimFeatures',nfeatures,'TreebagsOff','Permute');        
-                        end
-                    end
-                else
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','EstimateTrees','TreebagsOff','Permute');                            
-                        end
-                    end
-                end
-            else
-                if (trim_features)
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'FisherZ','TreebagsOff','Permute');                        
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TrimFeatures',nfeatures,'TreebagsOff','Permute');                                                    
-                        end
-                    end
-                else
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','FisherZ','TreebagsOff','Permute');                        
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'WeightForest','TreebagsOff','Permute');                                                    
-                        end
-                    end
-                end
-            end
+        switch(size(varargin,2))
+            case(0)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute');
+            case(1)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1});               
+            case(2)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2});
+            case(3)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3});                 
+            case(4)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4});                
+            case(5)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5});                 
+            case(6)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6});                 
+            case(7)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7});                 
+            case(8)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8});              
+            case(9) 
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9});                             
+            case(10)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10});             
+            case(11)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11});
+            case(12)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12});                
+            case(13)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13});                                
+            case(14)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14});
+            case(15)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15});                                                
+            case(16)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16});                                                
+            case(17)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17});                                                                
+        end
+        if (holdout)
+            permute_accuracy(:,:,:,i) = permute_accuracy_temp;
         else
-            if (estimate_trees)
-                if (trim_features)
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TrimFeatures',nfeatures,'TreebagsOff','Permute');                            
-                        end
-                    end
-                else
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'EstimateTrees','TreebagsOff','Permute');                            
-                        end
-                    end
-                end
-            else
-                if (trim_features)
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                            
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'FisherZ','TreebagsOff','Permute');                        
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TrimFeatures',nfeatures,'TreebagsOff','Permute');                                                    
-                        end
-                    end
-                else
-                    if (holdout)
-                        if (zform)
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data,group_holdout,'FisherZ','TreebagsOff','Permute');    
-                        else
-                            permute_accuracy(:,:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Holdout',holdout_data,group_holdout,'TreebagsOff','Permute');                                
-                        end
-                    else
-                        if (zform)
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'FisherZ','TreebagsOff','Permute');                        
-                        else
-                            permute_accuracy(:,:,i) = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'TreebagsOff','Permute');                                                    
-                        end
-                    end
-                end
-            end   
+            permute_accuracy(:,:,i) = permute_accuracy_temp;
         end
     end
     toc
@@ -516,7 +172,23 @@ else
     permute_accuracy = NaN;
 end
 tic
-save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','trimmed_features','-v7.3');
+save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','-v7.3');
 toc
+sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py');
+command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py ';
+if isempty(dir(command_file)) == 0
+    save('proxmat.mat','proxmat');
+    outdir = pwd;
+    proxmatpath = strcat(outdir,'/proxmat.mat ');
+    optionm = '-m ';
+    optiono = '-o ';
+    optionp = ' -p ';
+    for density = 0.05:0.05:0.5
+        outfoldname = strcat(outdir,'/community0p',num2str(density*100));
+        mkdir(outfoldname);
+        command = [command_file optionm proxmatpath optiono outfoldname optionp num2str(density)];
+        system(command);
+    end
+end
 end
 
