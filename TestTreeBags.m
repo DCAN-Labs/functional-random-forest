@@ -11,11 +11,14 @@ if exist('treebag','var') == 0
     treebag = 0;
 end
 numpredictors = 0;
+surrogate = 'off';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
             case('npredictors')
                 numpredictors = varargin{i+1};
+            case('surrogate')
+                surrogate = varargin{i+1};
         end
     end
 end
@@ -26,7 +29,7 @@ switch(type)
     case('estimate_trees')
         initial_trees = 50; %%change if you want to examine smaller numbers, generally at least 50 trees will be needed for most weak classifiers
         tree_step = 10; %%change if you want to examine finer numbers -- lower numbers will slow the function
-        treebag = TreeBagger(initial_trees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector);
+        treebag = TreeBagger(initial_trees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
         optimize = 0;
         outofbag_error_first = oobError(treebag);
         outofbag_error_first = outofbag_error_first(end);
@@ -50,7 +53,7 @@ switch(type)
             sprintf('%s',strcat('Optimization found! Number of trees: #',num2str(accuracy))) 
         end
     case('weight_trees')
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
         accuracy = zeros(ntrees,1);
         for i = 1:ntrees
             prediction_classes = str2num(cell2mat(predict(treebag,treebag.X,'Trees',i)));
@@ -59,7 +62,7 @@ switch(type)
         end
     case('validation')
         ngroups = size(unique(testing_groups),1);
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
         outofbag_error = NaN;
         predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
         accuracy_prediction = predicted_classes == testing_groups;
@@ -80,7 +83,7 @@ switch(type)
         end
     case('validationPlusOOB')
         ngroups = size(unique(testing_groups),1);
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',numpredictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
         outofbag_error = oobError(treebag);
         predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
         accuracy_prediction = predicted_classes == testing_groups;
@@ -91,7 +94,7 @@ switch(type)
         end
     case('validationPlusOOB_weighted')
         ngroups = size(unique(testing_groups),1);
-        predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights)));
+        predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights,'surrogate',surrogate)));
         accuracy_prediction = predicted_classes == testing_groups;
         accuracy = zeros(ngroups+1,1);
         accuracy(1,1) = size(find(accuracy_prediction == 1),1)/size(testing_groups,1);
@@ -102,7 +105,7 @@ switch(type)
         initial_predictors = numpredictors; %%change if you want to examine smaller numbers, can be used as an input to the function itself
         predictor_step = 20; %%change if you want to examine finer numbers -- lower numbers will slow the function
         limit_nodice = 5;
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',initial_predictors,'CategoricalPredictors',categorical_vector);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',initial_predictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
         nvars = size(learning_data,2);
         outofbag_error_first = oobError(treebag);
         outofbag_error_first = outofbag_error_first(end);
@@ -111,7 +114,7 @@ switch(type)
         final_predictors = initial_predictors + predictor_step;
         count = 0;
         while final_predictors <= nvars && count < limit_nodice
-            treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',final_predictors,'CategoricalPredictors',categorical_vector);
+            treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NumPredictorsToSample',final_predictors,'CategoricalPredictors',categorical_vector,'surrogate',surrogate);
             outofbag_error_second = oobError(treebag);
             outofbag_error_second = outofbag_error_second(end);
             if outofbag_error_second < optimal_prediction

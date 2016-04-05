@@ -16,6 +16,7 @@ zform = 0;
 permute_data = 0;
 estimate_predictors = 0;
 class_method = 'classification';
+surrogate = 'off';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
@@ -45,20 +46,28 @@ if isempty(varargin) == 0
                 regression = 1;
                 class_method = 'regression';
                 if isscalar(varargin{i+1}) && isscalar(varargin{i+2})
-                    group1_outcome = group1_data(:,varargin{i+1});
-                    group2_outcome = group2_data(:,varargin{i+2});
-                    index = true(1, size(group1_data,2));
-                    index([varargin{i+1}]) = false;
-                    group1_data = group1_data(:,index);
-                    clear index
-                    index = true(1, size(group2_data,2));
-                    index([varargin{i+1}]) = false;
-                    group2_data = group2_data(:,index);
-                    clear index
+                        group1_outcome = group1_data(:,varargin{i+1});
+                        index = true(1, size(group1_data,2));
+                        index([varargin{i+1}]) = false;
+                        group1_data = group1_data(:,index);
+                        clear index
+                    if group2_data == 0
+                    else
+                        group2_outcome = group2_data(:,varargin{i+2});
+                        index = true(1, size(group2_data,2));
+                        index([varargin{i+1}]) = false;
+                        group2_data = group2_data(:,index);
+                        clear index
+                    end
                 else
                     group1_outcome = varargin{i+1};
-                    group2_outcome = varargin{i+2};
-                end            
+                    if group2_data == 0                        
+                    else
+                        group2_outcome = varargin{i+2};
+                    end
+                end
+            case('surrogate')
+                surrogate = 'on';
         end
     end
 end
@@ -67,7 +76,15 @@ if iscell(group1_data)
 else
     categorical_vector = logical(zeros(size(group1_data,2),1));
 end
-if iscell(group2_data)
+if group2_data == 0
+    rng('shuffle');
+    nsubs = size(group1_data,1);
+    shuffled_subs = randperm(nsubs);
+    group2_data = group1_data(shuffled_subs(floor(nsubs/2)+1:end),:);
+    group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
+    group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
+    group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
+elseif iscell(group2_data)
     [categorical_vector, group2_data] = ConvertCelltoMatrixForTreeBagging(group2_data);
 end
 categorical_vectors_to_use = categorical_vector;
@@ -163,24 +180,24 @@ if holdout == 0
                 testing_groups(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),1) = resample_group2_outcome(floor(matchsubs_group2*datasplit)+1:matchsubs_group2,:);
             end
             if (estimate_predictors)
-                npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors);
+                npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors,'surrogate',surrogate);
                 npredictor_sets(i) = npredictors_used;
             else
                 npredictors_used = npredictors;
             end
             if (estimate_trees)
-                ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
             else
                 ntrees_est = ntrees;
             end
             if (weight_forest)
-                [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 accuracy(:,i) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method);
             else
                 if (estimate_trees)
-                    [accuracy(:,i),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                    [accuracy(:,i),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 else
-                    [accuracy(:,i),treebag_temp,outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                    [accuracy(:,i),treebag_temp,outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 end
             end
             proxmat{i,1} = proximity(treebag_temp.compact,all_data);
@@ -232,24 +249,24 @@ if holdout == 0
                 testing_groups(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),1) = resample_group2_outcome(floor(matchsubs_group2*datasplit)+1:matchsubs_group2,:);
             end
             if (estimate_predictors)
-                npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors);
+                npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors,'surrogate',surrogate);
                 npredictor_sets(i) = npredictors_used;
             else
                 npredictors_used = npredictors;
             end
             if (estimate_trees)
-                ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
             else
                 ntrees_est = ntrees;
             end
             if (weight_forest)
-                [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 accuracy(:,i) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method);
             else
                 if (estimate_trees)
-                    [accuracy(:,i),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                    [accuracy(:,i),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 else
-                    [accuracy(:,i),treebag_temp,outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used);
+                    [accuracy(:,i),treebag_temp,outofbag_error(i,:)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate);
                 end
             end
             if (trim_features)
@@ -341,24 +358,24 @@ else
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
                 if (estimate_predictors)
-                    npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors);
+                    npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate);
                     npredictor_sets(i,j) = npredictors_used;
                 else
                     npredictors_used = npredictors;
                 end
                 if (estimate_trees)
-                    ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                    ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                 else
                     ntrees_est = ntrees;
                 end
                 if (weight_forest)
-                    [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                    [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     accuracy(:,i,j) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use);
                 else
                     if (estimate_trees)
-                        [accuracy(:,i,j),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                        [accuracy(:,i,j),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     else
-                        [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                        [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     end
                 end
                 proxmat{i,j} = proximity(treebag_temp.compact,all_data);
@@ -411,24 +428,24 @@ else
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
                 if (estimate_predictors)
-                    npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors);
+                    npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate);
                     npredictor_sets(i,j) = npredictors_used;                    
                 else
                     npredictors_used = npredictors;
                 end
                 if (estimate_trees)
-                    ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                    ntrees_est = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                 else
                     ntrees_est = ntrees;
                 end
                 if (weight_forest)
-                    [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                    [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     accuracy(:,i,j) = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use);
                 else
                     if (estimate_trees)
-                        [accuracy(:,i,j),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                        [accuracy(:,i,j),treebag_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     else
-                        [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,'npredictors',npredictors_used);
+                        [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j)] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate);
                     end
                 end
                 proxmat{i,j} = proximity(treebag_temp.compact,all_data);
