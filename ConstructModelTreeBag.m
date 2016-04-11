@@ -127,6 +127,8 @@ end
 if nrepsPM > 0
     if (holdout)
         permute_accuracy = zeros(3,nrepsCI,max(size(struct2array(load(holdout_data)))),nrepsPM);
+    elseif (regression)
+        permute_accuracy = zeros(3,nrepsCI,nrepsPM);
     else
         permute_accuracy = zeros(3,nrepsCI,nrepsPM);
     end
@@ -174,6 +176,8 @@ if nrepsPM > 0
         end
         if (holdout)
             permute_accuracy(:,:,:,i) = permute_accuracy_temp;
+        elseif (regression)
+            permute_accuracy(:,:,i) = permute_accuracy_temp;
         else
             permute_accuracy(:,:,i) = permute_accuracy_temp;
         end
@@ -186,7 +190,7 @@ tic
 save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','-v7.3');
 toc
 sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py');
-command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py ';
+command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/infomap_comm_detection.py ';
 if isempty(dir(command_file)) == 0
     save('proxmat.mat','proxmat');
     outdir = pwd;

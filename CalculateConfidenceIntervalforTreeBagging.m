@@ -17,6 +17,7 @@ permute_data = 0;
 estimate_predictors = 0;
 class_method = 'classification';
 surrogate = 'off';
+regression = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
@@ -45,25 +46,35 @@ if isempty(varargin) == 0
             case('Regression')
                 regression = 1;
                 class_method = 'regression';
-                if isscalar(varargin{i+1}) && isscalar(varargin{i+2})
-                        group1_outcome = group1_data(:,varargin{i+1});
-                        index = true(1, size(group1_data,2));
-                        index([varargin{i+1}]) = false;
-                        group1_data = group1_data(:,index);
-                        clear index
-                    if group2_data == 0
-                    else
+                if isscalar(varargin{i+1})
+                    group1_outcome = group1_data(:,varargin{i+1});
+                    index = true(1, size(group1_data,2));
+                    index([varargin{i+1}]) = false;
+                    group1_data = group1_data(:,index);
+                    clear index
+                elseif ismatrix(varargin{i+1})
+                    group1_outcome = varargin{i+1};
+                elseif isstruct(varargin{i+1})
+                    group1_outcome = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                end
+                if iscell(group1_outcome)
+                    group1_outcome = cell2mat(group1_outcome);
+                end
+                if group2_data == 0
+                elseif isscalar(varargin{i+2})
                         group2_outcome = group2_data(:,varargin{i+2});
                         index = true(1, size(group2_data,2));
                         index([varargin{i+1}]) = false;
                         group2_data = group2_data(:,index);
                         clear index
-                    end
-                else
-                    group1_outcome = varargin{i+1};
-                    if group2_data == 0                        
-                    else
-                        group2_outcome = varargin{i+2};
+                elseif ismatrix(varargin{i+2})
+                    group2_outcome = varargin{i+2};
+                elseif isstruct(varargin{i+2})
+                    group2_outcome = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                end
+                if group2_data ~= 0
+                    if iscell(group2_outcome)
+                        group2_outcome = cell2mat(group2_outcome);
                     end
                 end
             case('surrogate')
@@ -72,7 +83,7 @@ if isempty(varargin) == 0
     end
 end
 if iscell(group1_data)
-    [categorical_vector, group1_data] = ConvertCelltoMatrixForTreeBagging(group1_data);
+    [categorical_vector, group1_data] = ConvertCelltoMatrixforTreeBagging(group1_data);
 else
     categorical_vector = logical(zeros(size(group1_data,2),1));
 end
@@ -115,7 +126,11 @@ else
     matchsubs_group1 = nsubs_group1;
     matchsubs_group2 = nsubs_group2;
 end
+if (regression)
 accuracy = zeros(3,nreps,max(size(holdout_data)));
+else
+accuracy = zeros(3,nreps,max(size(holdout_data)));
+end
 if disable_treebag == 0
     treebag = cell(nreps,max(size(holdout_data)));
 end
