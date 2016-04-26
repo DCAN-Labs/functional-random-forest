@@ -75,12 +75,15 @@ end
 if isempty(proximity_sub_limit)
     proximity_sub_limit = 500;
 end
+regression = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
             case('Holdout')
                 holdout = 1;
                 holdout_data = varargin{i+1};
+            case('Regression')
+                regression = 1;
         end
     end
 end
@@ -190,7 +193,7 @@ tic
 save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','-v7.3');
 toc
 sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py');
-command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/infomap_comm_detection.py ';
+command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py ';
 if isempty(dir(command_file)) == 0
     save('proxmat.mat','proxmat');
     outdir = pwd;

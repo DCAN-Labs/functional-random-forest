@@ -71,11 +71,14 @@ switch(type)
             for blah = 1:max(max(size(predicted_classes)))
                 predicted_classes_new(blah) = str2num(predicted_classes{blah});
             end
-            accuracy_prediction = abs(predicted_classes_new.' - testing_groups);
+            accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
-            accuracy(2,1) = corr(predicted_classes_new.',testing_groups);
+            accuracy(2,1) = corr(predicted_classes_new,testing_groups);
             N = max(max(size(testing_groups)));
             mean_all = (accuracy(1,1)+mean(testing_groups))/2;
+            nx1=0;
+            nx2=0;
+            nxpooled=0;
             for i = 1:N
                 nx1=nx1+(testing_groups(i) - mean_all)^2;
                 nx2=nx2+(predicted_classes_new(i) - mean_all)^2;
@@ -113,11 +116,14 @@ switch(type)
             for blah = 1:max(max(size(predicted_classes)))
                 predicted_classes_new(blah) = str2num(predicted_classes{blah});
             end
-            accuracy_prediction = abs(predicted_classes_new.' - testing_groups);
+            accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
-            accuracy(2,1) = corr(predicted_class_new,testing_groups);
+            accuracy(2,1) = corr(predicted_classes_new,testing_groups);
             N = max(max(size(testing_groups)));
             mean_all = (accuracy(1,1)+mean(testing_groups))/2;
+            nx1=0;
+            nx2=0;
+            nxpooled=0;
             for i = 1:N
                 nx1=nx1+(testing_groups(i) - mean_all)^2;
                 nx2=nx2+(predicted_classes_new(i) - mean_all)^2;
