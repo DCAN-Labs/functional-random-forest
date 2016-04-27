@@ -1,4 +1,4 @@
-# Simple Infomap v0.1.0 (?) #
+# Simple Infomap v1.0.0 #
 
 **I want to get community assignments from my correlation matrix! Can you do that?**
 *It's dangerous to Infomap alone...take this: *
