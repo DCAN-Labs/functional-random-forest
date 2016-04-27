@@ -7,8 +7,9 @@
 - /group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py
 
 ## Requirements:
- - A square matrix. It currently will not take matrices with uneven rows/columns. This runs the **undirected** (older) version of infomap.
-  - _This will **eventually** be updated to the newest version of infomap and will work with undirected matrices as well._
+ - A matlab matrix.
+  - _Script has been updated to run infomap with a directed matrix, but **this has not been tested**_
+  - _This also now uses the newest version of infomap, rather than the AIRC's old undirected only version_
   
 ## Arguments:
  - **-h** _shows the help menu_
