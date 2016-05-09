@@ -17,7 +17,7 @@
  - **-d** _Flag for using a DIRECTED matrix._
  - **-m** _Full **path** to your correlation matrix. Required._
  - **-o** _Output Directory ("community_detection" folder will be created here). Default=PWD_
- - **-p** _Percent Threshold (Top Connections) Use 0.0X format. Default is 1.0 assuming thresholding already performed._
+ - **-p** _Percent Threshold (Top Connections) Use 0.0X format (Example top 3% is 0.03). :: Default is 1.0 assuming thresholding already performed (100% of conns)._
  - **-u** _Flag for using an UNDIRECTED matrix._
 
 ## Outputs:
