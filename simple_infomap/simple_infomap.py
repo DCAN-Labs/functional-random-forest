@@ -34,7 +34,7 @@ def main(argv=sys.argv):
                             dest='out_dir'
                            )                           
     arg_parser.add_argument('-p', metavar='PERCENT_THRESHOLD', nargs='?', action='store', required=False, type=float, default=1.0,
-                            help=('Percent Threshold (Top Connections) Use 0.0X format (Example top 3% is 0.03). :: Default is 1.0 assuming thresholding already performed (100% of conns).'),
+                            help=('Percent Threshold (Top Connections) Use 0.0X format (Example top 3 percent is 0.03). :: Default is 1.0 assuming thresholding already performed (100 percent of conns).'),
                             dest='perc_thresh'
                            )
     arg_parser.add_argument('-u', action='store_true', required=False, default=True,
