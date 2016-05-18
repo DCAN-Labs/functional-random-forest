@@ -76,6 +76,7 @@ if isempty(proximity_sub_limit)
     proximity_sub_limit = 500;
 end
 regression = 0;
+classification_method='classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         switch(varargin{i})
@@ -84,6 +85,7 @@ if isempty(varargin) == 0
                 holdout_data = varargin{i+1};
             case('Regression')
                 regression = 1;
+                classification_method='regression';
         end
     end
 end
@@ -192,21 +194,32 @@ end
 tic
 save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','-v7.3');
 toc
-sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py');
-command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py ';
+sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
+command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py';
 if isempty(dir(command_file)) == 0
-    save('proxmat.mat','proxmat');
+    proxmat_sum = zeros(size(proxmat{1}));
+    for i = 1:max(size(proxmat))
+        proxmat_sum = proxmat_sum + proxmat{i};
+    end
+    save('proxmat_sum.mat','proxmat_sum');
     outdir = pwd;
-    proxmatpath = strcat(outdir,'/proxmat.mat ');
-    optionm = '-m ';
-    optiono = '-o ';
+    proxmatpath = strcat(outdir,'/proxmat_sum.mat ');
+    optionm = ' -m ';
+    optiono = ' -o ';
     optionp = ' -p ';
-    for density = 0.05:0.05:0.5
+    for density = 0.05:0.05:1
         outfoldname = strcat(outdir,'/community0p',num2str(density*100));
         mkdir(outfoldname);
         command = [command_file optionm proxmatpath optiono outfoldname optionp num2str(density)];
         system(command);
     end
+else
+    outdir = [];
 end
+nsubs_group1 = size(group1_data,1);
+nsubs_group2 = size(group2_data,1);
+groups = ones(nsubs_group1+nsubs_group2,1);
+groups(nsubs_group1+1:end,1) = 2;
+VisualizeTreeBaggingResults(strcat(filename,'.mat'),outdir,classification_method,groups,group1_data,group2_data);
 end
 

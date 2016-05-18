@@ -87,6 +87,7 @@ if iscell(group1_data)
 else
     categorical_vector = logical(zeros(size(group1_data,2),1));
 end
+if regression
 if group2_data == 0
     rng('shuffle');
     nsubs = size(group1_data,1);
@@ -95,8 +96,10 @@ if group2_data == 0
     group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
     group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
     group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
-elseif iscell(group2_data)
-    [categorical_vector, group2_data] = ConvertCelltoMatrixForTreeBagging(group2_data);
+end 
+end
+if iscell(group2_data)
+    [categorical_vector, group2_data] = ConvertCelltoMatrixforTreeBagging(group2_data);
 end
 categorical_vectors_to_use = categorical_vector;
 if holdout == 0
