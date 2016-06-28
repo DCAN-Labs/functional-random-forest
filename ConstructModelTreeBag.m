@@ -79,13 +79,15 @@ regression = 0;
 classification_method='classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
-        switch(varargin{i})
-            case('Holdout')
-                holdout = 1;
-                holdout_data = varargin{i+1};
-            case('Regression')
-                regression = 1;
-                classification_method='regression';
+        if isstruct(varargin{i}) == 0
+            switch(varargin{i})
+                case('Holdout')
+                    holdout = 1;
+                    holdout_data = varargin{i+1};
+                case('Regression')
+                    regression = 1;
+                    classification_method='regression';
+            end
         end
     end
 end
@@ -128,6 +130,10 @@ switch(size(varargin,2))
         [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17});
     case(18)
         [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18});
+    case(19)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19});
+    case(20)
+        [accuracy,treebag,~,proxmat,features,trimmed_features,npredictors] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20});        
 end
 if nrepsPM > 0
     if (holdout)
@@ -178,6 +184,10 @@ if nrepsPM > 0
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17});                                                                
             case(18)
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18});          
+            case(19)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19});   
+            case(20)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20});          
         end
         if (holdout)
             permute_accuracy(:,:,:,i) = permute_accuracy_temp;

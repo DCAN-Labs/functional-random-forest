@@ -41,7 +41,7 @@ for feature = 1:size(all_data,2)
             elseif categorical_vectors_to_use(feature) == 0
                 feature_matrix(feature,subgroup,:) = prctile(feature_data(community == subgroups(subgroup)),[17 50 83]);
             else
-                feature_matrix(feature,subgroup,:) = 10;
+                feature_matrix(feature,subgroup,:) = 1;
             end
             nsubgroup_count = nsubgroup_count + 1;
         end

@@ -1,7 +1,7 @@
 function VisualizeTreeBaggingResults(matfile,commdirectory,type,groups,group1_data,group2_data)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-stuff = load(strcat(matfile,'.mat'));
+stuff = load(matfile);
 accuracy = stuff.accuracy;
 permute_accuracy = stuff.permute_accuracy;
 proxmat = stuff.proxmat;
@@ -208,7 +208,7 @@ set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 102
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
 %if community detection was run properly, produce community detection plots
 if isempty(dir(strcat(commdirectory,'/community0p*'))) == 0
-    [community_matrix, sorting_order] = VisualizeCommunityDetection(commdirectory,groups);
+    [community_matrix, sorting_order] = VisualizeCommunityDetection(commdirectory,groups,type);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(14);

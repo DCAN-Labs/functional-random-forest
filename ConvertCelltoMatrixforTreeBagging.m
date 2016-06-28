@@ -3,9 +3,9 @@ function [categorical_vector datamat] = ConvertCelltoMatrixforTreeBagging(data)
 datamat = zeros(nsubs,nvars);
 categorical_vector = zeros(1,nvars);
 for k = 1:nvars
-    try
+    if isstr(data{1,k}) == 0
         datamat(:,k) = cell2mat(data(:,k));
-    catch
+    else
         categorical_vector(k) = 1;
         uniques = unique(data(:,k));
         for i = 1:max(size(uniques))
