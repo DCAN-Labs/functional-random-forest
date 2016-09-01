@@ -7,10 +7,12 @@ if iscell(group1_data)
 else
     categorical_vector = logical(zeros(size(group1_data,2),1));
 end
-if group2_data == 0
+if iscell(group2_data)
+    [categorical_vector, group2_data] = ConvertCelltoMatrixforTreeBagging(group2_data);
     all_data = group1_data;
-elseif iscell(group2_data)
-    [categorical_vector, group2_data] = ConvertCelltoMatrixForTreeBagging(group2_data);
+    all_data(size(group1_data,1)+1:size(group1_data,1)+size(group2_data,1),:) = group2_data;    
+elseif group2_data == 0
+    all_data = group1_data;   
 else
     all_data = group1_data;
     all_data(size(group1_data,1)+1:size(group1_data,1)+size(group2_data,1),:) = group2_data;

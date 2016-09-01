@@ -1,6 +1,6 @@
 function [accuracy,permute_accuracy,treebag,proxmat,features,trimmed_features] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,proximity_sub_limit,varargin)
 %ConstructModelTreeBag generates a model comprising ensembles of trees and 
-%examines the accuracy on data left out of the sample. One can select a
+%examines the accuracy on data left out of the sample. One ASD_EG_RFcan select a
 %number of permutations to generate permuted accuracy under the assumptions
 %of the null hypothesis (e.g. sets of null distributions of accuracy).
 %%%%INPUTS:%%%%%
@@ -206,30 +206,6 @@ save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','
 toc
 sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
 command_file = '/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py';
-if isempty(dir(command_file)) == 0
-    proxmat_sum = zeros(size(proxmat{1}));
-    for i = 1:max(size(proxmat))
-        proxmat_sum = proxmat_sum + proxmat{i};
-    end
-    save('proxmat_sum.mat','proxmat_sum');
-    outdir = pwd;
-    proxmatpath = strcat(outdir,'/proxmat_sum.mat ');
-    optionm = ' -m ';
-    optiono = ' -o ';
-    optionp = ' -p ';
-    for density = 0.05:0.05:1
-        outfoldname = strcat(outdir,'/community0p',num2str(density*100));
-        mkdir(outfoldname);
-        command = [command_file optionm proxmatpath optiono outfoldname optionp num2str(density)];
-        system(command);
-    end
-else
-    outdir = [];
-end
-nsubs_group1 = size(group1_data,1);
-nsubs_group2 = size(group2_data,1);
-groups = ones(nsubs_group1+nsubs_group2,1);
-groups(nsubs_group1+1:end,1) = 2;
-VisualizeTreeBaggingResults(strcat(filename,'.mat'),outdir,classification_method,groups,group1_data,group2_data);
+VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file);
 end
 

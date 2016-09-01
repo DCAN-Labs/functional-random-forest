@@ -1,12 +1,25 @@
-function VisualizeTreeBaggingResults(matfile,commdirectory,type,groups,group1_data,group2_data)
+function VisualizeTreeBaggingResults(matfile,output_directory,type,group1_data,group2_data,command_file)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
+nreps = 100;
+if exist('group2_data','var')
+    if isempty(group2_data)
+        group2_data = 0;
+    end
+else
+    group2_data = 0;
+end
+if isstruct(group1_data)
+    group1_data = struct2array(load(group1_data.path,group1_data.variable));
+end
+if isstruct(group2_data)
+    group2_data = struct2array(load(group2_data.path,group2_data.variable));
+end
 stuff = load(matfile);
 accuracy = stuff.accuracy;
 permute_accuracy = stuff.permute_accuracy;
 proxmat = stuff.proxmat;
 features = stuff.features;
-output_directory = strcat(matfile,'_output');
 mkdir(output_directory);
 switch(type)
     case('classification')
@@ -206,9 +219,8 @@ title('frequency of features used across all random forests','FontName','Arial',
 set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
-%if community detection was run properly, produce community detection plots
-if isempty(dir(strcat(commdirectory,'/community0p*'))) == 0
-    [community_matrix, sorting_order] = VisualizeCommunityDetection(commdirectory,groups,type);
+%incorporating newer community detection here:
+    [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(14);
@@ -257,7 +269,6 @@ if isempty(dir(strcat(commdirectory,'/community0p*'))) == 0
     title('normalized feature percentiles by subgroup','FontSize',24,'FontName','Arial','FontWeight','Bold');
     saveas(h,strcat(output_directory,'/features_by_subgroup_plot.tif'));
     save(strcat(output_directory,'/community_assignments.mat'),'community_matrix','community_matrix_sorted','sorting_order');
-end
 close all
 end
 

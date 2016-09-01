@@ -52,7 +52,7 @@ switch(type)
                 notempty = 1;
             end               
             if isempty(find(cellfun(@isnan, temp_data(i,:)) == 1)) && notempty
-                count = count + 1
+                count = count + 1;
                 subject_exclusion_list(i) = 1;
                 group_data(count,:) = temp_data(i,:);                
             end
