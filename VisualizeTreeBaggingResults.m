@@ -52,60 +52,38 @@ switch(type)
         text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/total_accuracy.tif'));
         hold
-%plot group1 accuracy second
-        h = figure(2);
-        acc_elements = hist(accuracy(2,:),nbins);
-        hist(accuracy(2,:),nbins);
+%plot group accuracies in a loop
+    for i = 2:size(accuracy,1);
+        h = figure(i);
+        acc_elements = hist(accuracy(i,:),nbins);
+        hist(accuracy(i,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(2,:),nbins);
-        hist(permute_accuracy(2,:),nbins);
+        perm_elements = hist(permute_accuracy(i,:),nbins);
+        hist(permute_accuracy(i,:),nbins);
         acc_h = findobj(gca,'Type','patch');
         permute_h = acc_h(1);
         acc_h = acc_h(2);
         set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlim([-0.025 1.025]);
-        xlabel('group1 accuracy','FontSize',20,'FontName','Arial','FontWeight','Bold');
+        xlabelstr = strcat('group',num2str(i-1),' -- accuracy');
+        xlabel(xlabelstr,'FontSize',20,'FontName','Arial','FontWeight','Bold');
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
-        title('observed and permuted accuracy distributions for the first group','FontSize',24,'FontName','Arial','FontWeight','Bold');
+        titlestr = strcat('observed and permuted accuracy distributions for group',num2str(i-1));
+        title(titlestr,'FontSize',24,'FontName','Arial','FontWeight','Bold');
         ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);        
         set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
         legend('accuracy','permuted accuracy');
         set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(2,:),permute_accuracy(2,:));
+        [~, P, CI, STATS] = ttest2(accuracy(i,:),permute_accuracy(i,:));
         if P == 0
             P = realmin;
         end
         text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
-        saveas(h,strcat(output_directory,'/group1_accuracy.tif'));
+        saveas(h,strcat(output_directory,'/group', num2str(i-1),'_accuracy.tif'));
         hold
-%generate group 2 accuracy third
-        h = figure(3);
-        acc_elements = hist(accuracy(3,:),nbins);
-        hist(accuracy(3,:),nbins);
-        hold
-        perm_elements = hist(permute_accuracy(3,:),nbins);
-        hist(permute_accuracy(3,:),nbins);
-        acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
-        set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
-        xlim([-0.025 1.025]);
-        xlabel('group2 accuracy','FontSize',20,'FontName','Arial','FontWeight','Bold');
-        ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
-        title('observed and permuted accuracy distributions for the first group','FontSize',24,'FontName','Arial','FontWeight','Bold');
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);       
-        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('accuracy','permuted accuracy');
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(3,:),permute_accuracy(3,:));
-        if P == 0
-            P = realmin;
-        end        
-        text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
-        saveas(h,strcat(output_directory,'/group2_accuracy.tif'));
-        hold
+    end
+    nfigures = i;
     case('regression')
 %plot observed and permuted regression results and print ttest results on figure itself
 %plot mean error first
@@ -193,13 +171,14 @@ switch(type)
         text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/ICC.tif'));
         hold
+        nfigures = 3;
 end
 %generate proximity matrix figure
 proxmat_sum = zeros(size(proxmat{1}));
 for i = 1:max(size(proxmat))
 proxmat_sum = proxmat_sum + proxmat{i};
 end
-h = figure(4);
+h = figure(1 + nfigures);
 imagesc(proxmat_sum./max(size(proxmat)));
 colormap(jet)
 xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -211,7 +190,7 @@ caxis([0 max(max(triu(proxmat_sum./max(size(proxmat)),1)))]);
 colorbar
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 %plot features used
-h = figure(5);
+h = figure(2 + nfigures);
 bar(features)
 xlabel('feature #','FontSize',20,'FontName','Arial','FontWeight','Bold');
 ylabel('# times used','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -223,7 +202,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
-    h = figure(14);
+    h = figure(3 + nfigures);
     imagesc(proxmat_sum_sorted./max(size(proxmat)));
     colormap(jet)
     xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -235,7 +214,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     colorbar
     saveas(h,strcat(output_directory,'/proximity_matrix_sorted.tif'));
     %visualize community matrix
-    h = figure(15);
+    h = figure(4 + nfigures);
     imagesc(community_matrix);
     colormap(colorcube)
     caxis([min(min(community_matrix)) max(max(community_matrix))]);
@@ -246,7 +225,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
     saveas(h,strcat(output_directory,'/community_matrix.tif'));
     %visualize sorted commmunity matrix
-    h = figure(16);
+    h = figure(5 + nfigures);
     community_matrix_sorted = community_matrix(sorting_order);
     imagesc(community_matrix_sorted);
     colormap(colorcube)

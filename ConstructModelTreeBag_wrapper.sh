@@ -12,10 +12,12 @@ if $disable_treebag; then disable_treebag='TreebagsOff'; else disable_treebag='N
 if $holdout; then holdout='Holdout'; else holdout='NONE'; fi
 if $npredictors; then npredictors='npredictors'; else npredictors='NONE'; fi
 if $estimate_predictors; then estimate_predictors='EstimatePredictors'; else estimate_predictors='NONE'; fi
-if $regression; then regression='Regression'; if $outcome_is_struct; then group1outcome="struct('path','"${group1outcome_path}"','variable','"${group1outcome_var}"')"; group2outcome="struct('path','"${group2outcome_path}"','variable','"${group2outcome_var}"')"; else group1outcome=$group1outcome_num; group2outcome=$group2outcome_num; fi; else regression='NONE'; group1outcome=0; group2outcome=0; fi
+if $regression; then regression='Regression'; else regression='NONE'; fi
+if $outcome_variable; then outcome_variable_exist='useoutcomevariable'; if $outcome_is_struct; then group1outcome="struct('path','"${group1outcome_path}"','variable','"${group1outcome_var}"')"; group2outcome="struct('path','"${group2outcome_path}"','variable','"${group2outcome_var}"')"; else group1outcome=$group1outcome_num; group2outcome=$group2outcome_num; fi; else group1outcome=0; group2outcome=0; fi
 if $surrogate; then surrogate='surrogate'; else surrogate='NONE'; fi
 if $group2_validate_only; then group2test='group2istestdata'; else group2test='NONE'; fi
 if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
+if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
 #If missing parameters, set defaults
 datasplit=${datasplit:-0.9}
 ntrees=${ntrees:-1000}
@@ -40,5 +42,6 @@ surrogate=${surrogate:-'NONE'}
 group2test=${group2test:-'NONE'}
 group1outcome=${group1outcome:-0}
 group2outcome=${group2outcome:-0}
+outcome_variable_exist=${outcome_variable_exist:-'NONE'}
 #Construct the model, which will save outputs to a filename.mat file
-matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"') ; exit"
+matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"') ; exit"

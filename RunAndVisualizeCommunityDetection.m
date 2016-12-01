@@ -31,7 +31,7 @@ optiono = ' -o ';
 optionp = ' -p ';
 optionu = ' -u ';
 commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
-for density = 0.05:0.05:1
+for density = .2:.05:1
     for i = 1:nreps
         outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
         mkdir(outfoldname); 

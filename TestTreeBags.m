@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
+function [accuracy,treebag,outofbag_error,outofbag_varimp,group1class,group2class] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('type','var') == 0
@@ -13,16 +13,32 @@ end
 numpredictors = 0;
 surrogate = 'off';
 prior = 'Empirical';
+testing_indexgroup1 = 0;
+testing_indexgroup2 = 0;
+ngroup1_substested = 0;
+ngroup2_substested = 0;
+group1class = 0;
+group2class = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
-            switch(varargin{i})
-                case('npredictors')
-                    numpredictors = varargin{i+1};
-                case('Surrogate')
-                    surrogate = varargin{i+1};
-                case('Prior')
-                    prior = varargin{i+1};
+            if ischar(varargin{i}) == 1 || max(size(varargin{i})) == 1
+                switch(varargin{i})
+                    case('npredictors')
+                        numpredictors = varargin{i+1};
+                    case('Surrogate')
+                        surrogate = varargin{i+1};
+                    case('Prior')
+                        prior = varargin{i+1};
+                    case('group1class')
+                        testing_indexgroup1 = varargin{i+1};
+                        ngroup1_substested = max(size(testing_indexgroup1));
+                        group1class = zeros(ngroup1_substested,1);
+                    case('group2class')
+                        testing_indexgroup2 = varargin{i+1};
+                        ngroup2_substested = max(size(testing_indexgroup2));
+                        group2class = zeros(ngroup2_substested,1);
+                end
             end
         end
     end
@@ -57,6 +73,7 @@ switch(type)
         else
             sprintf('%s',strcat('Optimization found! Number of trees: #',num2str(accuracy))) 
         end
+        outofbag_error = oobError(treebag);
     case('weight_trees')
         treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
         accuracy = zeros(ntrees,1);
@@ -66,9 +83,11 @@ switch(type)
             accuracy(i,1) = var(fitdist(double(accurate_classes),'Binomial'));
         end
     case('validation')
-        ngroups = size(unique(testing_groups),1);
+        ngroups_index = union(unique(testing_groups),unique(learning_groups));
+        ngroups = max(size(ngroups_index));
         treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
         outofbag_error = NaN;
+        outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
             predicted_classes = predict(treebag,testing_data);
             accuracy = zeros(3,1);
@@ -77,6 +96,15 @@ switch(type)
                 predicted_classes_new(blah) = str2num(predicted_classes{blah});
             end
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
+            temp_sub_index = 0;
+            for i = 1:ngroup1_substested
+                temp_sub_index = temp_sub_index + 1;
+                group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            end
+            for i = 1:ngroup2_substested
+                temp_sub_index = temp_sub_index + 1;
+                group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            end
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
             N = max(max(size(testing_groups)));
@@ -94,26 +122,100 @@ switch(type)
         else
             predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
             accuracy_prediction = predicted_classes == testing_groups;
-            accuracy = zeros(ngroups+1,1);
-            accuracy(1,1) = size(find(accuracy_prediction == 1),1)/size(testing_groups,1);
-            for n = 1:ngroups
-                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == n-1) == 1),1)/size(find(testing_groups == n-1),1);
+            temp_sub_index = 0;
+            for i = 1:ngroup1_substested
+                temp_sub_index = temp_sub_index + 1;
+                group1class(i) = accuracy_prediction(temp_sub_index);
             end
+            for i = 1:ngroup2_substested
+                temp_sub_index = temp_sub_index + 1;
+                group2class(i) = accuracy_prediction(temp_sub_index);
+            end
+            accuracy = zeros(ngroups+1,1);
+%            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
+            for n = 1:ngroups
+                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1)/size(find(testing_groups == ngroups_index(n)),1);
+                accuracy(1,1) = accuracy(1,1) + size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1);
+            end
+            accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
         end
     case('validation_weighted')
-        ngroups = size(unique(testing_groups),1);
+        ngroups_index = union(unique(testing_groups),unique(learning_groups));
+        ngroups = max(size(ngroups_index));        
         outofbag_error = NaN;
+        outofbag_varimp = NaN;
         predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights)));
-        accuracy_prediction = predicted_classes == testing_groups;
-        accuracy = zeros(ngroups+1,1);
-        accuracy(1,1) = size(find(accuracy_prediction == 1),1)/size(testing_groups,1);
-        for n = 1:ngroups
-            accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == n-1) == 1),1)/size(find(testing_groups == n-1),1);
-        end
+        if strcmp(varargin{1},'regression')
+            accuracy = zeros(3,1);
+            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
+            for blah = 1:max(max(size(predicted_classes)))
+                predicted_classes_new(blah) = str2num(predicted_classes{blah});
+            end
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end            
+			else
+				group2class = NaN;
+			end          
+            accuracy_prediction = abs(predicted_classes_new - testing_groups);
+            accuracy(1,1) = mean(accuracy_prediction);
+            accuracy(2,1) = corr(predicted_classes_new,testing_groups);
+            N = max(max(size(testing_groups)));
+            mean_all = (accuracy(1,1)+mean(testing_groups))/2;
+            nx1=0;
+            nx2=0;
+            nxpooled=0;
+            for i = 1:N
+                nx1=nx1+(testing_groups(i) - mean_all)^2;
+                nx2=nx2+(predicted_classes_new(i) - mean_all)^2;
+                nxpooled = nxpooled + ((predicted_classes_new(i) - mean_all)*(testing_groups(i) - mean_all));
+            end
+            s_squared = (nx1+nx2)/((2*N)-1);
+            accuracy(3,1) = nxpooled/(N*s_squared);
+        else
+            accuracy_prediction = predicted_classes == testing_groups;
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group2class = NaN;
+			end                
+            accuracy = zeros(ngroups+1,1);
+%            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
+            for n = 1:ngroups
+                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1)/size(find(testing_groups == ngroups_index(n)),1);
+                accuracy(1,1) = accuracy(1,1) + size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1);
+            end
+            accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
+        end        
     case('validationPlusOOB')
-        ngroups = size(unique(testing_groups),1);
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        ngroups_index = union(unique(testing_groups),unique(learning_groups));
+        ngroups = max(size(ngroups_index));
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','on','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
         outofbag_error = oobError(treebag);
+        outofbag_varimp = treebag.OOBPermutedVarDeltaError;
         if strcmp(varargin{1},'regression')
             predicted_classes = predict(treebag,testing_data);
             accuracy = zeros(3,1);
@@ -121,6 +223,23 @@ switch(type)
             for blah = 1:max(max(size(predicted_classes)))
                 predicted_classes_new(blah) = str2num(predicted_classes{blah});
             end
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end            
+			else
+				group2class = NaN;
+			end
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -139,21 +258,100 @@ switch(type)
         else
             predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
             accuracy_prediction = predicted_classes == testing_groups;
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group2class = NaN;
+			end            
             accuracy = zeros(ngroups+1,1);
-            accuracy(1,1) = size(find(accuracy_prediction == 1),1)/size(testing_groups,1);
+%            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
             for n = 1:ngroups
-                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == n-1) == 1),1)/size(find(testing_groups == n-1),1);
+                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1)/size(find(testing_groups == ngroups_index(n)),1);
+                accuracy(1,1) = accuracy(1,1) + size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1);
             end
+            accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
         end
     case('validationPlusOOB_weighted')
-        ngroups = size(unique(testing_groups),1);
+        ngroups_index = union(unique(testing_groups),unique(learning_groups));
+        ngroups = max(size(ngroups_index));
         predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights,'Surrogate',surrogate)));
-        accuracy_prediction = predicted_classes == testing_groups;
-        accuracy = zeros(ngroups+1,1);
-        accuracy(1,1) = size(find(accuracy_prediction == 1),1)/size(testing_groups,1);
-        for n = 1:ngroups
-            accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == n-1) == 1),1)/size(find(testing_groups == n-1),1);
-        end
+        if strcmp(varargin{1},'regression')
+            accuracy = zeros(3,1);
+            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
+            for blah = 1:max(max(size(predicted_classes)))
+                predicted_classes_new(blah) = str2num(predicted_classes{blah});
+            end
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end            
+			else
+				group2class = NaN;
+			end       
+            accuracy_prediction = abs(predicted_classes_new - testing_groups);
+            accuracy(1,1) = mean(accuracy_prediction);
+            accuracy(2,1) = corr(predicted_classes_new,testing_groups);
+            N = max(max(size(testing_groups)));
+            mean_all = (accuracy(1,1)+mean(testing_groups))/2;
+            nx1=0;
+            nx2=0;
+            nxpooled=0;
+            for i = 1:N
+                nx1=nx1+(testing_groups(i) - mean_all)^2;
+                nx2=nx2+(predicted_classes_new(i) - mean_all)^2;
+                nxpooled = nxpooled + ((predicted_classes_new(i) - mean_all)*(testing_groups(i) - mean_all));
+            end
+            s_squared = (nx1+nx2)/((2*N)-1);
+            accuracy(3,1) = nxpooled/(N*s_squared);
+        else
+            accuracy_prediction = predicted_classes == testing_groups;
+			temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group2class = NaN;
+			end              
+            accuracy = zeros(ngroups+1,1);
+%            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
+            for n = 1:ngroups
+                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1)/size(find(testing_groups == ngroups_index(n)),1);
+                accuracy(1,1) = accuracy(1,1) + size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1);
+            end
+            accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
+        end        
     case('EstimatePredictorsToSample')
         initial_predictors = numpredictors; %%change if you want to examine smaller numbers, can be used as an input to the function itself
         predictor_step = 20; %%change if you want to examine finer numbers -- lower numbers will slow the function
