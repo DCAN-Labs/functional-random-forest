@@ -265,7 +265,9 @@ if holdout == 0
                 npredictors_used = npredictors;
             end
             if (estimate_trees)
-                [ntrees_est,~,outofbag_error(i,:)] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                [ntrees_est,~,outofbag_error_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                size(outofbag_error_temp)
+                outofbag_error(i,1:length(outofbag_error_temp)) = outofbag_error_temp;
             else
                 ntrees_est = ntrees;
             end
@@ -366,7 +368,9 @@ if holdout == 0
                 testing_data = randperms(testing_data,nsubs_group2);
             end
             if (estimate_trees)
-                [ntrees_est,~,outofbag_error(i,:)] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                [ntrees_est,~,outofbag_error_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                size(outofbag_error_temp)
+                outofbag_error(i,1:length(outofbag_error_temp)) = outofbag_error_temp;
             else
                 ntrees_est = ntrees;
             end
@@ -484,7 +488,9 @@ else
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
                 if (estimate_trees)
-                    [ntrees_est,~,outofbag_error(i,:,j)] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                    [ntrees_est,~,outofbag_error_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                    size(outofbag_error_temp)
+                    outofbag_error(i,1:length(outofbag_error_temp),j) = outofbag_error_temp;
                 else
                     ntrees_est = ntrees;
                 end
@@ -561,7 +567,9 @@ else
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
                 if (estimate_trees)
-                    [ntrees_est,~,outofbag_error(i,:,j)] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                    [ntrees_est,~,outofbag_error_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'estimate_trees',0,0,categorical_vectors_to_use,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
+                    size(outofbag_error_temp)
+                    outofbag_error(i,1:length(outofbag_error_temp),j) = outofbag_error_temp;
                 else
                     ntrees_est = ntrees;
                 end
