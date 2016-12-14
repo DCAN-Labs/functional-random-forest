@@ -283,6 +283,79 @@ switch(type)
             end
             accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
         end
+    case('validation_OOBerror')
+        ngroups_index = union(unique(testing_groups),unique(learning_groups));
+        ngroups = max(size(ngroups_index));
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        outofbag_error = oobError(treebag);
+        outofbag_varimp = NaN;
+        if strcmp(varargin{1},'regression')
+            predicted_classes = predict(treebag,testing_data);
+            accuracy = zeros(3,1);
+            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
+            for blah = 1:max(max(size(predicted_classes)))
+                predicted_classes_new(blah) = str2num(predicted_classes{blah});
+            end
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+            	end            
+			else
+				group2class = NaN;
+			end
+            accuracy_prediction = abs(predicted_classes_new - testing_groups);
+            accuracy(1,1) = mean(accuracy_prediction);
+            accuracy(2,1) = corr(predicted_classes_new,testing_groups);
+            N = max(max(size(testing_groups)));
+            mean_all = (accuracy(1,1)+mean(testing_groups))/2;
+            nx1=0;
+            nx2=0;
+            nxpooled=0;
+            for i = 1:N
+                nx1=nx1+(testing_groups(i) - mean_all)^2;
+                nx2=nx2+(predicted_classes_new(i) - mean_all)^2;
+                nxpooled = nxpooled + ((predicted_classes_new(i) - mean_all)*(testing_groups(i) - mean_all));
+            end
+            s_squared = (nx1+nx2)/((2*N)-1);
+            accuracy(3,1) = nxpooled/(N*s_squared);
+        else
+            predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
+            accuracy_prediction = predicted_classes == testing_groups;
+            temp_sub_index = 0;
+			if testing_indexgroup1 ~= 0
+            	for i = 1:ngroup1_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group1class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group1class = NaN;
+			end
+			if testing_indexgroup2 ~= 0
+            	for i = 1:ngroup2_substested
+                	temp_sub_index = temp_sub_index + 1;
+                	group2class(i) = accuracy_prediction(temp_sub_index);
+            	end
+			else
+				group2class = NaN;
+			end            
+            accuracy = zeros(ngroups+1,1);
+%            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
+            for n = 1:ngroups
+                accuracy(n+1,1) = size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1)/size(find(testing_groups == ngroups_index(n)),1);
+                accuracy(1,1) = accuracy(1,1) + size(find(accuracy_prediction(testing_groups == ngroups_index(n)) == 1),1);
+            end
+            accuracy(1,1) = accuracy(1,1)/size(testing_groups,1);
+        end        
     case('validationPlusOOB_weighted')
         ngroups_index = union(unique(testing_groups),unique(learning_groups));
         ngroups = max(size(ngroups_index));
