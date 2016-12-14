@@ -36,4 +36,5 @@ surrogate=false #if set to true, missing data will be approximated using Brieman
 group2_validate_only=false #if set to true, and regression is enabled, group2 will be used as an independent validation data set. Use the holdouts group if you want to specify an independent dataset for classification
 uniform_priors=true #if set to true, RF algorithm will assume that the number of cases per class are the same in the population (i.e. 50% of the population is group1 and 50% is group2). If set to false, RF algorithm will estimate this probability from the inputs. Only impacts classification.
 use_unsupervised=false #if set to true, RF algorithm will generated unstructured data instead of using group2_data, use this to validate subgroups identified using a supervised approach
+matchgroups=false #if set to true, the groups will be matched when performing assessments. Use when uniform_priors still produces a biased model. Please note that the model will be constructed with less data.
 OOB_error=false #if set to true the out of bag error will be recorded per run, will increase ram and time dramatically

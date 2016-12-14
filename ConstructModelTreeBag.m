@@ -1,6 +1,6 @@
 function [accuracy,permute_accuracy,treebag,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_error,outofbag_varimp] = ConstructModelTreeBag(group1_data,group2_data,datasplit,nrepsCI,ntrees,nrepsPM,filename,proximity_sub_limit,varargin)
 %ConstructModelTreeBag generates a model comprising ensembles of trees and 
-%examines the accuracy on data left out of the sample. One ASD_EG_RFcan select a
+%examines the accuracy on data left out of the sample. One can select a
 %number of permutations to generate permuted accuracy under the assumptions
 %of the null hypothesis (e.g. sets of null distributions of accuracy).
 %%%%INPUTS:%%%%%
@@ -144,6 +144,8 @@ switch(size(varargin,2))
         [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24});
     case(25)
         [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25});                
+    case(26)
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26});                
 end
 if nrepsPM > 0
     tic
@@ -201,6 +203,8 @@ if nrepsPM > 0
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24});                 
             case(25)
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25});                 
+            case(26)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26});                 
         end
         if i == 1
             if (holdout)

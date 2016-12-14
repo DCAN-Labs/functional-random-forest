@@ -24,6 +24,7 @@ group2test = 0;
 prior = 'Empirical';
 independent_outcomes = 0;
 unsupervised = 0;
+matchgroups = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -99,6 +100,8 @@ if isempty(varargin) == 0
                 case('unsupervised')
                     group2_data = group1_data;
                     unsupervised = 1;
+                case('MatchGroups')
+                    matchgroups = 1;
             end
         end
     end
@@ -152,11 +155,21 @@ else
     npredictor_sets = NaN;
 end
 if nsubs_group1 >= nsubs_group2*10
+    sprintf('Groups are too unbalanced, will force group1 to be the size of group2 for model construction')
     matchsubs_group1 = nsubs_group2;
     matchsubs_group2 = nsubs_group2;
 elseif nsubs_group2 >= nsubs_group1*10
+    sprintf('Groups are too unbalanced, will force group2 to be the size of group1 for model construction')    
     matchsubs_group2 = nsubs_group1;
     matchsubs_group1 = nsubs_group1;
+elseif (matchgroups)
+    if nsubs_group1 > nsubs_group2
+        matchsubs_group2 = nsubs_group2;
+        matchsubs_group1 = nsubs_group2;
+    else
+        matchsubs_group2 = nsubs_group1;
+        matchsubs_group1 = nsubs_group1;
+    end
 else
     matchsubs_group1 = nsubs_group1;
     matchsubs_group2 = nsubs_group2;

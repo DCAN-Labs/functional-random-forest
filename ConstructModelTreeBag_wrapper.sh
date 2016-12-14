@@ -2,6 +2,20 @@
 
 #ConstructModelTreeBag_wrapper.sh requires a ParamFile as an input (e.g. ConstructModelTreeBag_wrapper.sh TreeBagParamFile_example.bash). See the TreeBagParamFile_example.bash for more information on available parameters.
 source $1
+#declare missing parameters that have logic flow as false -- correction 12/14/16
+outcome_variable_exist=${outcome_variable_exist:-'false'}
+matchgroups=${matchgroups:-'false'}
+OOB_error=${OOB_error:-'false'}
+holdout=${holdout:-'false'}
+estimate_trees=${estimate_trees:-'false'}
+weight_trees=${weight_trees:-'false'}
+trim_features=${trim_features:-'false'}
+estimate_predictors=${estimate_predictors:-'false'}
+estimate_treepred=${estimate_treepred:-'false'}
+regression=${regression:-'false'}
+surrogate=${surrogate:-'false'}
+group2test=${group2test:-'false'}
+fisher_z_transform=${fisher_z_transform:-'false'}
 #parameters set from the TreeBagParamFile
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
 if $estimate_trees; then estimate_trees='EstimateTrees'; else estimate_trees='NONE'; fi
@@ -20,32 +34,21 @@ if $surrogate; then surrogate='surrogate'; else surrogate='NONE'; fi
 if $group2_validate_only; then group2test='group2istestdata'; else group2test='NONE'; fi
 if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
 if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
-#If missing parameters, set defaults
+if $matchgroups; then matchgroups='MatchGroups'; else matchgroups='NONE'; fi
+#If missing other parameters, set defaults
 datasplit=${datasplit:-0.9}
 ntrees=${ntrees:-1000}
 nreps=${nreps:-1000}
 nperms=${nperms:-1}
 filename=${filename:-'thenamelessone'}
-estimate_trees=${estimate_trees:-'NONE'}
-weight_trees=${weight_trees:-'NONE'}
-trim_features=${trim_features:-'NONE'}
 nfeatures=${nfeatures:-0}
-fisher_z_transform=${fisher_z_transform:-'NONE'}
 disable_treebag=${disable_treebag:-'TreebagsOff'}
-OOB_error=${OOB_error:-'NONE'}
-holdout=${holdout:-'NONE'}
 holdout_data=${holdout_data:-'NONE'}
 group_holdout=${group_holdout:-0}
 proxsublimit_num=${proxsublimit_num:-500}
 npredictors=${npredictors:-'NONE'}
 num_predictors=${num_predictors:-0}
-estimate_predictors=${estimate_predictors:-'NONE'}
-estimate_treepred=${estimate_treepred:-'NONE'}
-regression=${regression:-'NONE'}
-surrogate=${surrogate:-'NONE'}
-group2test=${group2test:-'NONE'}
 group1outcome=${group1outcome:-0}
 group2outcome=${group2outcome:-0}
-outcome_variable_exist=${outcome_variable_exist:-'NONE'}
 #Construct the model, which will save outputs to a filename.mat file
-matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"') ; exit"
+matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"') ; exit"
