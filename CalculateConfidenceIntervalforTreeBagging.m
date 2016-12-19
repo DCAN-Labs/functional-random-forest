@@ -197,6 +197,15 @@ if holdout == 0
         testing_groups = group2_outcome;
         all_data = group1_data;
         all_data(end+1:end+size(group2_data,1),:) = group2_data;
+    elseif matchgroups
+         learning_groups = zeros(floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),1);
+        testing_groups = zeros(nsubs_group1 - (floor(matchsubs_group1*datasplit)) + nsubs_group2 - (floor(matchsubs_group2*datasplit)),1);
+        learning_groups(1:floor(matchsubs_group1*datasplit),1) = 0;
+        learning_groups(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),1) = 1;
+        testing_groups(1:nsubs_group1 - (floor(matchsubs_group1*datasplit)),1) = 0;
+        testing_groups(nsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:nsubs_group1 - (floor(matchsubs_group1*datasplit)) + nsubs_group2 - (floor(matchsubs_group2*datasplit)),1) = 1;
+        learning_data = zeros(floor(matchsubs_group1*datasplit) + floor(matchsubs_group2*datasplit),nvars);
+        testing_data = zeros(nsubs_group1 - floor(matchsubs_group1*datasplit) + nsubs_group2 - floor(matchsubs_group2*datasplit),nvars);       
     else
         learning_groups = zeros(floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),1);
         testing_groups = zeros(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),1);
@@ -234,12 +243,21 @@ if holdout == 0
                 rng('shuffle');
                 all_data = group1_data;
                 all_data(end+1:end+nsubs_group2,:) = group2_data;
-                group1_subjects = randperm(nsubs_group1,matchsubs_group1);
-                group2_subjects = randperm(nsubs_group2,matchsubs_group2);
-                resample_group1_data = group1_data(group1_subjects,:);
-                resample_group2_data = group2_data(group2_subjects,:);
-                testing_indexgroup1 = group1_subjects(floor(matchsubs_group1*datasplit)+1:matchsubs_group1);
-                testing_indexgroup2 = group2_subjects(floor(matchsubs_group2*datasplit)+1:matchsubs_group2);              
+                if matchgroups == 0
+                    group1_subjects = randperm(nsubs_group1,matchsubs_group1);
+                    group2_subjects = randperm(nsubs_group2,matchsubs_group2);
+                    resample_group1_data = group1_data(group1_subjects,:);
+                    resample_group2_data = group2_data(group2_subjects,:);
+                    testing_indexgroup1 = group1_subjects(floor(matchsubs_group1*datasplit)+1:matchsubs_group1);
+                    testing_indexgroup2 = group2_subjects(floor(matchsubs_group2*datasplit)+1:matchsubs_group2);   
+                else
+                    group1_subjects = randperm(nsubs_group1,nsubs_group1);
+                    group2_subjects = randperm(nsubs_group2,nsubs_group2);
+                    resample_group1_data = group1_data(group1_subjects,:);
+                    resample_group2_data = group2_data(group2_subjects,:);
+                    testing_indexgroup1 = group1_subjects(floor(matchsubs_group1*datasplit)+1:nsubs_group1);
+                    testing_indexgroup2 = group2_subjects(floor(matchsubs_group2*datasplit)+1:nsubs_group2);  
+                end                              
                 if (independent_outcomes)
                     resample_group1_outcome = group1_outcome(group1_subjects);
                     resample_group2_outcome = group2_outcome(group2_subjects);
@@ -262,10 +280,17 @@ if holdout == 0
                     resample_group2_data = perm2_data;
                     clear permall_data permall_data_temp perm1_data perm2_data
                 end
-                learning_data(1:floor(matchsubs_group1*datasplit),:) = resample_group1_data(1:floor(matchsubs_group1*datasplit),:);
-                learning_data(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),:) = resample_group2_data(1:floor(matchsubs_group2*datasplit),:);
-                testing_data(1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)),:) = resample_group1_data(floor(matchsubs_group1*datasplit)+1:matchsubs_group1,:);
-                testing_data(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),:) = resample_group2_data(floor(matchsubs_group2*datasplit)+1:matchsubs_group2,:);
+                if matchgroups
+                    learning_data(1:floor(matchsubs_group1*datasplit),:) = resample_group1_data(1:floor(matchsubs_group1*datasplit),:);
+                    learning_data(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),:) = resample_group2_data(1:floor(matchsubs_group2*datasplit),:);
+                    testing_data(1:nsubs_group1 - (floor(matchsubs_group1*datasplit)),:) = resample_group1_data(floor(matchsubs_group1*datasplit)+1:nsubs_group1,:);
+                    testing_data(nsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:nsubs_group1 - (floor(matchsubs_group1*datasplit)) + nsubs_group2 - (floor(matchsubs_group2*datasplit)),:) = resample_group2_data(floor(matchsubs_group2*datasplit)+1:nsubs_group2,:);
+                else
+                    learning_data(1:floor(matchsubs_group1*datasplit),:) = resample_group1_data(1:floor(matchsubs_group1*datasplit),:);
+                    learning_data(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),:) = resample_group2_data(1:floor(matchsubs_group2*datasplit),:);
+                    testing_data(1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)),:) = resample_group1_data(floor(matchsubs_group1*datasplit)+1:matchsubs_group1,:);
+                    testing_data(matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + 1:matchsubs_group1 - (floor(matchsubs_group1*datasplit)) + matchsubs_group2 - (floor(matchsubs_group2*datasplit)),:) = resample_group2_data(floor(matchsubs_group2*datasplit)+1:matchsubs_group2,:);
+                end
                 if (independent_outcomes)
                     learning_groups(1:floor(matchsubs_group1*datasplit),1) = resample_group1_outcome(1:floor(matchsubs_group1*datasplit),1);
                     learning_groups(floor(matchsubs_group1*datasplit)+1:floor(matchsubs_group1*datasplit)+floor(matchsubs_group2*datasplit),1) = resample_group2_outcome(1:floor(matchsubs_group2*datasplit),:);
