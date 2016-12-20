@@ -274,8 +274,13 @@ if holdout == 0
                     permall_data = resample_group1_data;
                     permall_data(size(resample_group1_data,1)+1:size(resample_group1_data,1)+size(resample_group2_data,1),:) = resample_group2_data;
                     permall_data_temp = permall_data(randperm(size(resample_group1_data,1)+size(resample_group2_data,1)),:);
-                    perm1_data = permall_data_temp(1:matchsubs_group1,:);
-                    perm2_data = permall_data_temp(matchsubs_group1+1:matchsubs_group1+matchsubs_group2,:);
+                    if matchgroups
+                        perm1_data = permall_data_temp(1:nsubs_group1,:);
+                        perm2_data = permall_data_temp(nsubs_group1+1:nsubs_group1+nsubs_group2,:);
+                    else
+                        perm1_data = permall_data_temp(1:matchsubs_group1,:);
+                        perm2_data = permall_data_temp(matchsubs_group1+1:matchsubs_group1+matchsubs_group2,:);
+                    end
                     resample_group1_data = perm1_data;
                     resample_group2_data = perm2_data;
                     clear permall_data permall_data_temp perm1_data perm2_data
