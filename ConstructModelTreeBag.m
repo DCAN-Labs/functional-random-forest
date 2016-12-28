@@ -76,6 +76,7 @@ if isempty(proximity_sub_limit)
     proximity_sub_limit = 500;
 end
 regression = 0;
+unsupervised = 0;
 classification_method='classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
@@ -87,6 +88,8 @@ if isempty(varargin) == 0
                 case('Regression')
                     regression = 1;
                     classification_method='regression';
+                case('unsupervised')
+                    unsupervised = 1;                    
             end
         end
     end
@@ -224,6 +227,16 @@ else
     permute_accuracy = NaN;
 end
 tic
+if unsupervised
+    proxmat_new = cell(length(proxmat),1);
+    nsubs = size(proxmat{1},1)/2;
+    for i = 1:length(proxmat)
+        proxmat_new{i} = proxmat{i}(1:nsubs,1:nsubs);
+    end
+    clear proxmat
+    proxmat = proxmat_new;
+    clear proxmat_new
+end
 save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','-v7.3');
 toc
 sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
