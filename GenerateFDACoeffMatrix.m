@@ -13,7 +13,7 @@ if ischar(datamat)
 end
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
-        if size(varargin{i},1) <= 1
+        if size(varargin{i},1) <= 1 && isstr(varargin{i})
             switch(varargin{i})
                 case('roundfactor')
                     roundfactor = varargin{i+1};
@@ -24,7 +24,7 @@ if isempty(varargin) == 0
                 case('number_knots')
                     nknots = varargin{i+1};
                 case('save_data')
-                    output_file = varargin{i+1};
+                    output_file = varargin{i+1}
                     save_data = 1;
                 case('EDA')
                     data_rangevector = varargin{i+1};

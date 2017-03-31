@@ -11,6 +11,9 @@ if isstruct(proxmat)
     clear proxmat
     proxmat_new = struct2cell(load(proxmat_old.path,proxmat_old.variable));
     proxmat = proxmat_new{1};
+    if isnumeric(proxmat)
+        proxmat = {proxmat};
+    end
     clear proxmat_new proxmat_old
 end
 lowdensity = 0.2;
@@ -85,8 +88,6 @@ commproxmat = commproxmat./ncomps;
 commproxpath = strcat(outdirpath,'commproxmat.mat');
 save(commproxpath,'commproxmat');
 outfoldname = strcat(outdirpath,'combined_infomap');
-outputcommpath = strcat(outdirpath,'final_community_assignments.mat');
-save(outputcommpath,'community','sorting_order');
 mkdir(outfoldname);
 command = [command_file optionu optionm commproxpath optiono outfoldname optionp num2str(1)];
 system(command);
@@ -94,4 +95,6 @@ commfile=dir(strcat(outfoldname,slashies,'community_detection',slashies,'*.txt')
 commdirplusfile=strcat(outfoldname,slashies,'community_detection',slashies,commfile.name);
 community = dlmread(commdirplusfile);
 [~,sorting_order] = sort(community,'ascend');
+outputcommpath = strcat(outdirpath,'final_community_assignments.mat');
+save(outputcommpath,'community','sorting_order');
 

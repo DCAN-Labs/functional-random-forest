@@ -41,8 +41,8 @@ for i = 1:nsubjects
             end
         else
             matched_ages = find(age_temp(1:max(size(age_temp))~=j) == age_temp(j));
-            median_val_temp = median(val_temp([j matched_ages]),'omitnan');
-            median_age_temp = median(age_temp([j matched_ages]),'omitnan');
+            median_val_temp = nanmedian(val_temp([j matched_ages]));
+            median_age_temp = nanmedian(age_temp([j matched_ages]));
             sparsedatamat(ages==age_temp(j),i) = median_val_temp;
             timemat(ages==age_temp(j),i) = median_age_temp;
             timebinmat(ages==age_round_temp(j),i) = age_round_temp(j);

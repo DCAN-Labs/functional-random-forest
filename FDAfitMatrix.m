@@ -58,7 +58,7 @@ for i = 1:nsubjects
     end
 end
 %calculate mean squared resiudals for timepoints
-rmsq_vector = mean(residmat,2,'omitnan');
+rmsq_vector = nanmean(residmat,2);
 % set up smoothing function
 rng = [min(min(timemat_new)),max(max(timemat_new))];
 stderrbasis_functions = create_bspline_basis(rng,size(min(timemat_new,[],2),1)+splinestructerr_norder-2,splinestructerr_norder,min(timemat_new,[],2));
