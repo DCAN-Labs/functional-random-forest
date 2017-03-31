@@ -8,3 +8,6 @@ filename=example_XCCvsUCC_output #the name of the output directory
 regression=false # if set to true, the algorithm will model a regression forest for a selected outcome variable.
 results_matfile=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/example_XCCvsUCC.mat # the path and filename of the .mat variable where the results are stored
 infomap_command_file=/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py # the path and filename of the simple_infomap python function built by Damion Demeter
+lowdensity=0.2 #used for community detection -- the lowest edge density to examine community structure
+stepdensity=0.05 #used for community detection -- the increment value for each edge density examined
+highdensity=1 #used for community detection -- highest edge density to examine community structure

@@ -7,6 +7,7 @@ end
 if isempty(proximity_sub_limit)
     proximity_sub_limit = 500;
 end
+
 estimate_trees = 0;
 weight_forest = 0;
 trim_features = 0;
@@ -25,6 +26,7 @@ prior = 'Empirical';
 independent_outcomes = 0;
 unsupervised = 0;
 matchgroups = 0;
+cross_valid = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -124,13 +126,21 @@ if independent_outcomes
         accuracy = zeros(3,nreps,max(size(holdout_data)));
     end
     if group2_data == 0
-        rng('shuffle');
-        nsubs = size(group1_data,1);
-        shuffled_subs = randperm(nsubs);
-        group2_data = group1_data(shuffled_subs(floor(nsubs/2)+1:end),:);
-        group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
-        group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
-        group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
+        if holdout == 0
+            rng('shuffle');
+            nsubs = size(group1_data,1);
+            shuffled_subs = randperm(nsubs);
+            group2_data = group1_data(shuffled_subs(floor(nsubs/2)+1:end),:);
+            group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
+            group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
+            group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
+        else
+            group2_data = group1_data(floor(nsubs/2)+1:end,:);
+            group1_data = group1_data(1:floor(nsubs/2),:);
+            group2_outcome = group1_outcome(floor(nsubs/2)+1:end);
+            group1_outcome = group1_outcome(1:floor(nsubs/2));
+            cross_valid = 1;
+        end
     end
 else
     accuracy = zeros(3,nreps,max(size(holdout_data)));
@@ -472,38 +482,63 @@ else
         testing_groups = zeros(ncomps_to_remove*2,1);
         testing_groups(1:ncomps_to_remove,1) = 0;
         testing_groups(ncomps_to_remove+1:ncomps_to_remove*2,1) = 1;
+        if cross_valid == 1
+            testing_indexgroup1 = data_to_remove(find(data_to_remove <= nsubs_group1));
+            if isempty(testing_indexgroup1)
+                group_holdout = 0;
+            else
+                group_holdout = 1;
+            end
+            testing_indexgroup2 = data_to_remove(find(data_to_remove - nsubs_group1 > 0)) - nsubs_group1;
+            if isempty(testing_indexgroup2) == 0
+                group_holdout = group_holdout + 2;
+            end
+        end
         if group_holdout == 1
             testing_indexgroup1 = data_to_remove;
-            index = true(1, size(group1_data, 1));
-            index(data_to_remove.') = false;
-            group1_data_holdout = group1_data(index, :);
+            index_group1 = true(1, size(group1_data, 1));
+            index_group1(data_to_remove.') = false;
+            group1_data_holdout = group1_data(index_group1, :);
             nsubs_group1_holdout = size(group1_data_holdout,1);
             nsubs_group2_holdout = nsubs_group2;
             group2_data_holdout = group2_data;
             matchsubs_group1_holdout = nsubs_group1_holdout;
             matchsubs_group2_holdout = matchsubs_group2;
-            learning_groups = zeros(matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,1);            
-            learning_groups(1:matchsubs_group1_holdout,1) = 0;
-            learning_groups(matchsubs_group1_holdout+1:matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,1) = 1;
-        else
+        elseif group_holdout == 2
             testing_indexgroup2 = data_to_remove;
-            index = true(1, size(group2_data, 1));
-            index(data_to_remove.') = false;
-            group2_data_holdout = group2_data(index, :);
+            index_group2 = true(1, size(group2_data, 1));
+            index_group2(data_to_remove.') = false;
+            group2_data_holdout = group2_data(index_group2, :);
             nsubs_group2_holdout = size(group2_data_holdout,1);
             nsubs_group1_holdout = nsubs_group1;
             group1_data_holdout = group1_data; 
             matchsubs_group2_holdout = nsubs_group2_holdout;
             matchsubs_group1_holdout = matchsubs_group1;
+        elseif group_holdout == 3
+            index_group1 = true(1, size(group1_data, 1));
+            index_group1(testing_indexgroup1.') = false;
+            group1_data_holdout = group1_data(index_group1, :);
+            nsubs_group1_holdout = size(group1_data_holdout,1);
+            matchsubs_group1_holdout = nsubs_group1_holdout;
+            index_group2 = true(1, size(group2_data, 1));
+            index_group2(testing_indexgroup2.') = false;
+            group2_data_holdout = group2_data(index_group2, :);
+            nsubs_group2_holdout = size(group2_data_holdout,1);
+            matchsubs_group2_holdout = nsubs_group2_holdout;           
+        end
+        if independent_outcomes == 0
             learning_groups = zeros(matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,1);            
             learning_groups(1:matchsubs_group1_holdout-ncomps_to_remove,1) = 0;
             learning_groups(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,1) = 1;
+        else
+            learning_groups = zeros(matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,1);
+            learning_groups(1:matchsubs_group1_holdout-ncomps_to_remove,1) = group1_outcome(index_group1)
         end
-        learning_data = zeros(matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,nvars);
+            learning_data = zeros(matchsubs_group1_holdout + matchsubs_group2_holdout - ncomps_to_remove,nvars);            
         tic
         if nsubs_group1_holdout + nsubs_group2_holdout <= proximity_sub_limit
             all_data = group1_data;
-            all_data(end+1:end+nsubs_group2_holdout,:) = group2_data;
+            all_data(end+1:end+nsubs_group2,:) = group2_data;
             for i = 1:nreps
                 rng('shuffle');
                 group1_subjects = randperm(nsubs_group1_holdout,matchsubs_group1_holdout);

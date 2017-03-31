@@ -1,7 +1,24 @@
-function VisualizeTreeBaggingResults(matfile,output_directory,type,group1_data,group2_data,command_file)
+function VisualizeTreeBaggingResults(matfile,output_directory,type,group1_data,group2_data,command_file,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 nreps = 100;
+lowdensity = 0.2;
+highdensity = 1;
+stepdensity = 0.05;
+if isempty(varargin) == 0
+    for i = 1:size(varargin,2)
+        if isstruct(varargin{i}) == 0
+            switch(varargin{i})
+                case('LowDensity')
+                    lowdensity = varargin{i+1};
+                case('HighDensity')
+                    highdensity = varargin{i+1};
+                case('StepDensity')
+                    stepdensity = varargin{i+1};
+            end
+        end
+    end
+end
 if exist('group2_data','var')
     if isempty(group2_data)
         group2_data = 0;
@@ -199,7 +216,7 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
 %incorporating newer community detection here:
-    [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps);
+    [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(3 + nfigures);

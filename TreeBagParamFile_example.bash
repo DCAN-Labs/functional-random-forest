@@ -38,3 +38,6 @@ uniform_priors=true #if set to true, RF algorithm will assume that the number of
 use_unsupervised=false #if set to true, RF algorithm will generated unstructured data instead of using group2_data, use this to validate subgroups identified using a supervised approach
 matchgroups=false #if set to true, the groups will be matched when performing assessments. Use when uniform_priors still produces a biased model. Please note that the model will be constructed with less data.
 OOB_error=false #if set to true the out of bag error will be recorded per run, will increase ram and time dramatically
+lowdensity=0.2 #used for community detection -- the lowest edge density to examine community structure
+stepdensity=0.05 #used for community detection -- the increment value for each edge density examined
+highdensity=1 #used for community detection -- highest edge density to examine community structure
