@@ -32,12 +32,16 @@ if isempty(varargin) == 0
                         prior = varargin{i+1};
                     case('group1class')
                         testing_indexgroup1 = varargin{i+1};
-                        ngroup1_substested = max(size(testing_indexgroup1));
-                        group1class = zeros(ngroup1_substested,1);
+                        if testing_indexgroup1 > 0
+                            ngroup1_substested = max(size(testing_indexgroup1));
+                            group1class = zeros(ngroup1_substested,1);
+                        end
                     case('group2class')
                         testing_indexgroup2 = varargin{i+1};
-                        ngroup2_substested = max(size(testing_indexgroup2));
-                        group2class = zeros(ngroup2_substested,1);
+                        if testing_indexgroup2 > 0
+                            ngroup2_substested = max(size(testing_indexgroup2));
+                            group2class = zeros(ngroup2_substested,1);
+                        end
                 end
             end
         end

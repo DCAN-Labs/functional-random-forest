@@ -1,6 +1,9 @@
-function [ functional_data_group, functional_data_ind, subject_use_flag] = FDAfitMatrix(datamat,timemat,splinestructdata_norder,splinestructerr_norder,matrix_type,nsteps,filename)
+function [ functional_data_group, functional_data_ind, subject_use_flag] = FDAfitMatrix(datamat,timemat,splinestructdata_norder,splinestructerr_norder,matrix_type,nsteps,filename,timemulti)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
+if exist('timemulti','var') == 0
+    timemulti = 5;
+end
 [max_timepoints,nsubjects]=size(datamat);
 functional_data_ind = cell(nsubjects,1);
 functional_data_group = cell(nsubjects,1);
@@ -10,7 +13,7 @@ if exist('nsteps','var') == 0
 end
 if strcmp(matrix_type,'cardinal')
     time_range = [min(min(timemat)) max(max(timemat))];
-    splinestruct_data.knots = time_range(1):(time_range(2)-time_range(1))/(nsteps-1):time_range(2);
+    splinestruct_data.knots = round(time_range(1):(time_range(2)-time_range(1))/(nsteps-1):time_range(2));
     splinestruct_data.norder = splinestructdata_norder;
     splinestruct_data.nbasis = length(splinestruct_data.knots)+splinestruct_data.norder-2;
 end
@@ -50,7 +53,7 @@ for i = 1:nsubjects
             splinestruct_data.norder = splinestructdata_norder;
             splinestruct_data.nbasis = length(splinestruct_data.knots)+splinestruct_data.norder-2;
         end
-        functional_data_ind{i} = FDAfit(datavector_temp,timevector_temp,splinestruct_data,'simple');
+        functional_data_ind{i} = FDAfit(datavector_temp,timevector_temp,splinestruct_data,'simple',1e-1,[],[],timemulti);
         residmat(isnan(datamat_new(:,count_subject))==0,count_subject) = functional_data_ind{i}.residuals.^2;
         count_subject = count_subject + 1;
     else
@@ -58,11 +61,17 @@ for i = 1:nsubjects
     end
 end
 %calculate mean squared resiudals for timepoints
-rmsq_vector = nanmean(residmat,2);
+for i = 1:size(residmat,1)
+    rmsq_vector(i,1) = mean(residmat(i,(isnan(residmat(i,:)) == 0)));
+end
 % set up smoothing function
 rng = [min(min(timemat_new)),max(max(timemat_new))];
-stderrbasis_functions = create_bspline_basis(rng,size(min(timemat_new,[],2),1)+splinestructerr_norder-2,splinestructerr_norder,min(timemat_new,[],2));
-functional_data_initial_weight = fd(zeros(size(min(timemat_new,[],2),1)+splinestructerr_norder-2,1),stderrbasis_functions);
+error_norder = splinestructerr_norder - 2;
+if error_norder < 1
+    error_norder = 1;
+end
+stderrbasis_functions = create_bspline_basis(rng,size(min(timemat_new,[],2),1)+error_norder,splinestructerr_norder,min(timemat_new,[],2));
+functional_data_initial_weight = fd(zeros(size(min(timemat_new,[],2),1)+error_norder,1),stderrbasis_functions);
 % smooth the mean squared residuals
 L_functional_data_object = 1;
 lambda = 1e-3;
@@ -87,7 +96,7 @@ for i = 1:nsubjects
                 splinestruct_data.nbasis = length(splinestruct_data.knots)+splinestruct_data.norder-2;
             end
                 weight_vector_temp = weight_vector(isnan(datamat_new(:,count_subject))==0);
-                functional_data_group{i} = FDAfit(datavector_temp,timevector_temp,splinestruct_data,'simple',lambda,[],weight_vector_temp);
+                functional_data_group{i} = FDAfit(datavector_temp,timevector_temp,splinestruct_data,'simple',lambda,[],weight_vector_temp,timemulti);
         catch
             sprintf(strcat('cannot estimate subject #',num2str(i)))
             functional_data_group{i} = [];
@@ -99,6 +108,8 @@ for i = 1:nsubjects
     end
 end
 if exist('filename','var')
-    save(filename,functional_data_group, functional_data_ind, subject_use_flag);
+    if isempty(filename) == 0
+        save(filename,functional_data_group, functional_data_ind, subject_use_flag);
+    end
 end
 end

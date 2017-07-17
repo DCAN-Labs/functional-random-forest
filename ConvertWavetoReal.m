@@ -17,7 +17,12 @@ for i = 1:nsubs
     end
     index = index + length(age_cols);
 end
-rawdatamat(1,:) = header([id_col gender_col 3 length(age_cols)+3:length(age_cols)+5]);
+rawdatamat(1,:) = header([id_col gender_col 3 length(age_cols)+3:length(age_cols)+2+data_perage_cols]);
 rawdatamat(2:end,:) = num2cell(datamat);
+try
 xlswrite(outputfilename,rawdatamat);
+catch
+    sprintf('error: could not write file');
+end
+end
 

@@ -1,4 +1,5 @@
 
+
 function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(excel_file,output_mat,header,string_cols,type)
 %PrepExcelSheetForTreeBagging will produce a matrix with data ready for
 %using ConstructModelTreebag
@@ -40,7 +41,7 @@ if (header)
 end
 switch(type)
     case ('surrogate')
-        group_data = cellfun(@ReplaceWhiteWithNaN,rawdata,'UniformOutput',0);
+        group_data = cellfun(@ReplaceWhiteWithNaN,rawdata,'UniformOutput',false);
         subject_exclusion_list = NaN;
     case ('no_surrogate')
         subject_exclusion_list = zeros(1,size(rawdata,1));
@@ -51,7 +52,7 @@ switch(type)
             if isempty(find(cellfun(@isempty, temp_data(i,:)) == 1))
                 notempty = 1;
             end               
-            if isempty(find(cellfun(@isnan, temp_data(i,:)) == 1)) && notempty
+            if isempty(find(cellfun(@(x) strcmp(char(num2str((x))),'NaN'),temp_data(i,:)) == 1)) && notempty
                 count = count + 1;
                 subject_exclusion_list(i) = 1;
                 group_data(count,:) = temp_data(i,:);                
@@ -66,4 +67,5 @@ if nargin > 3 && isempty(string_cols) == 0
 end
 save(output_mat,'group_data');
 end
+
 

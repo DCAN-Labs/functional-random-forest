@@ -2,9 +2,13 @@
 dataspreadsheet=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis/example_data.xls #path and filename where excel spreadsheet of data is located. This should be in a long format (each timepoint from each subject is a different row)
 agecol=2 #the column number for the variable containing the ages.
 idcol=1 #the column number for the variable containing subject IDs
+use_time_range=true #used to check subjects to make sure the first and last time points are acquired at the same time point, use the time_flex flag to force participants to have their curves registered to the anchor points
+    low_time=8 #lowest time point measured (e.g. 8 years old)
+    high_time=14 #highest time point measured (e.g. 14 years old)
+    time_range_flex=1 #per case, this will register participants who do not have the lowest or highest time point measured but are within the range specified by the time_range_flex number -- use with extreme caution. Set to zero if you do not want to use it.
 roundfactor=0 #the number of decimal places used to "bin" age. Default is to bin by integers (0).
-norder_data=6 #the spline order for estimating data trajectories.
-norder_error=3 #the spline order for estimating the penalties for the spline fits
+norder_data=4 #the spline order for estimating data trajectories.
+norder_error=2 #the spline order for estimating the penalties for the spline fits
 number_knots=4 #the number of "knots" fixed points in the spline function that cannot be altered -- must be greater than two in order to provide anchors for the trajectory fit.
 EDA=true # perform exploratory data analysis to rule out bad trajectory fits.
     low_trajectory=0 # if EDA is set to true, any trajectories that dip below this threshold will be excluded
