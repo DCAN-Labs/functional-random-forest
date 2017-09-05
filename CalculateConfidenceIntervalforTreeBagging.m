@@ -126,19 +126,25 @@ if independent_outcomes
         accuracy = zeros(3,nreps,max(size(holdout_data)));
     end
     if group2_data == 0
+        %edited code to remove the random shuffle here, please report if
+        %errors or odd results occur.
+        %rng('shuffle');
+        %shuffled_subs = randperm(nsubs);
+        nsubs = size(group1_data,1);
+        group2_data = group1_data(floor(nsubs/2)+1:end,:);
+        group1_data = group1_data(1:floor(nsubs/2),:);
+        group2_outcome = group1_outcome(floor(nsubs/2)+1:end);
+        group1_outcome = group1_outcome(1:floor(nsubs/2));
         if holdout == 0
-            rng('shuffle');
-            nsubs = size(group1_data,1);
-            shuffled_subs = randperm(nsubs);
-            group2_data = group1_data(shuffled_subs(floor(nsubs/2)+1:end),:);
-            group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
-            group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
-            group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
+%            group2_data = group1_data(shuffled_subs(floor(nsubs/2)+1:end),:);
+%            group1_data = group1_data(shuffled_subs(1:floor(nsubs/2)),:);
+%            group2_outcome = group1_outcome(shuffled_subs(floor(nsubs/2)+1:end));
+%            group1_outcome = group1_outcome(shuffled_subs(1:floor(nsubs/2)));
         else
-            group2_data = group1_data(floor(nsubs/2)+1:end,:);
-            group1_data = group1_data(1:floor(nsubs/2),:);
-            group2_outcome = group1_outcome(floor(nsubs/2)+1:end);
-            group1_outcome = group1_outcome(1:floor(nsubs/2));
+%            group2_data = group1_data(floor(nsubs/2)+1:end,:);
+%            group1_data = group1_data(1:floor(nsubs/2),:);
+%            group2_outcome = group1_outcome(floor(nsubs/2)+1:end);
+%            group1_outcome = group1_outcome(1:floor(nsubs/2));
             cross_valid = 1;
         end
     end

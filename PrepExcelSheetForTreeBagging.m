@@ -1,5 +1,3 @@
-
-
 function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(excel_file,output_mat,header,string_cols,type)
 %PrepExcelSheetForTreeBagging will produce a matrix with data ready for
 %using ConstructModelTreebag

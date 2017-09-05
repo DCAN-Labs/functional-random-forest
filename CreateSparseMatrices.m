@@ -57,19 +57,20 @@ for i = 1:nsubjects
     age_temp = age(id==id_temp);
     age_round_temp = age_round(id==id_temp);
     val_temp = val(id==id_temp);
+    age_check = age_round_temp(isnan(val_temp)==0);
     if isnan(time_range(1)) == 0
-        [min_age_temp,min_age_index] = min(age_round_temp);
+        [min_age_temp,min_age_index] = min(age_check);
         if time_range(1) > min_age_temp
-            [~,new_min_index] = min(abs(age_round_temp - time_range(1)));
+            [~,new_min_index] = min(abs(age_check - time_range(1)));
             if new_min_index ~= min_age_index
-                age_temp = age_temp(age_round_temp >= age_round_temp(new_min_index));
-                val_temp = val_temp(age_round_temp >= age_round_temp(new_min_index));
-                age_round_temp = age_round_temp(age_round_temp >= age_round_temp(new_min_index));
+                age_temp = age_temp(age_round_temp >= age_check(new_min_index));
+                val_temp = val_temp(age_round_temp >= age_check(new_min_index));
+                age_round_temp = age_round_temp(age_round_temp >= age_check(new_min_index));
             end
         elseif time_range(1) < min_age_temp
             temp_flex = min_age_temp - time_range(1);
             if time_range_flex > temp_flex
-                age_round_temp(min_age_index) = min_age_temp + temp_flex;
+                age_round_temp(age_round_temp == age_check(min_age_index)) = min_age_temp - temp_flex;
                 anchor_subjects(i) = anchor_subjects(i) + 1;
             else
                 use_subject = 0;
@@ -77,18 +78,18 @@ for i = 1:nsubjects
         end
     end                           
     if isnan(time_range(2)) == 0
-        [max_age_temp,max_age_index] = max(age_round_temp);
+        [max_age_temp,max_age_index] = max(age_check);
         if time_range(2) < max_age_temp
-            [~,new_max_index] = max(abs(time_range(2) - age_round_temp));
+            [~,new_max_index] = max(abs(time_range(2) - age_check));
             if new_max_index ~= max_age_index
-                age_temp = age_temp(age_round_temp >= age_round_temp(new_max_index));
-                val_temp = val_temp(age_round_temp >= age_round_temp(new_max_index));
-                age_round_temp = age_round_temp(age_round_temp >= age_round_temp(new_max_index));
+                age_temp = age_temp(age_round_temp >= age_check(new_max_index));
+                val_temp = val_temp(age_round_temp >= age_check(new_max_index));
+                age_round_temp = age_round_temp(age_round_temp >= age_check(new_max_index));
             end
         elseif time_range(2) > max_age_temp
             temp_flex = time_range(2) - max_age_temp;
             if time_range_flex > temp_flex
-                age_round_temp(max_age_index) = min_age_temp + temp_flex;
+                age_round_temp(age_round_temp == age_check(max_age_index)) = max_age_temp + temp_flex;
                 anchor_subjects(i) = anchor_subjects(i) + 2;
             else
                 use_subject = 0;
