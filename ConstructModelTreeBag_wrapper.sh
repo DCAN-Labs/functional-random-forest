@@ -16,6 +16,7 @@ regression=${regression:-'false'}
 surrogate=${surrogate:-'false'}
 group2test=${group2test:-'false'}
 fisher_z_transform=${fisher_z_transform:-'false'}
+cross_validate=${cross_validate:-'true'}
 #parameters set from the TreeBagParamFile
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
 if $estimate_trees; then estimate_trees='EstimateTrees'; else estimate_trees='NONE'; fi
@@ -35,11 +36,13 @@ if $group2_validate_only; then group2test='group2istestdata'; else group2test='N
 if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
 if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
 if $matchgroups; then matchgroups='MatchGroups'; else matchgroups='NONE'; fi
+if $cross_validate; then cv='CrossValidate'; else cv='NONE'; fi
 #If missing other parameters, set defaults
 datasplit=${datasplit:-0.9}
-ntrees=${ntrees:-1000}
-nreps=${nreps:-1000}
-nperms=${nperms:-1}
+ntrees=${ntrees:-10000}
+nreps=${nreps:-3}
+nfolds=${nfolds:-10}
+nperms=${nperms:-0}
 filename=${filename:-'thenamelessone'}
 nfeatures=${nfeatures:-0}
 disable_treebag=${disable_treebag:-'TreebagsOff'}
@@ -54,4 +57,4 @@ lowdensity=${lowdensity:-0.2}
 stepdensity=${stepdensity:-0.05}
 highdensity=${highdensity:-1}
 #Construct the model, which will save outputs to a filename.mat file
-matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity") ; exit"
+matlab -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds") ; exit"

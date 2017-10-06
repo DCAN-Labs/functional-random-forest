@@ -81,6 +81,7 @@ classification_method='classification';
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
+cross_validation = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -98,7 +99,9 @@ if isempty(varargin) == 0
                 case('HighDensity')
                     highdensity = varargin{i+1};
                 case('StepDensity')
-                    stepdensity = varargin{i+1};                    
+                    stepdensity = varargin{i+1};
+                case('CrossValidate')
+                    cross_validation = 1;
             end
         end
     end
@@ -167,9 +170,13 @@ switch(size(varargin,2))
     case(30)
         [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30});  
     case(31)
-        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30});  
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31});  
     case(32)
-        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31});          
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32});          
+    case(33)
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33});          
+    case(34)
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34});          
 end
 if nrepsPM > 0
     tic
@@ -241,6 +248,10 @@ if nrepsPM > 0
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31});                 
             case(32)
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32});                 
+            case(32)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33});                 
+            case(32)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34});
         end
         if i == 1
             if (holdout)
@@ -258,6 +269,10 @@ if nrepsPM > 0
     toc
 else
     permute_accuracy = NaN;
+end
+if cross_validation
+    permute_accuracy = accuracy(:,:,:,2);
+    accuracy = accuracy(:,:,:,1);
 end
 tic
 if unsupervised
