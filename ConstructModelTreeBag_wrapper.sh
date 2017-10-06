@@ -16,6 +16,7 @@ regression=${regression:-'false'}
 surrogate=${surrogate:-'false'}
 group2test=${group2test:-'false'}
 fisher_z_transform=${fisher_z_transform:-'false'}
+cross_validate=${cross_validate:-'true'}
 #parameters set from the TreeBagParamFile
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
 if $estimate_trees; then estimate_trees='EstimateTrees'; else estimate_trees='NONE'; fi
@@ -35,11 +36,13 @@ if $group2_validate_only; then group2test='group2istestdata'; else group2test='N
 if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
 if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
 if $matchgroups; then matchgroups='MatchGroups'; else matchgroups='NONE'; fi
+if $cross_validate; then cv='CrossValidate'; else cv='NONE'; fi
 #If missing other parameters, set defaults
 datasplit=${datasplit:-0.9}
-ntrees=${ntrees:-1000}
-nreps=${nreps:-1000}
-nperms=${nperms:-1}
+ntrees=${ntrees:-10000}
+nreps=${nreps:-3}
+nfolds=${nfolds:-10}
+nperms=${nperms:-0}
 filename=${filename:-'thenamelessone'}
 nfeatures=${nfeatures:-0}
 disable_treebag=${disable_treebag:-'TreebagsOff'}
