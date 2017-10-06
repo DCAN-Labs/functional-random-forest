@@ -9,9 +9,9 @@ if $regression; then regression='Regression'; else regression='classification'; 
 #If missing parameters, set defaults
 filename=${filename:-'thenamelessone'}
 regression=${regression:-'Classification'}
-infomap_command_file=${infomap_command_file:-'/group_shares/PSYCH/code/release/utilities/simple_infomap/simple_infomap.py'}
+infomap_command_file=${infomap_command_file:-'/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py'}
 lowdensity=${lowdensity:-0.2}
 stepdensity=${stepdensity:-0.05}
 highdensity=${highdensity:-1}
 #Construct the model, which will save outputs to a filename.mat file
-matlab14b -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Analysis') ; VisualizeTreeBaggingResults('"$results_matfile"','"$filename"','"$regression"',struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data",'"$infomap_command_file"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity"); exit"
+matlab -nodisplay -nosplash -singleCompThread -r "addpath('/group_shares/fnl/bulk/code/internal/analyses/RFAnalysis') ; VisualizeTreeBaggingResults('"$results_matfile"','"$filename"','"$regression"',struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data",'"$infomap_command_file"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity"); exit"

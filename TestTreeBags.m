@@ -19,6 +19,7 @@ ngroup1_substested = 0;
 ngroup2_substested = 0;
 group1class = 0;
 group2class = 0;
+class_method = 'classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -42,6 +43,8 @@ if isempty(varargin) == 0
                             ngroup2_substested = max(size(testing_indexgroup2));
                             group2class = zeros(ngroup2_substested,1);
                         end
+                    case('regression')
+                        class_method = 'regression';
                 end
             end
         end
@@ -54,7 +57,7 @@ switch(type)
     case('estimate_trees')
         initial_trees = 50; %%change if you want to examine smaller numbers, generally at least 50 trees will be needed for most weak classifiers
         tree_step = 10; %%change if you want to examine finer numbers -- lower numbers will slow the function
-        treebag = TreeBagger(initial_trees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior', 'Uniform');
+        treebag = TreeBagger(initial_trees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior', 'Uniform','Method',class_method);
         optimize = 0;
         outofbag_error_first = oobError(treebag);
         outofbag_error_first = outofbag_error_first(end);
@@ -79,7 +82,7 @@ switch(type)
         end
         outofbag_error = oobError(treebag);
     case('weight_trees')
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
         accuracy = zeros(ntrees,1);
         for i = 1:ntrees
             prediction_classes = str2num(cell2mat(predict(treebag,treebag.X,'Trees',i)));
@@ -89,7 +92,7 @@ switch(type)
     case('validation')
         ngroups_index = union(unique(testing_groups),unique(learning_groups));
         ngroups = max(size(ngroups_index));
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','off','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
         outofbag_error = NaN;
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
@@ -217,9 +220,9 @@ switch(type)
     case('validationPlusOOB')
         ngroups_index = union(unique(testing_groups),unique(learning_groups));
         ngroups = max(size(ngroups_index));
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','on','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','on','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
         outofbag_error = oobError(treebag);
-        outofbag_varimp = treebag.OOBPermutedVarDeltaError;
+        outofbag_varimp = treebag.OOBPermutedPredictorDeltaError;
         if strcmp(varargin{1},'regression')
             predicted_classes = predict(treebag,testing_data);
             accuracy = zeros(3,1);
@@ -290,7 +293,7 @@ switch(type)
     case('validation_OOBerror')
         ngroups_index = union(unique(testing_groups),unique(learning_groups));
         ngroups = max(size(ngroups_index));
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',numpredictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
         outofbag_error = oobError(treebag);
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
@@ -433,7 +436,7 @@ switch(type)
         initial_predictors = numpredictors; %%change if you want to examine smaller numbers, can be used as an input to the function itself
         predictor_step = 20; %%change if you want to examine finer numbers -- lower numbers will slow the function
         limit_nodice = 5;
-        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',initial_predictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+        treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',initial_predictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
         nvars = size(learning_data,2);
         outofbag_error_first = oobError(treebag);
         outofbag_error_first = outofbag_error_first(end);
@@ -442,7 +445,7 @@ switch(type)
         final_predictors = initial_predictors + predictor_step;
         count = 0;
         while final_predictors <= nvars && count < limit_nodice
-            treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',final_predictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior);
+            treebag = TreeBagger(ntrees,learning_data,learning_groups,'OOBVarImp','off','OOBPred','on','NVarToSample',final_predictors,'CategoricalPredictors',categorical_vector,'Surrogate',surrogate,'Prior',prior,'Method',class_method);
             outofbag_error_second = oobError(treebag);
             outofbag_error_second = outofbag_error_second(end);
             if outofbag_error_second < optimal_prediction
