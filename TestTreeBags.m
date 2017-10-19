@@ -108,12 +108,8 @@ switch(type)
         outofbag_error = NaN;
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
-            predicted_classes = predict(treebag,testing_data);
+            predicted_classes_new = predict(treebag,testing_data);
             accuracy = zeros(3,1);
-            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
-            for blah = 1:max(max(size(predicted_classes)))
-                predicted_classes_new(blah) = str2num(predicted_classes{blah});
-            end
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             temp_sub_index = 0;
             for i = 1:ngroup1_substested
@@ -163,13 +159,9 @@ switch(type)
         ngroups = max(size(ngroups_index));        
         outofbag_error = NaN;
         outofbag_varimp = NaN;
-        predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights)));
         if strcmp(varargin{1},'regression')
+            predicted_classes_new = predict(treebag,testing_data,'TreeWeights',treeweights);
             accuracy = zeros(3,1);
-            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
-            for blah = 1:max(max(size(predicted_classes)))
-                predicted_classes_new(blah) = str2num(predicted_classes{blah});
-            end
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
             	for i = 1:ngroup1_substested
@@ -203,6 +195,7 @@ switch(type)
             s_squared = (nx1+nx2)/((2*N)-1);
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
+            predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights)));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -240,12 +233,8 @@ switch(type)
         outofbag_error = oobError(treebag);
         outofbag_varimp = treebag.OOBPermutedPredictorDeltaError;
         if strcmp(varargin{1},'regression')
-            predicted_classes = predict(treebag,testing_data);
+            predicted_classes_new = predict(treebag,testing_data);
             accuracy = zeros(3,1);
-            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
-            for blah = 1:max(max(size(predicted_classes)))
-                predicted_classes_new(blah) = str2num(predicted_classes{blah});
-            end
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
             	for i = 1:ngroup1_substested
@@ -317,12 +306,8 @@ switch(type)
         outofbag_error = oobError(treebag);
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
-            predicted_classes = predict(treebag,testing_data);
+            predicted_classes_new = predict(treebag,testing_data);
             accuracy = zeros(3,1);
-            predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
-            for blah = 1:max(max(size(predicted_classes)))
-                predicted_classes_new(blah) = str2num(predicted_classes{blah});
-            end
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
             	for i = 1:ngroup1_substested

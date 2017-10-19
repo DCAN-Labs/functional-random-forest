@@ -119,7 +119,7 @@ end
 if iscell(group2_data)
     [categorical_vector, group2_data] = ConvertCelltoMatrixforTreeBagging(group2_data);
 end
-if holdout == 0
+if holdout ~= 1
     holdout_data = 0;
 end
 if independent_outcomes
@@ -719,18 +719,22 @@ elseif holdout == 1
     end
 elseif holdout==2 %WARNING cross-validate carries its own parameters and will overwrite everything else
         tic
-        accuracy = zeros(3,nfolds,nreps,2);
         all_data = group1_data;
         all_data(end+1:end+size(group2_data,1),:) = group2_data; 
         group1_subjects = 1:size(group1_data,1);
         group2_subjects = 1:size(group2_data,1);
         all_outcomes = group1_outcome;
         all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
+        if regression
+            accuracy = zeros(3,nfolds,nreps,2);
+        else
+            accuracy = zeros(length(unique(all_outcomes))+1,nfolds,nreps,2);
+        end
         proxmat = cell(nreps*nfolds,1);
         prox_count = 0;
     for i = 1:nreps
         rng('Shuffle');
-        permuted_outcomes = all_outcomes(randperm(length(permuted_outcomes),length(permuted_outcomes)));
+        permuted_outcomes = all_outcomes(randperm(length(all_outcomes),length(all_outcomes)));
         folds = cvpartition(all_outcomes,'KFold',nfolds);
         for curr_fold = 1:nfolds
             prox_count = prox_count + 1;
@@ -743,7 +747,13 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             test_outcomes = all_outcomes(testing_selection,:);
             test_perm_outcomes = permuted_outcomes(testing_selection,:);
             testing_indexgroup1 = group1_subjects(testing_selection(1:length(group1_subjects)));
+            if isempty(testing_indexgroup1)
+                testing_indexgroup1 = 0;
+            end
             testing_indexgroup2 = group2_subjects(testing_selection(length(group1_subjects)+1:end));
+            if isempty(testing_indexgroup2)
+                testing_indexgroup2 = 0;
+            end
             if (trim_features)
                 [~,~,trimmed_features] = KSFeatureTrimmer(all_data,test_outcomes,nfeatures);
                 trimmed_feature_sets(i,:) = trimmed_features;
