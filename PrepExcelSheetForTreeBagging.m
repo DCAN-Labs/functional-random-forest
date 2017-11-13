@@ -1,11 +1,12 @@
 function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(excel_file,output_mat,header,string_cols,type)
 %PrepExcelSheetForTreeBagging will produce a matrix with data ready for
 %using ConstructModelTreebag
-%   USAGE: group_data =
-%   PrepExcelSheetForTreeBagging('/path/to/excel/file.xlsx',/path/to/output/file.maccuracyat',header,string_cols)
+%   USAGE: [group_data, subject_exclusion_list] = 
+%   PrepExcelSheetForTreeBagging('/path/to/excel/file.xlsx',...
+%   .../path/to/output/file.mat',header,string_cols,type)
 %
 %   INPUTS:
-%           excel_file -- a string that represents the path and full/Treebagger/Treebagger_UCI/01_SandmanMatch/UCI_MatchSand_
+%           excel_file -- a string that represents the path and full
 %           filename for the excel file to read in
 %
 %           output_mat -- a string that represents the path and full
@@ -17,6 +18,22 @@ function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(exc
 %           string_cols -- a vector of numbers, where each number indicates
 %           a column that should be represented as a string (and not as a
 %           number)
+%
+%           type -- a character string; either “surrogate” if missing data 
+%           cases are to be included. “no_surrogate” if one wants to exclude 
+%           any cases with missing data.
+%   OUTPUTS:
+%           group_data -- an output cell matrix that contains the data to
+%           be used in RFAnalysis.
+%
+%           subject_exclusion_list -- a numerical array of length N, where 
+%           N is the number of subjects. Each item denotes whether the 
+%           given row of the original data is excluded (0) or included (1)
+% Example:
+% PrepExcelSheetForTreeBagging(...
+% ...'C:\Users\feczko\Documents\test_data_for_running_RF.xlsx',...
+% ...'testing_siemens_data.mat',1,[2 10 11 12],'surrogate')
+
 if exist('type','var') == 0
     type = 'no_surrogate';
 end

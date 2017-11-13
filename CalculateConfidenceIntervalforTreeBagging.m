@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -480,7 +480,8 @@ if holdout == 0
             sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
         end
         group1class = group1class./group1class_tested;
-        group2class = group2class./group2class_tested;   
+        group2class = group2class./group2class_tested;
+        final_data = all_data;
     end
     toc
 elseif holdout == 1
@@ -628,7 +629,8 @@ elseif holdout == 1
                 sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
             end
             group1class = group1class./group1class_tested;
-            group2class = group2class./group2class_tested;            
+            group2class = group2class./group2class_tested;
+            final_data = all_data;
         else
             for i = 1:nreps
                 rng('shuffle');
@@ -713,12 +715,40 @@ elseif holdout == 1
                 sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
             end
             group1class = group1class./group1class_tested;
-            group2class = group2class./group2class_tested;            
+            group2class = group2class./group2class_tested;
+            final_data = all_data;
         end
         toc    
     end
 elseif holdout==2 %WARNING cross-validate carries its own parameters and will overwrite everything else
         tic
+        if matchgroups
+            all_data_start = group1_data;
+            all_data_start(end+1:end+size(group2_data,1),:) = group2_data; 
+            all_outcomes_start = group1_outcome;
+            all_outcomes_start(end+1:end+size(group2_data,1),1) = group2_outcome;
+            unique_outcomes = unique(all_outcomes_start);
+            nsubs_by_outcome = zeros(length(unique_outcomes),1);
+            all_data = group1_data(1,:);
+            all_outcomes = group1_outcome(1);
+            for curr_outcome = 1:length(unique_outcomes)
+                nsubs_by_outcome(curr_outcome) = length(find(all_outcomes_start == unique_outcomes(curr_outcome)));
+            end
+            smallest_outcome = min(nsubs_by_outcome);
+            for curr_outcome = 1:length(unique_outcomes)
+                subject_index = find(all_outcomes_start == unique_outcomes(curr_outcome));
+                subs_to_use = subject_index(randperm(nsubs_by_outcome(curr_outcome),smallest_outcome));
+                all_data(end:end-1+length(subs_to_use),:) = all_data_start(subs_to_use,:);
+                all_outcomes(end:end-1+length(subs_to_use),:) = all_outcomes_start(subs_to_use,:);
+            end
+            nsubs = size(all_data,1);
+            group2_data = all_data(floor(nsubs/2)+1:end,:);
+            group1_data = all_data(1:floor(nsubs/2),:);
+            group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
+            group1_outcome = all_outcomes(1:floor(nsubs/2));
+        end
+        proxmat = cell(nreps*nfolds,1);
+        prox_count = 0;
         all_data = group1_data;
         all_data(end+1:end+size(group2_data,1),:) = group2_data; 
         group1_subjects = 1:size(group1_data,1);
@@ -729,9 +759,7 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             accuracy = zeros(3,nfolds,nreps,2);
         else
             accuracy = zeros(length(unique(all_outcomes))+1,nfolds,nreps,2);
-        end
-        proxmat = cell(nreps*nfolds,1);
-        prox_count = 0;
+        end        
     for i = 1:nreps
         rng('Shuffle');
         permuted_outcomes = all_outcomes(randperm(length(all_outcomes),length(all_outcomes)));
@@ -812,7 +840,8 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
         end      
     end
     group1class = group1class./group1class_tested;
-    group2class = group2class./group2class_tested;      
+    group2class = group2class./group2class_tested; 
+    final_data=all_data;
 toc             
 end
 end
