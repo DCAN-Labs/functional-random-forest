@@ -37,11 +37,41 @@ accuracy = stuff.accuracy;
 permute_accuracy = stuff.permute_accuracy;
 proxmat = stuff.proxmat;
 features = stuff.features;
+plot_performance_by_subgroups = 0;
+try
+    oob_error = stuff.outofbag_error;
+catch
+    warning('out of bag (OOB) error variable not found. Skipping OOB error visualization');
+    oob_error = NaN;
+end
+try
+    oob_varimp = stuff.outofbag_varimp;
+catch
+    warning('out of bag (OOB) variable importance measure not found. Skipping OOB variable importance visualization');
+    oob_varimp = NaN;
+end
+try
+    group1class = stuff.group1class;
+    group2class = stuff.group2class;
+    allclass = [group1class ; group2class];
+    plot_performance_by_subgroups = 1;
+catch
+    warning('could not find subject specific accuracy variable. Skipping individual and subgroup accuracy visualizations');
+end
+outcomes_recorded = 0;
 mkdir(output_directory);
 switch(type)
     case('classification')
 %plot accuracy and permuted accuracy print ttest results on figure itself
 %plot total accuracy first
+        try
+            final_outcomes = stuff.final_outcomes;
+            outcomes_recorded = 1;
+        catch
+            warning('final outcomes values are not found. community detection will operate on entire matrix');
+            final_outcomes = NaN;
+        end
+        PlotTitle = {'Total'};
         nbins = 0:0.025:1;
         h = figure(1);
         acc_elements = hist(accuracy(1,:),nbins);
@@ -66,11 +96,13 @@ switch(type)
         if P == 0
             P = realmin;
         end
+        Pvalues(1) = P;
         text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/total_accuracy.tif'));
         hold
 %plot group accuracies in a loop
     for i = 2:size(accuracy,1);
+        PlotTitle(end+1) = {strcat('group',num2str(i-1))};
         h = figure(i);
         acc_elements = hist(accuracy(i,:),nbins);
         hist(accuracy(i,:),nbins);
@@ -96,11 +128,14 @@ switch(type)
         if P == 0
             P = realmin;
         end
+        Pvalues(i) = P;
         text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/group', num2str(i-1),'_accuracy.tif'));
         hold
     end
     nfigures = i;
+    BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    nfigures = nfigures + 1;
     case('regression')
 %plot observed and permuted regression results and print ttest results on figure itself
 %plot mean error first
@@ -130,7 +165,8 @@ switch(type)
         [~, P, CI, STATS] = ttest2(accuracy(1,:),permute_accuracy(1,:));
         if P == 0
             P = realmin;
-        end        
+        end
+        Pvalues(1) = P;
         text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/mean_error.tif'));    
         hold
@@ -157,7 +193,8 @@ switch(type)
         [~, P, CI, STATS] = ttest2(accuracy(2,:),permute_accuracy(2,:));
         if P == 0
             P = realmin;
-        end        
+        end
+        Pvalues(2) = P;
         text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/correlation.tif'));
         hold
@@ -185,10 +222,13 @@ switch(type)
         if P == 0
             P = realmin;
         end
+        Pvalues(3) = P;
         text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
         saveas(h,strcat(output_directory,'/ICC.tif'));
         hold
         nfigures = 3;
+        BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        nfigures = nfigures + 1;
 end
 %generate proximity matrix figure
 proxmat_sum = zeros(size(proxmat{1}));
@@ -255,7 +295,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     saveas(h,strcat(output_directory,'/community_matrix_sorted.tif'));
     %visualize use of features
     feature_matrix=GenerateSubgroupFeatureMatrix(community_matrix,group1_data,group2_data);
-    h=figure(17);
+    h=figure(6 + nfigures);
     errorbar(repmat(1:size(feature_matrix,1),size(feature_matrix,2),1).',feature_matrix(:,:,2),feature_matrix(:,:,2) - feature_matrix(:,:,1),feature_matrix(:,:,3) - feature_matrix(:,:,2))
     xlabel('feature #','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('percentile of feature','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -264,7 +304,131 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     legend('toggle','Location','Best')
     title('normalized feature percentiles by subgroup','FontSize',24,'FontName','Arial','FontWeight','Bold');
     saveas(h,strcat(output_directory,'/features_by_subgroup_plot.tif'));
-    save(strcat(output_directory,'/community_assignments.mat'),'community_matrix','community_matrix_sorted','sorting_order');
+%generate community performance metric and visualization
+    community_labels = unique(community_matrix);
+    ncommunities = length(community_labels);
+    community_performance = cell(ncommunities,1);
+    for iter = 1:ncommunities
+        community_performance{iter} = allclass(community_matrix == community_labels(iter))';
+        PlotTitle_comm{iter} = strcat('subgroup',num2str(iter));
+        Pvalues_comm(iter) = mean(community_performance{iter});
+    end
+    save(strcat(output_directory,'/community_assignments.mat'),'community_matrix','community_matrix_sorted','sorting_order','community_performance');    
+    BOMDPlot('InputData',community_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+%if the outcome measure is in the output file AND supervised classification was selected, subgroup detection will also be performed on the initial groups
+%this can help identify subgroups that may be hidden by the overarching
+%group distinctions
+if outcomes_recorded == 1
+    if (length(proxmat_sum) == length(final_outcomes))
+    subgroup_community_assignments = cell(length(proxmat_sum),1);
+    subgroup_community_num = zeros(length(proxmat_sum),2);
+    subgroups = unique(final_outcomes);
+    nsubgroups = length(subgroups);
+    proxmat_subgroups = cell(nsubgroups,1);
+    subgroup_index = cell(nsubgroups,1);
+    subgroup_communities = cell(nsubgroups,1);
+    subgroup_sorting_orders = cell(nsubgroups,1);
+    sub_index = 1;
+    for iter = 1:nsubgroups
+        subgroup_index(iter) = {find(final_outcomes == subgroups(iter))};
+        subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,1) = iter;
+        proxmat_subgroups(iter) = {proxmat_sum(subgroup_index{iter},subgroup_index{iter})};
+        [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity);
+        subgroup_community_assignments(sub_index:length(subgroup_index{iter})+sub_index-1,1) = cellstr( [repmat(strcat('G',num2str(iter),'_'),length(community_matrix_temp),1),num2str(community_matrix_temp(sorting_order_temp))]);        
+        subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,2) = community_matrix_temp(sorting_order_temp);    
+        subgroup_communities{iter} = community_matrix_temp;
+        subgroup_sorting_orders{iter} = sorting_order_temp;
+        sub_index = sub_index + length(subgroup_index{iter});
+    end
+    proxmat_subgroup_sorted = proxmat_sum;
+    curr_row = 1;
+    for row_group = 1:nsubgroups
+        row_index = subgroup_index{row_group};
+        last_row = length(row_index) + curr_row - 1;
+        curr_col = 1;
+        for col_group = 1:nsubgroups
+            col_index = subgroup_index{col_group};
+            last_col = length(col_index) + curr_col - 1;
+            proxmat_subgroup_sorted(curr_row:last_row,curr_col:last_col) = proxmat_sum(row_index(subgroup_sorting_orders{row_group}),col_index(subgroup_sorting_orders{col_group}));
+            curr_col = last_col + 1;
+        end
+        curr_row = last_row + 1;
+    end
+%visualize subgroup sorted proximity matrix
+    h = figure(7 + nfigures);
+    imagesc(proxmat_subgroup_sorted./max(size(proxmat)));
+    colormap(jet)
+    xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    title('proximity matrix sorted by subgroup','FontName','Arial','FontSize',24,'FontWeight','Bold');
+    set(gca,'FontName','Arial','FontSize',18);
+    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+    caxis([0 max(max(triu(proxmat_subgroup_sorted./max(size(proxmat)),1)))]);
+    colorbar
+    saveas(h,strcat(output_directory,'/proximity_matrix_sorted_by_subgroup.tif'));
+%visualize sorted commmunity matrix
+    h = figure(8 + nfigures);
+    imagesc(subgroup_community_num);
+    colormap(colorcube)
+    caxis([min(min(subgroup_community_num)) max(max(subgroup_community_num))]);
+    xlabel('group type','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    title('subgroups identified by random forests','FontName','Arial','FontSize',24,'FontWeight','Bold');
+    set(gca,'FontName','Arial','FontSize',18);
+    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+    saveas(h,strcat(output_directory,'/community_matrix_sorted_by_subgroup.tif'));
+%check the status of subgroup performance variables, check against existing
+%subgroups and generate performance visualizations by subgroup    
+%save subgroup analysis
+    community_subgroup_performance = cell(nsubgroups,1);
+    subplot_count = 0;    
+    for iter = 1:nsubgroups
+        subgroup_index = find(subgroup_community_num(:,1) == iter);
+        community_labels_subgroups{iter} = unique(subgroup_community_num(subgroup_index,2));
+        ncommunities_subgroups{iter} = length(community_labels_subgroups{iter});
+        community_subgroup_performance{iter} = cell(ncommunities,1);
+        for iter_comm = 1:ncommunities_subgroups{iter}
+            subplot_count = subplot_count + 1;
+            temp_comms = community_labels_subgroups{iter}(iter_comm);
+            community_subgroup_performance_temp{iter_comm} = allclass(subgroup_community_num(subgroup_index,2) == temp_comms)';
+            PlotTitle_comm{subplot_count} = strcat('subgroup','_G',num2str(iter),'_S',num2str(iter_comm));
+            Pvalues_comm(subplot_count) = mean(community_subgroup_performance_temp{iter_comm});
+        end
+        community_subgroup_performance{iter} = {community_subgroup_performance_temp};
+        clear community_subgroup_performance_temp
+    end
+    if length(Pvalues_comm) > 6
+        BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',12,'TitleFont',14,'AxisFont',12,'ThinLineWidth',3,'ThickLineWidth',6);
+    else
+        BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);  
+    end
+    save(strcat(output_directory,'/subgroup_community_assignments.mat'),'proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance');
+    end
+end
+%check the status of out of bag variables, generate visualizations if they
+%indeed exist.
+if isnan(oob_varimp(1)) == 0
+    h = figure(nfigures + 10);
+    bar(outofbag_varimp)
+    xlabel('input variable #','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    ylabel('variable importance','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    title('variable importance plot','FontName','Arial','FontSize',24,'FontWeight','Bold');
+    set(gca,'FontName','Arial','FontSize',18);
+    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+    saveas(h,strcat(output_directory,'/variable_importance.tif'));    
+end
+if isnan(oob_error(1)) == 0
+    h = figure(nfigures + 11);
+    plot(outofbag_error,'LineWidth',3)
+    xlabel('# of trees','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    ylabel('OOB error (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
+    title('out of bag error by # of trees','FontName','Arial','FontSize',24,'FontWeight','Bold');
+    set(gca,'FontName','Arial','FontSize',18);
+    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+    saveas(h,strcat(output_directory,'/OOB_error.tif'));     
+end
+
+
 close all
 end
 

@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,final_outcomes] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -27,6 +27,7 @@ independent_outcomes = 0;
 unsupervised = 0;
 matchgroups = 0;
 cross_valid = 0;
+final_outcomes = NaN;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -278,6 +279,7 @@ if holdout == 0
                     testing_indexgroup2 = group2_subjects(floor(matchsubs_group2*datasplit)+1:nsubs_group2);  
                 end                              
                 if (independent_outcomes)
+                    final_outcomes = [group1_outcome; group2_outcome];
                     resample_group1_outcome = group1_outcome(group1_subjects);
                     resample_group2_outcome = group2_outcome(group2_subjects);
                 end
@@ -367,7 +369,8 @@ if holdout == 0
             sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
         end
         group1class = group1class./group1class_tested;
-        group2class = group2class./group2class_tested;       
+        group2class = group2class./group2class_tested;
+        final_data = all_data;        
     else
         for i = 1:nreps
             if (unsupervised)
@@ -401,6 +404,7 @@ if holdout == 0
                 all_data = group1_data(sort(group1_subjects),:);
                 all_data(end+1:end+matchsubs_group2,:) = group2_data(sort(group2_subjects),:);  
                 if (independent_outcomes)
+                    final_outcomes = [group1_outcome; group2_outcome];                    
                     resample_group1_outcome = group1_outcome(group1_subjects);
                     resample_group2_outcome = group2_outcome(group2_subjects);
                 end
@@ -747,6 +751,30 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
             group1_outcome = all_outcomes(1:floor(nsubs/2));
         end
+        if unsupervised
+            group2_data = group1_data;
+            nsubs_group1 = size(group1_data,1);
+            nsubs_group2 = nsubs_group1;
+            rng('shuffle');
+            all_vector = 1:nsubs_group2;
+            group1_outcome = ones(nsubs_group1,1);
+            group2_outcome = ones(nsubs_group2,1) + 1;
+            group2_data_temp = zeros(size(group2_data,1),size(group2_data,2));
+            group2_data_temp(:,1) = group2_data(:,1);
+            for subject_index = 1:nsubs_group2
+                subject_vector = all_vector(find(all_vector ~= subject_index));
+                for feature_index = 2:nvars
+                    new_subject = subject_vector(randi(length(subject_vector)));
+                    subject_vector = subject_vector(find(subject_vector ~= new_subject));
+                    group2_data_temp(subject_index,feature_index) = group2_data(new_subject,feature_index);
+                    if isempty(subject_vector)
+                        sprintf('%s','number of features greater than number of subjects, unsupervised alogrithm will be partially supervised');
+                        subject_vector = all_vector(find(all_vector ~= subject_index));
+                    end
+                end
+            end
+           group2_data = group2_data_temp;            
+        end
         proxmat = cell(nreps*nfolds,1);
         prox_count = 0;
         all_data = group1_data;
@@ -755,6 +783,7 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
         group2_subjects = 1:size(group2_data,1);
         all_outcomes = group1_outcome;
         all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
+        final_outcomes = all_outcomes;
         if regression
             accuracy = zeros(3,nfolds,nreps,2);
         else
