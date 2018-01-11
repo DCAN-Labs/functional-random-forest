@@ -11,3 +11,5 @@ infomap_command_file=/group_shares/fnl/bulk/code/internal/utilities/simple_infom
 lowdensity=0.2 #used for community detection -- the lowest edge density to examine community structure
 stepdensity=0.05 #used for community detection -- the increment value for each edge density examined
 highdensity=1 #used for community detection -- highest edge density to examine community structure
+infomapfile=/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap #the full path and filename for the Infomap executable, must be installed from http://mapequation.org
+repopath=/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis #the full path to the repository containing the RFAnalysis code.

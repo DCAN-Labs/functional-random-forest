@@ -5,6 +5,7 @@ nreps = 100;
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
+infomapfile='/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -15,6 +16,8 @@ if isempty(varargin) == 0
                     highdensity = varargin{i+1};
                 case('StepDensity')
                     stepdensity = varargin{i+1};
+                case('InfomapFile')
+					infomapfile = varargin{i+1};
             end
         end
     end
@@ -256,7 +259,7 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
 %incorporating newer community detection here:
-    [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity);
+    [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(3 + nfigures);
@@ -333,7 +336,7 @@ if outcomes_recorded == 1
         subgroup_index(iter) = {find(final_outcomes == subgroups(iter))};
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,1) = iter;
         proxmat_subgroups(iter) = {proxmat_sum(subgroup_index{iter},subgroup_index{iter})};
-        [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity);
+        [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
         subgroup_community_assignments(sub_index:length(subgroup_index{iter})+sub_index-1,1) = cellstr( [repmat(strcat('G',num2str(iter),'_'),length(community_matrix_temp),1),num2str(community_matrix_temp(sorting_order_temp))]);        
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,2) = community_matrix_temp(sorting_order_temp);    
         subgroup_communities{iter} = community_matrix_temp;

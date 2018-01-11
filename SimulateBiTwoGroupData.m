@@ -1,4 +1,4 @@
-function [group1_data, group2_data] = SimulateTwoBiGroupData(group1_subjectsize,group2_subjectsize,effsizegroup,effsizesubgroup1,effsizesubgroup2)
+function [group1_data, group2_data] = SimulateBiTwoGroupData(group1_subjectsize,group2_subjectsize,effsizegroup,effsizesubgroup1,effsizesubgroup2)
 %SimulateTwoGroupData will generate learning and testing datasets to use for
 %constructing a model and predicting the model for two groups only
 %   Inputs:

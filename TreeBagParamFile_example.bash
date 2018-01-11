@@ -6,6 +6,7 @@ use_group2_data=true #if set to true, the dataset for the second group will be s
 group2path=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/unrelated_MBM.mat #path and filename where group2's data is located
 group2var=U_CC #the name of the variable within group2's matrix (.mat) file
 fisher_z_transform=false #if set to true, the data will be fisher Z transformed before running the classification algorithm. May be useful when working with correlations as inputs (e.g. from a correlation matrix)
+repopath=/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis #the full path to the repository containing the RFAnalysis code.
 
 ##required outputs and parameters
 filename=example_XCCvsUCC #the name of the output matrix (.mat) file
@@ -58,4 +59,4 @@ estimate_treepred=false # if set to true, the algorithm will estimate the number
 lowdensity=0.2 #used for community detection -- the lowest edge density to examine community structure
 stepdensity=0.05 #used for community detection -- the increment value for each edge density examined
 highdensity=1 #used for community detection -- highest edge density to examine community structure
-
+infomapfile=/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap #the full path and filename for the Infomap executable, must be installed from http://mapequation.org

@@ -19,6 +19,7 @@ end
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
+infomapfile='/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -29,6 +30,8 @@ if isempty(varargin) == 0
                     highdensity = varargin{i+1};
                 case('StepDensity')
                     stepdensity = varargin{i+1};
+                case('InfomapFile')
+					infomapfile = varargin{i+1};
             end
         end
     end
@@ -58,12 +61,13 @@ optionm = ' -m ';
 optiono = ' -o ';
 optionp = ' -p ';
 optionu = ' -u ';
+optioni = ' -i ';
 commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
 for density = lowdensity:stepdensity:highdensity
     for i = 1:nreps
         outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
         mkdir(outfoldname); 
-        command = [command_file optionu optionm proxmatpath optiono outfoldname optionp num2str(density)];
+        command = [command_file optionu optionm proxmatpath optiono outfoldname optionp num2str(density) optioni infomapfile];
         system(command);        
         temp = num2str(density,'%2.2f');
         density_str=temp(strfind(temp,'.')+1:end);
