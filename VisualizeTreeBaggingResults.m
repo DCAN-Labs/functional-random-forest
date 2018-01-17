@@ -63,6 +63,7 @@ catch
 end
 outcomes_recorded = 0;
 mkdir(output_directory);
+Pvalues = size(accuracy,1);
 switch(type)
     case('classification')
 %plot accuracy and permuted accuracy print ttest results on figure itself
@@ -80,27 +81,41 @@ switch(type)
         acc_elements = hist(accuracy(1,:),nbins);
         hist(accuracy(1,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(1,:),nbins);
-        hist(permute_accuracy(1,:),nbins);
-        acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        if isnan(permute_accuracy) == 0
+            perm_elements = hist(permute_accuracy(1,:),nbins);
+            hist(permute_accuracy(1,:),nbins);
+            acc_h = findobj(gca,'Type','patch');
+            permute_h = acc_h(1);
+            acc_h = acc_h(2);
+            set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);            
+        else
+            acc_h = findobj(gca,'Type','patch');
+        end
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlim([-0.025 1.025]);
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        if isnan(permute_accuracy) == 0
+            ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        else
+            ylim([0 max(acc_elements)*1.2 ]);
+        end
         xlabel('total accuracy','FontSize',20,'FontName','Arial','FontWeight','Bold');
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('observed and permuted accuracy distributions across both groups','FontSize',24,'FontName','Arial','FontWeight','Bold');       
         set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('accuracy','permuted accuracy'); 
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(1,:),permute_accuracy(1,:));
-        if P == 0
-            P = realmin;
+        if isnan(permute_accuracy) == 0
+            legend('accuracy','permuted accuracy'); 
+        else
+            legend('accuracy');
         end
-        Pvalues(1) = P;
-        text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        if isnan(permute_accuracy) == 0
+            [~, P, CI, STATS] = ttest2(accuracy(1,:),permute_accuracy(1,:));
+            if P == 0
+                P = realmin;
+            end
+            Pvalues(1) = P;
+            text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        end
         saveas(h,strcat(output_directory,'/total_accuracy.tif'));
         hold
 %plot group accuracies in a loop
@@ -110,12 +125,16 @@ switch(type)
         acc_elements = hist(accuracy(i,:),nbins);
         hist(accuracy(i,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(i,:),nbins);
-        hist(permute_accuracy(i,:),nbins);
-        acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        if isnan(permute_accuracy) == 0
+            perm_elements = hist(permute_accuracy(i,:),nbins);
+            hist(permute_accuracy(i,:),nbins);
+            acc_h = findobj(gca,'Type','patch');
+            permute_h = acc_h(1);
+            acc_h = acc_h(2);
+            set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        else
+            acc_h = findobj(gca,'Type','patch');
+        end
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlim([-0.025 1.025]);
         xlabelstr = strcat('group',num2str(i-1),' -- accuracy');
@@ -123,21 +142,35 @@ switch(type)
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
         titlestr = strcat('observed and permuted accuracy distributions for group',num2str(i-1));
         title(titlestr,'FontSize',24,'FontName','Arial','FontWeight','Bold');
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);        
-        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('accuracy','permuted accuracy');
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(i,:),permute_accuracy(i,:));
-        if P == 0
-            P = realmin;
+        if isnan(permute_accuracy) == 0
+            ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        else
+            ylim([0 max(acc_elements)*1.2]);
         end
-        Pvalues(i) = P;
-        text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
+        if isnan(permute_accuracy) == 0
+            legend('accuracy','permuted accuracy');
+        else
+            legend('accuracy');
+        end
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        if isnan(permute_accuracy) == 0
+            [~, P, CI, STATS] = ttest2(accuracy(i,:),permute_accuracy(i,:));
+            if P == 0
+                P = realmin;
+            end
+            Pvalues(i) = P;
+            text(.1,max([ max(acc_elements); max(perm_elements) ])*1.2/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        end
         saveas(h,strcat(output_directory,'/group', num2str(i-1),'_accuracy.tif'));
         hold
     end
     nfigures = i;
-    BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    if isnan(permute_accuracy) == 0
+        BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    else
+        BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    end    
     nfigures = nfigures + 1;
     case('regression')
 %plot observed and permuted regression results and print ttest results on figure itself
@@ -150,27 +183,41 @@ switch(type)
         acc_elements = hist(accuracy(1,:),nbins);
         hist(accuracy(1,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(1,:),nbins);
-        hist(permute_accuracy(1,:),nbins);
+        if isnan(permute_accuracy) == 0
+            perm_elements = hist(permute_accuracy(1,:),nbins);
+            hist(permute_accuracy(1,:),nbins);
+        end
         limits = xlim;
         acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        if isnan(permute_accuracy) == 0
+            permute_h = acc_h(1);
+            acc_h = acc_h(2);
+            set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        end
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlabel('mean error','FontSize',20,'FontName','Arial','FontWeight','Bold');
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('observed and permuted mean error distributions across both groups','FontSize',24,'FontName','Arial','FontWeight','Bold');
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
-        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('mean error','permuted mean error');
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(1,:),permute_accuracy(1,:));
-        if P == 0
-            P = realmin;
+        if isnan(permute_accuracy) == 0
+            ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        else
+            ylim([0 max(acc_elements)*1.2]);
         end
-        Pvalues(1) = P;
-        text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
+        if isnan(permute_accuracy) == 0
+            legend('mean error','permuted mean error');
+        else
+            legend('mean error');
+        end
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        if isnan(permute_accuracy) == 0
+            [~, P, CI, STATS] = ttest2(accuracy(1,:),permute_accuracy(1,:));
+            if P == 0
+                P = realmin;
+            end
+            Pvalues(1) = P;
+            text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        end
         saveas(h,strcat(output_directory,'/mean_error.tif'));    
         hold
 %plot correlations second
@@ -178,27 +225,41 @@ switch(type)
         acc_elements = hist(accuracy(2,:),nbins);
         hist(accuracy(2,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(2,:),nbins);
-        hist(permute_accuracy(2,:),nbins);
+        if isnan(permute_accuracy) == 0
+            perm_elements = hist(permute_accuracy(2,:),nbins);
+            hist(permute_accuracy(2,:),nbins);
+        end
         limits = xlim;
         acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        if isnan(permute_accuracy) == 0
+            permute_h = acc_h(1);
+            acc_h = acc_h(2);
+            set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        end
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlabel('correlation','FontSize',20,'FontName','Arial','FontWeight','Bold');
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('observed and permuted correlation distributions across both groups','FontSize',24,'FontName','Arial','FontWeight','Bold');
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
-        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('correlation','permuted correlation');
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(2,:),permute_accuracy(2,:));
-        if P == 0
-            P = realmin;
+        if isnan(permute_accuracy) == 0
+            ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        else
+            ylim([0 max(acc_elements)*1.2]);
         end
-        Pvalues(2) = P;
-        text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
+        if isnan(permute_accuracy) == 0
+            legend('correlation','permuted correlation');
+        else
+            legend('correlation');
+        end
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        if isnan(permute_accuracy) == 0
+            [~, P, CI, STATS] = ttest2(accuracy(2,:),permute_accuracy(2,:));
+            if P == 0
+                P = realmin;
+            end
+            Pvalues(2) = P;
+            text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        end
         saveas(h,strcat(output_directory,'/correlation.tif'));
         hold
 %plot intra-class correlation coefficient (ICC) third
@@ -206,31 +267,49 @@ switch(type)
         acc_elements = hist(accuracy(3,:),nbins);
         hist(accuracy(3,:),nbins);
         hold
-        perm_elements = hist(permute_accuracy(3,:),nbins);
-        hist(permute_accuracy(3,:),nbins);
+        if isnan(permute_accuracy) == 0
+            perm_elements = hist(permute_accuracy(3,:),nbins);
+            hist(permute_accuracy(3,:),nbins);
+        end
         limits = xlim;
         acc_h = findobj(gca,'Type','patch');
-        permute_h = acc_h(1);
-        acc_h = acc_h(2);
-        set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        if isnan(permute_accuracy) == 0
+            permute_h = acc_h(1);
+            acc_h = acc_h(2);
+            set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);
+        end
         set(acc_h,'FaceColor',[0 0 1],'EdgeColor','k');
         xlabel('intra-class correlation coefficient (ICC)','FontSize',20,'FontName','Arial','FontWeight','Bold');
         ylabel('frequency','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('observed and permuted ICC distributions across both groups','FontSize',24,'FontName','Arial','FontWeight','Bold');
-        ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);     
-        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
-        legend('ICC','permuted ICC');
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-        [~, P, CI, STATS] = ttest2(accuracy(3,:),permute_accuracy(3,:));
-        if P == 0
-            P = realmin;
+        if isnan(permute_accuracy) == 0
+            ylim([0 (max([ max(acc_elements); max(perm_elements) ])*1.2)]);
+        else
+            ylim([0 max(acc_elements)*1.2]);
         end
-        Pvalues(3) = P;
-        text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        set(gca,'FontName','Arial','FontSize',18,'PlotBoxAspectRatio',[1.5 1.2 1.5]);
+        if isnan(permute_accuracy) == 0
+            legend('ICC','permuted ICC');
+        else
+            legend('ICC');
+        end
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        if isnan(permute_accuracy) == 0
+            [~, P, CI, STATS] = ttest2(accuracy(3,:),permute_accuracy(3,:));
+            if P == 0
+                P = realmin;
+            end
+            Pvalues(3) = P;
+            text(limits(2)/10,max([ max(acc_elements); max(perm_elements) ])/1.05,strcat('t(',num2str(STATS.df),')=',num2str(STATS.tstat),', {\it p}','=',num2str(P),', lowerCI=',num2str(CI(1)),', upperCI=',num2str(CI(2))),'FontName','Arial','FontSize',14);
+        end
         saveas(h,strcat(output_directory,'/ICC.tif'));
         hold
         nfigures = 3;
-        BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        if isnan(permute_accuracy) == 0
+            BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        else
+            BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        end
         nfigures = nfigures + 1;
 end
 %generate proximity matrix figure
