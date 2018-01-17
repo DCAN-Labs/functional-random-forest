@@ -9,5 +9,6 @@ stepdensity=${stepdensity:-0.05}
 highdensity=${highdensity:-1}
 infomapfile=${infoampfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
+matlab_command=${matlab_command:-'matlab'}
 #Construct the model, which will save outputs to a filename.mat file
-matlab -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; RunAndVisualizeCommunityDetection(struct('path','"${corrmatpath}"','variable','"${corrmatvar}"'),'"$filename"','"$infomap_command_file"',100,'LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'InfomapFile','"$infomapfile"'); exit"
+${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; RunAndVisualizeCommunityDetection(struct('path','"${corrmatpath}"','variable','"${corrmatvar}"'),'"$filename"','"$infomap_command_file"',100,'LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'InfomapFile','"$infomapfile"'); exit"

@@ -11,8 +11,9 @@ filename=${filename:-'thenamelessone'}
 regression=${regression:-'classification'}
 infomap_command_file=${infomap_command_file:-'/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py'}
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
+matlab_command=${matlab_command:-'matlab'}
 lowdensity=${lowdensity:-0.2}
 stepdensity=${stepdensity:-0.05}
 highdensity=${highdensity:-1}
 #Construct the model, which will save outputs to a filename.mat file
-matlab -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; VisualizeTreeBaggingResults('"$results_matfile"','"$filename"','"$regression"',struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data",'"$infomap_command_file"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'InfomapFile','"$infomapfile"'); exit"
+${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; VisualizeTreeBaggingResults('"$results_matfile"','"$filename"','"$regression"',struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data",'"$infomap_command_file"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'InfomapFile','"$infomapfile"'); exit"

@@ -12,3 +12,4 @@ stepdensity=0.05 #used for community detection -- the increment value for each e
 highdensity=1 #used for community detection -- highest edge density to examine community structure
 infomapfile=/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap #the full path and filename for the Infomap executable, must be installed from http://mapequation.org
 repopath=/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis #the full path to the repository containing the RFAnalysis code.
+matlab_command=matlab #the name of the matlab command line executable, can include arguments additional options, etc. SingleCompThread is enabled by default.
