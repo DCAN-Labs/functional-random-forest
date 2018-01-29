@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,outofbag_varimp,group1class,group2class] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
+function [accuracy,treebag,outofbag_error,outofbag_varimp,group1class,group2class,group1predict,group2predict] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('type','var') == 0
@@ -36,12 +36,14 @@ if isempty(varargin) == 0
                         if testing_indexgroup1 > 0
                             ngroup1_substested = max(size(testing_indexgroup1));
                             group1class = zeros(ngroup1_substested,1);
+                            group1predict = zeros(ngroup1_substested,1);
                         end
                     case('group2class')
                         testing_indexgroup2 = varargin{i+1};
                         if testing_indexgroup2 > 0
                             ngroup2_substested = max(size(testing_indexgroup2));
                             group2class = zeros(ngroup2_substested,1);
+                            group2predict = zeros(ngroup2_substested,1);
                         end
                     case('regression')
                         class_method = 'regression';
@@ -115,10 +117,12 @@ switch(type)
             for i = 1:ngroup1_substested
                 temp_sub_index = temp_sub_index + 1;
                 group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                group1predict(i) = predicted_classes_new(temp_sub_index);
             end
             for i = 1:ngroup2_substested
                 temp_sub_index = temp_sub_index + 1;
                 group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                group2predict(i) = predicted_classes_new(temp_sub_index);
             end
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -141,10 +145,12 @@ switch(type)
             for i = 1:ngroup1_substested
                 temp_sub_index = temp_sub_index + 1;
                 group1class(i) = accuracy_prediction(temp_sub_index);
+                group1predict(i) = predicted_classes(temp_sub_index);
             end
             for i = 1:ngroup2_substested
                 temp_sub_index = temp_sub_index + 1;
                 group2class(i) = accuracy_prediction(temp_sub_index);
+                group2predict(i) = predicted_classes(temp_sub_index);
             end
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
@@ -167,6 +173,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group1predict(i) = predicted_classes_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -175,10 +182,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group2predict(i) = predicted_classes_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
-			end          
+			end       
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -202,6 +210,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
+                    group1predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -210,10 +219,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
+                    group2predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group2class = NaN;
-			end                
+			end                  
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
             for n = 1:ngroups
@@ -240,6 +250,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group1predict(i) = predicted_classes_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -248,10 +259,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group2predict(i) = predicted_classes_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
-			end
+			end  
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -275,6 +287,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
+                    group1predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -283,10 +296,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
+                    group2predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group2class = NaN;
-			end            
+			end       
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
             for n = 1:ngroups
@@ -313,6 +327,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group1predict(i) = predicted_classes_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -321,10 +336,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group2predict(i) = predicted_classes_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
-			end
+			end  
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -348,6 +364,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
+                    group1predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -356,10 +373,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
+                    group2predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group2class = NaN;
-			end            
+			end           
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
             for n = 1:ngroups
@@ -383,6 +401,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group1predict(i) = predicted_classes_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -391,10 +410,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
+                    group2predict(i) = predicted_classes_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
-			end       
+			end  
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -417,6 +437,7 @@ switch(type)
             	for i = 1:ngroup1_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
+                    group1predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -425,10 +446,11 @@ switch(type)
             	for i = 1:ngroup2_substested
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
+                    group2predict(i) = predicted_classes(temp_sub_index);
             	end
 			else
 				group2class = NaN;
-			end              
+			end             
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
             for n = 1:ngroups

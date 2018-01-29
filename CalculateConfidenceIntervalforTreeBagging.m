@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,final_outcomes] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -164,8 +164,12 @@ end
 nsubs_group2 = size(group2_data,1);
 group1class = zeros(nsubs_group1,1);
 group2class = zeros(nsubs_group2,1);
+group1predict = zeros(nsubs_group1,1);
+group2predict = zeros(nsubs_group2,1);
 group1class_tested = zeros(nsubs_group1,1);
+group1class_predicted = zeros(nsubs_group1,1);
 group2class_tested = zeros(nsubs_group2,1);
+group2class_predicted = zeros(nsubs_group2,1);
 if exist('npredictors','var') == 0
     npredictors = round(sqrt(nvars));
 end
@@ -341,16 +345,16 @@ if holdout == 0
                 ntrees_est = ntrees;
             end
             if (estimate_predictors)
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             elseif (OOB_error_on)
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
             elseif (weight_forest)
                 [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
-                [accuracy(:,i),~,~,~,group1class_temp,group2class_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
+                [accuracy(:,i),~,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
             elseif (estimate_trees)
-                [accuracy(:,i),treebag_temp,~,~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             else
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             end
             proxmat{i,1} = proximity(treebag_temp.compact,all_data);
             features_used = features_used + CollateUsedFeatures(treebag_temp.Trees,nvars);
@@ -359,10 +363,14 @@ if holdout == 0
             end
             if testing_indexgroup1 > 0
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
+                group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
+                group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
             end
             if testing_indexgroup2 > 0
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
+                group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
+                group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
             end
             clear treebag_temp group1class_temp group2class_temp
@@ -370,6 +378,8 @@ if holdout == 0
         end
         group1class = group1class./group1class_tested;
         group2class = group2class./group2class_tested;
+        group1predict = group1predict./group1class_predicted;
+        group2predict = group2predict./group2class_tested;
         final_data = all_data;        
     else
         for i = 1:nreps
@@ -453,16 +463,16 @@ if holdout == 0
                 ntrees_est = ntrees;
             end
             if (estimate_predictors)
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             elseif (OOB_error_on)
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
             elseif (weight_forest)
                 [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
-                [accuracy(:,i),~,~,~,group1class_temp,group2class_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
+                [accuracy(:,i),~,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
             elseif (estimate_trees)
-                [accuracy(:,i),treebag_temp,~,~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             else
-                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,i),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             end          
             if (trim_features)
                 all_data = all_data(:,trimmed_features);
@@ -474,10 +484,14 @@ if holdout == 0
             end
             if testing_indexgroup1 > 0
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
+                group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
+                group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
             end
             if testing_indexgroup2 > 0
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
+                group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
+                group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
             end
             clear treebag_temp group1class_temp group2class_temp
@@ -485,6 +499,8 @@ if holdout == 0
         end
         group1class = group1class./group1class_tested;
         group2class = group2class./group2class_tested;
+        group1predict = group1predict./group1class_predicted;
+        group2predict = group2predict./group2class_tested;
         final_data = all_data;
     end
     toc
@@ -605,16 +621,16 @@ elseif holdout == 1
                     ntrees_est = ntrees;
                 end
                 if (estimate_predictors)
-                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 elseif (OOB_error_on)
-                    [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
+                    [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
                 elseif (weight_forest)
                     [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
-                    [accuracy(:,i,j),~,~,~,group1class_temp,group2class_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
+                    [accuracy(:,i,j),~,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
                 elseif (estimate_trees)
-                    [accuracy(:,i,j),treebag_temp,~,~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 else
-                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 end  
                 proxmat{i,j} = proximity(treebag_temp.compact,all_data);
                 features_used = features_used + CollateUsedFeatures(treebag_temp.Trees,nvars);
@@ -623,10 +639,14 @@ elseif holdout == 1
                 end
                 if testing_indexgroup1 > 0
                     group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
+                    group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
+                    group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                     group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
                 end
                 if testing_indexgroup2 > 0
                     group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
+                    group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
+                    group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                     group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
                 end
                 clear treebag_temp group1class_temp group2class_temp
@@ -634,6 +654,8 @@ elseif holdout == 1
             end
             group1class = group1class./group1class_tested;
             group2class = group2class./group2class_tested;
+            group1predict = group1predict./group1class_predicted;
+            group2predict = group2predict./group2class_tested;
             final_data = all_data;
         else
             for i = 1:nreps
@@ -691,16 +713,16 @@ elseif holdout == 1
                     ntrees_est = ntrees;
                 end
                 if (estimate_predictors)
-                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 elseif (OOB_error_on)
-                    [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
+                    [accuracy(:,i),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
                 elseif (weight_forest)
                     [tree_weights,treebag_temp] = TestTreeBags(learning_groups,learning_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
-                    [accuracy(:,i,j),~,~,~,group1class_temp,group2class_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
+                    [accuracy(:,i,j),~,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags([],[], testing_groups, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
                 elseif (estimate_trees)
-                    [accuracy(:,i,j),treebag_temp,~,~,group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 else
-                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                    [accuracy(:,i,j),treebag_temp,outofbag_error(i,:,j),outofbag_varimp(i,:,j),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 end  
                 proxmat{i,j} = proximity(treebag_temp.compact,all_data);
                 features_used = features_used + CollateUsedFeatures(treebag_temp.Trees,nvars);
@@ -709,10 +731,14 @@ elseif holdout == 1
                 end
                 if testing_indexgroup1 > 0
                     group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
+                    group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
+                    group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                     group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
                 end
                 if testing_indexgroup2 > 0
                     group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
+                    group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
+                    group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                     group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
                 end
                 clear treebag_temp group1class_temp group2class_temp
@@ -720,6 +746,8 @@ elseif holdout == 1
             end
             group1class = group1class./group1class_tested;
             group2class = group2class./group2class_tested;
+            group1predict = group1predict./group1class_predicted;
+            group2predict = group2predict./group2class_tested;
             final_data = all_data;
         end
         toc    
@@ -830,21 +858,21 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 ntrees_est = ntrees;
             end
             if (estimate_predictors)
-                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data, ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data, ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 accuracy(:,curr_fold,i,2) = TestTreeBags(training_perm_outcomes, training_data, test_perm_outcomes, testing_data, ntrees_est,'validationPlusOOB',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);           
             elseif (OOB_error_on)
-                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
+                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                
                 accuracy(:,curr_fold,i,2) = TestTreeBags(training_perm_outcomes, training_data, test_perm_outcomes, testing_data,ntrees_est,'validation_OOBerror',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);                            
             elseif (weight_forest)
                 [tree_weights,treebag_temp] = TestTreeBags(training_outcomes,training_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
-                [accuracy(:,curr_fold,i,1),~,~,~,group1class_temp,group2class_temp] = TestTreeBags([],[], test_outcomes, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
+                [accuracy(:,curr_fold,i,1),~,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags([],[], test_outcomes, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
                 [tree_weights,treebag_temp] = TestTreeBags(training_perm_outcomes,training_data,[],[],ntrees_est,'weight_trees',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior);
                 accuracy(:,curr_fold,i,2) = TestTreeBags([],[], test_perm_outcomes, testing_data,ntrees_est,'validation_weighted',treebag_temp,tree_weights,categorical_vectors_to_use,class_method,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);            
             elseif (estimate_trees)
-                [accuracy(:,curr_fold,i,1),treebag_temp,~,~,group1class_temp,group2class_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,curr_fold,i,1),treebag_temp,~,~,group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 accuracy(:,curr_fold,i,2) = TestTreeBags(training_perm_outcomes, training_data, test_perm_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             else
-                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
+                [accuracy(:,curr_fold,i,1),treebag_temp,outofbag_error(i,:),outofbag_varimp(i,:),group1class_temp,group2class_temp,group1predict_temp,group2predict_temp] = TestTreeBags(training_outcomes, training_data, test_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
                 accuracy(:,curr_fold,i,2) = TestTreeBags(training_perm_outcomes, training_data, test_perm_outcomes, testing_data,ntrees_est,'validation',0,0,categorical_vectors_to_use,class_method,'npredictors',npredictors_used,'surrogate',surrogate, 'Prior', prior,'group1class',testing_indexgroup1,'group2class',testing_indexgroup2);
             end          
             if (trim_features)
@@ -857,20 +885,25 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             end
             if testing_indexgroup1 > 0
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
+                group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
+                group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
             end
             if testing_indexgroup2 > 0
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
+                group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
+                group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
             end
-            clear treebag_temp group1class_temp group2class_temp
-            sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(mean(accuracy(1,1:curr_fold,1:i,1))))))
-            sprintf('%s',strcat('run #',num2str(i),' cumulative permuted accuracy=',num2str(mean(mean(accuracy(1,1:curr_fold,1:i,2))))))            
-        end      
+                clear treebag_temp group1class_temp group2class_temp
+                sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
+        end
     end
     group1class = group1class./group1class_tested;
-    group2class = group2class./group2class_tested; 
-    final_data=all_data;
+    group2class = group2class./group2class_tested;
+    group1predict = group1predict./group1class_predicted;
+    group2predict = group2predict./group2class_tested;
+    final_data = all_data;
 toc             
 end
 end

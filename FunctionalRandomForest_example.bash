@@ -31,4 +31,5 @@ vel_range_high=10 #exclude velocity trajectories with fits that bump higher than
 acc_range_low=-5 #exclude acceleration trajectories with fits that dip lower than this threshold
 acc_range_high=5 #exclude acceleration trajectories with fits that bump higher than this threshold
 subject_threshold=2 #plot trajectories for groups that have more members than this threshold
+image_suffix='.tif' #suffix for the image files, determines the file format (i.e. matlab fig or tif)
 
