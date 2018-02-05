@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 fdapath=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/MBM_all.mat #path and filename where group1's data is located
 fdavar=X_CC #the name of the variable within group1's matrix (.mat) file. This should represent a 2D matrix
 subjectspath=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/MBM_all.mat #path and filename where group1's data is located
