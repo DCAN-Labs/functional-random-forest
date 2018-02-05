@@ -15,7 +15,7 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                ngroups = unique(group_column);
+                ngroups = length(unique(group_column));
             case('Categorical')
                 categorical_vector = varargin{i+1};
             case('NumSimCases')
