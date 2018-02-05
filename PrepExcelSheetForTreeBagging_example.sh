@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 excelfile=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/raw_data.xls #path and filename where the excel spreadsheet is located
 output_matfile=LONG_ADHD_OHSU_dataset.mat #the name of the output (.mat) file.
 exists_header=0 #if set to anything but 0 or blank, the first row of the excel file is a header and will be ignored
