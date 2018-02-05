@@ -8,7 +8,7 @@ set -euo pipefail
 # parameters.
 
 if (( $# != 1)); then
-    printf "Usage: %s <parameter-file.json>" "$0" >&2 ;
+    printf "Usage: %s <parameter-file.env>" "$0" >&2 ;
 fi
 
 source $1
