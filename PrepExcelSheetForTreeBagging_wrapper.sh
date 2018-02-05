@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #VisualizeTreeBaggingResults_wrapper.sh requires a ParamFile as an input (e.g. VisualizeTreeBaggingResults_wrapper.sh VisualizeTreeBagResults_example.bash). See the VisualizeTreeBagResults_example.bash for more information on available parameters.
 source $1
 #parameters set from the VisualizeTreeBagResultsParamFile
