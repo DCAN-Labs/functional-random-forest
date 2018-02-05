@@ -1,15 +1,10 @@
 #!/bin/bash
 
-set -euo pipefail
 
 # ConstructModelTreeBag_wrapper.sh requires a ParamFile as an input
 # (e.g. ConstructModelTreeBag_wrapper.sh TreeBagParamFile_example.bash).
 # See the TreeBagParamFile_example.bash for more information on available
 # parameters.
-
-if (( $# != 1)); then
-    printf "Usage: %s <parameter-file.env>" "$0" >&2 ;
-fi
 
 source $1
 
