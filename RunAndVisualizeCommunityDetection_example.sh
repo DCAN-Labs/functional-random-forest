@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #N.B. if you are using correlation matrices with non-positive values, one should determine beforehand what is the maximum density that only includes positive values. It would not make sense to go above this in your highdensity parameter below
 #N.B. the variable within the .mat file must be a cell array. If you only have a single 2D matrix variable, you should encapsulate it in a 1x1 cell (e.g. corrmat={corrmat}) and resave your .mat file
