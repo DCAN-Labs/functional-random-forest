@@ -1,7 +1,18 @@
-#! /bin/bash
+#!/bin/bash
 
-#ConstructModelTreeBag_wrapper.sh requires a ParamFile as an input (e.g. ConstructModelTreeBag_wrapper.sh TreeBagParamFile_example.bash). See the TreeBagParamFile_example.bash for more information on available parameters.
+set -euo pipefail
+
+# ConstructModelTreeBag_wrapper.sh requires a ParamFile as an input
+# (e.g. ConstructModelTreeBag_wrapper.sh TreeBagParamFile_example.bash).
+# See the TreeBagParamFile_example.bash for more information on available
+# parameters.
+
+if (( $# != 1)); then
+    printf "Usage: %s <parameter-file.json>" "$0" >&2 ;
+fi
+
 source $1
+
 #declare missing parameters that have logic flow as false -- correction 12/14/16
 outcome_variable_exist=${outcome_variable_exist:-'false'}
 matchgroups=${matchgroups:-'false'}
@@ -17,6 +28,7 @@ surrogate=${surrogate:-'false'}
 group2test=${group2test:-'false'}
 fisher_z_transform=${fisher_z_transform:-'false'}
 cross_validate=${cross_validate:-'true'}
+
 #parameters set from the TreeBagParamFile
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
 if $estimate_trees; then estimate_trees='EstimateTrees'; else estimate_trees='NONE'; fi
