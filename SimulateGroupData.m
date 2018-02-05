@@ -1,5 +1,5 @@
 function [ simulated_data, new_covariance_matrices, groups, max_diffs, old_covariance_matrices ] = SimulateGroupData(varargin)
-%SimulateGroupData will generate simulated Summary of this function goes here
+%SimulateGroupData will generate simulated data
 %   Detailed explanation goes here
 filename='thenamelessone';
 categorical_vector = 0;
@@ -7,6 +7,7 @@ ncases = 1;
 group_column = 0;
 ngroups = 0;
 data_range = 0;
+write_file = logical(1);
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
         switch(varargin{i})
@@ -14,7 +15,7 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                ngroups = unique(group_column);
+                ngroups = length(unique(group_column));
             case('Categorical')
                 categorical_vector = varargin{i+1};
             case('NumSimCases')
@@ -23,6 +24,8 @@ for i = 1:size(varargin,2)
                 data_range = varargin{i+1};
             case('OutputDirectory')
                 filename = varargin{i+1};
+            case('NoSave')
+                write_file = logical(0);
         end
     end
 end
@@ -39,7 +42,6 @@ ncols = size(group_data,2);
 if categorical_vector == 0
     categorical_vector = zeros(ncols,1);
 end
-ncategories = sum(categorical_vector);
 %determine range for columns -- used to control appropriate values for
 %simulated outputs
 min_values = min(group_data,[],'omitnan');
@@ -56,7 +58,7 @@ max_values = max(group_data,[],'omitnan');
 %Journal of Hydrology. 2007 Oct 30;345(3-4):121-33.
 if ngroups == 0
     ngroups = 1;
-    group_column = ones(size(group_data,1));
+    group_column = ones(size(group_data,1),1);
     nsimulatedpergroup = ncases;
 else
     nsimulatedpergroup = zeros(ngroups,1);
@@ -75,7 +77,7 @@ for curr_group = 1:ngroups
     curr_group_data = group_data(group_column==curr_group,:);
     old_covariance_matrix = cov(curr_group_data,'partialrows');
     [eigenvector_data, eigenvalue_mat] = eig(old_covariance_matrix,'matrix');
-    new_value = min(eigenvalue_mat(eigenvalue_mat > 0));
+    new_value = realmin;
     eigennewvalue_mat = zeros(size(eigenvalue_mat));
     for feature = 1:length(eigenvalue_mat);
         if eigenvalue_mat(feature,feature) < 0
@@ -84,8 +86,7 @@ for curr_group = 1:ngroups
             eigennewvalue_mat(feature,feature) = eigenvalue_mat(feature,feature);
         end
     end
-    raw_covariance_matrix = eigenvector_data*eigen_newvaluemat*(eigenvector_data');
-    new_covariance_matrix = raw_covariance_matrix/sqrt(diag(raw_covariance_matrix) * diag(raw_covariance_matrix)');
+    new_covariance_matrix = eigenvector_data*eigennewvalue_mat*(eigenvector_data');
     %having made the new covariance matrix, we will check it against the old
     %covariance matrix and report the differences to stdout
     cov_diff = new_covariance_matrix - old_covariance_matrix;
@@ -110,9 +111,11 @@ for curr_group = 1:ngroups
     simulated_data(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),:) = fake_data;
     groups(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),1) = curr_group;
     curr_sub = curr_sub + nsimulatedpergroup(curr_group);
-    max_diffs{curr_group} = max_diff;
-    old_covariance_matrices{curr_group} = raw_covariance_matrix;
-    new_covariance_matrices(curr_group) = new_covariance_matrix;
+    max_diffs(curr_group) = max_diff;
+    old_covariance_matrices{curr_group} = old_covariance_matrix;
+    new_covariance_matrices{curr_group} = new_covariance_matrix;
 end
-save(filename,'simulated_data','groups','new_covariance_matrices','old_covariance_matrices','max_diffs','input_data');
+if write_file
+    save(filename,'simulated_data','groups','new_covariance_matrices','old_covariance_matrices','max_diffs','input_data');
+end
 end

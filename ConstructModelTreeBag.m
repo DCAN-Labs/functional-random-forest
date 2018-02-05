@@ -92,6 +92,8 @@ highdensity = 1;
 stepdensity = 0.05;
 cross_validation = 0;
 infomapfile='/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap';
+command_file = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
+write_file = logical(1);
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -114,6 +116,10 @@ if isempty(varargin) == 0
                     cross_validation = 1;
                 case('InfomapFile')
 					infomapfile = varargin{i+1};
+                case('NoSave')
+                    write_file = logical(0);
+                case('CommandFile')
+                    command_file = varargin{i+1};
             end
         end
     end
@@ -189,6 +195,10 @@ switch(size(varargin,2))
         [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33});          
     case(34)
         [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34});          
+    case(35)
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34},varargin{35});          
+    case(36)
+        [accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20}, varargin{21}, varargin{22}, varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34},varargin{36});          
 end
 if nrepsPM > 0
     tic
@@ -264,6 +274,10 @@ if nrepsPM > 0
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33});                 
             case(34)
                 permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34});
+            case(35)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34},varargin{35});
+            case(36)
+                permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{1},varargin{2},varargin{3},varargin{4},varargin{5},varargin{6},varargin{7},varargin{8},varargin{9},varargin{10},varargin{11},varargin{12},varargin{13},varargin{14},varargin{15},varargin{16},varargin{17},varargin{18},varargin{19}, varargin{20},varargin{21},varargin{22},varargin{23},varargin{24},varargin{25},varargin{26},varargin{27},varargin{28},varargin{29},varargin{30},varargin{31},varargin{32},varargin{33},varargin{34},varargin{35},varargin{36});
         end
         if i == 1
             if (holdout)
@@ -297,10 +311,10 @@ if unsupervised
     proxmat = proxmat_new;
     clear proxmat_new
 end
-save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','-v7.3');
 toc
-sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
-command_file = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
-VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+if write_file
+    save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','-v7.3');
+    sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
+    VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
 end
-
+end
