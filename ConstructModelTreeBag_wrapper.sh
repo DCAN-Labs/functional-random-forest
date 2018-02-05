@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #ConstructModelTreeBag_wrapper.sh requires a ParamFile as an input (e.g. ConstructModelTreeBag_wrapper.sh TreeBagParamFile_example.bash). See the TreeBagParamFile_example.bash for more information on available parameters.
 source $1
