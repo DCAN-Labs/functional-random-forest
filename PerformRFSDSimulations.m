@@ -79,8 +79,6 @@ switch(learning_type)
                 accuracy(:,1) = mean(mean(run_accuracy,2),3);
                 permuted_accuracy(:,1) = mean(mean(run_permute_accuracy,2),3);
             case('Regression')
-                size(run_accuracy)
-                size(accuracy)
                 accuracy(:,1) = mean(mean(run_accuracy(1:2,:,:),2),3);
                 permuted_accuracy(:,1) = mean(mean(run_permute_accuracy(1:2,:,:),2),3);
                 accuracy(1,1) = (accuracy(1,1) - mean_outcome)/sd_outcome; %convert to z-score for power analysis

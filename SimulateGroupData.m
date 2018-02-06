@@ -112,7 +112,6 @@ for curr_group = 1:ngroups
             fake_data(fake_data(:,curr_col) > max_values(curr_col),curr_col) = max_values(curr_col);            
         end 
     end
-    size(simulated_data)
     simulated_data(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),:) = fake_data;
     groups(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),1) = curr_group;
     curr_sub = curr_sub + nsimulatedpergroup(curr_group);
