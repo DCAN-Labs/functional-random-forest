@@ -15,7 +15,7 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                if group_column == 0 && max(size(group_column)) < 2
+                if  (max(size(group_column))) < 2 && (group_column == 0)
                     ngroups = 0;
                 else
                     ngroups = length(unique(group_column));

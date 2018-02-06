@@ -18,7 +18,7 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                if group_column == 0 && max(size(group_column)) < 2
+                if  (max(size(group_column))) < 2 && (group_column == 0)
                     ngroups = 0;
                 else
                     ngroups = length(unique(group_column));
@@ -54,7 +54,6 @@ end
 permuted_accuracy = accuracy;
 output_temp_dir = 'simulated';
 %generate simulated data and output TRUE groups
-ncases
 [simulated_data,~,groups] = SimulateGroupData('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
 %run simulated data through RF model: supervised differs from
 %unsupervised
@@ -74,15 +73,16 @@ switch(learning_type)
             temp_simulated_data(:,2:end) = simulated_data;
             simulated_data = temp_simulated_data;
         end
-        outcol
         [run_accuracy,run_permute_accuracy] = ConstructModelTreeBag(simulated_data,0,0.7,3,1000,0,output_temp_dir,1000000,'NoSave','TreebagsOff','CrossValidate',10,'Uniform',forest_type,'useoutcomevariable',outcol,outcol);
         switch(forest_type)
             case('Classification')
-                accuracy(:,1) = mean(mean(run_accuracy));
-                permuted_accuracy(:,1) = mean(mean(run_permute_accuracy));
+                accuracy(:,1) = mean(mean(run_accuracy,2),3);
+                permuted_accuracy(:,1) = mean(mean(run_permute_accuracy,2),3);
             case('Regression')
-                accuracy(:,1) = mean(mean(run_accuracy(1:2,:,:)));
-                permuted_accuracy(:,1) = mean(mean(run_permute_accuracy(1:2,:,:)));
+                size(run_accuracy)
+                size(accuracy)
+                accuracy(:,1) = mean(mean(run_accuracy(1:2,:,:),2),3);
+                permuted_accuracy(:,1) = mean(mean(run_permute_accuracy(1:2,:,:),2),3);
                 accuracy(1,1) = (accuracy(1,1) - mean_outcome)/sd_outcome; %convert to z-score for power analysis
                 permuted_accuracy(1,1) = (permuted_accuracy(1,1) - mean_outcome)/sd_outcome;
         end

@@ -66,6 +66,7 @@ for i = 1:size(varargin,2)
     end
 end
 %load pool
+parallel_processing
 if parallel_processing
     cluster_env = parcluster();
     processingpool = parpool(cluster_env,numpools);
