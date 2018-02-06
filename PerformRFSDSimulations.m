@@ -85,7 +85,7 @@ switch(learning_type)
                 permuted_accuracy(1,1) = (permuted_accuracy(1,1) - mean_outcome)/sd_outcome;
         end
     case('unsupervised')
-        while size(dir(output_temp_dir),1) > 0
+        while size(dir(strcat(output_temp_dir,'_output')),1) > 0
             output_temp_dir = strcat(output_temp_dir,num2str(randi(10,1)-1));
         end
         simulated_permuted_data = SimulateGroupData('InputData',input_data,'GroupBy',group_column(randperm(length(group_column))),'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
@@ -124,7 +124,8 @@ switch(learning_type)
         perm_D = (length(find(permuted_comp_mat == 0)) - length(permuted_comp_mat))/2; %different true - different observed
         accuracy = ((nodepairs*(A+D))-((A+B)*(A+C) + (C+D)*(B+D)))/(nodepairs - ((A+B)*(A+C) + (C+D)*(B+D)));
         permuted_accuracy = ((nodepairs*(perm_A+perm_D))-((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)))/(nodepairs - ((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)));   
-        system(['rm -rf ' output_temp_dir]);
+        system(['rm -rf ' output_temp_dir '_output']);
+        system(['rm -rf ' output_temp_dir '.mat']);
 end  
 end
 
