@@ -25,13 +25,13 @@ for i = 1:size(varargin,2)
                     input_data = varargin{i+1};
                     if isstruct(input_data)
                         input_data_struct = input_data;
-                        input_data = struct2array(input_data_struct.path,input_data_struct.variable);
+                        input_data = struct2array(load(input_data_struct.path,input_data_struct.variable));
                     end
                 case('GroupBy')
                     group_column = varargin{i+1};
                     if isstruct(group_column)
                         group_column_struct = group_column;
-                        group_column = struct2array(group_column_struct.path,group_column_struct.variable);
+                        group_column = struct2array(load(group_column_struct.path,group_column_struct.variable));
                     end
                     ngroups = length(unique(group_column));
                 case('Categorical')

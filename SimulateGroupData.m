@@ -15,7 +15,11 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                ngroups = length(unique(group_column));
+                if group_column == 0 && max(size(group_column)) < 2
+                    ngroups = 0;
+                else
+                    ngroups = length(unique(group_column));
+                end
             case('Categorical')
                 categorical_vector = varargin{i+1};
             case('NumSimCases')
@@ -39,7 +43,7 @@ else
 end
 ncols = size(group_data,2);
 %if unspecified, the categorical vector will be set to zeros
-if categorical_vector == 0
+if max(size(categorical_vector)) < 2
     categorical_vector = zeros(ncols,1);
 end
 %determine range for columns -- used to control appropriate values for
@@ -100,14 +104,15 @@ for curr_group = 1:ngroups
 %observable value
     for curr_col = 1:ncols
         if categorical_vector(curr_col) == 0
-            fake_data(:,fake_data(:,curr_col) < min_values(curr_col)) = min_values(curr_col);
-            fake_data(:,fake_data(:,curr_col) > max_values(curr_col)) = max_values(curr_col);
+            fake_data(fake_data(:,curr_col) < min_values(curr_col),curr_col) = min_values(curr_col);
+            fake_data(fake_data(:,curr_col) > max_values(curr_col),curr_col) = max_values(curr_col);
         else
             fake_data(:,curr_col) = round(fake_data(:,curr_col));
-            fake_data(:,fake_data(:,curr_col) < min_values(curr_col)) = min_values(curr_col);
-            fake_data(:,fake_data(:,curr_col) > max_values(curr_col)) = max_values(curr_col);            
+            fake_data(fake_data(:,curr_col) < min_values(curr_col),curr_col) = min_values(curr_col);
+            fake_data(fake_data(:,curr_col) > max_values(curr_col),curr_col) = max_values(curr_col);            
         end 
     end
+    size(simulated_data)
     simulated_data(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),:) = fake_data;
     groups(curr_sub:(curr_sub-1)+nsimulatedpergroup(curr_group),1) = curr_group;
     curr_sub = curr_sub + nsimulatedpergroup(curr_group);

@@ -18,7 +18,11 @@ for i = 1:size(varargin,2)
                 input_data = varargin{i+1};
             case('GroupBy')
                 group_column = varargin{i+1};
-                ngroups = length(unique(group_column));
+                if group_column == 0 && max(size(group_column)) < 2
+                    ngroups = 0;
+                else
+                    ngroups = length(unique(group_column));
+                end
             case('Categorical')
                 categorical_vector = varargin{i+1};
             case('NumSimCases')
@@ -50,6 +54,7 @@ end
 permuted_accuracy = accuracy;
 output_temp_dir = 'simulated';
 %generate simulated data and output TRUE groups
+ncases
 [simulated_data,~,groups] = SimulateGroupData('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
 %run simulated data through RF model: supervised differs from
 %unsupervised
@@ -69,7 +74,8 @@ switch(learning_type)
             temp_simulated_data(:,2:end) = simulated_data;
             simulated_data = temp_simulated_data;
         end
-        [run_accuracy,run_permute_accuracy] = ConstructModelTreeBag(simulated_data,0,0.7,3,1000,0,output_temp_dir,1000000,'NoSave','TreebagsOff','CrossValidate',10,'Uniform','MatchGroups',forest_type,'useoutcomevariable',outcol,outcol);
+        outcol
+        [run_accuracy,run_permute_accuracy] = ConstructModelTreeBag(simulated_data,0,0.7,3,1000,0,output_temp_dir,1000000,'NoSave','TreebagsOff','CrossValidate',10,'Uniform',forest_type,'useoutcomevariable',outcol,outcol);
         switch(forest_type)
             case('Classification')
                 accuracy(:,1) = mean(mean(run_accuracy));
