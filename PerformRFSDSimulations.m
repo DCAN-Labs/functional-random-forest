@@ -90,10 +90,10 @@ switch(learning_type)
         end
         simulated_permuted_data = SimulateGroupData('InputData',input_data,'GroupBy',group_column(randperm(length(group_column))),'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
         ConstructModelTreeBag(simulated_data,0,0.7,3,1000,0,output_temp_dir,10000000,'TreebagsOff','CrossValidate',10,'unsupervised','Classification','InfomapFile',infomapfile,'CommandFile',commandfile);
-        observed_outcomes = load(strcat(output_temp_dir,'_output/final_community_assignments.mat'),'community');
+        observed_outcomes = struct2array(load(strcat(output_temp_dir,'_output/final_community_assignments.mat'),'community'));
         observed_mat = zeros(length(observed_outcomes));
         ConstructModelTreeBag(simulated_permuted_data,0,0.7,3,1000,0,output_temp_dir,10000000,'TreebagsOff','CrossValidate',10,'unsupervised','Classification','InfomapFile',infomapfile,'CommandFile',commandfile);
-        permuted_outcomes = load(strcat(output_temp_dir,'_output/final_community_assignments.mat'),'community');
+        permuted_outcomes = struct2array(load(strcat(output_temp_dir,'_output/final_community_assignments.mat'),'community'));
         permuted_mat = zeros(length(permuted_outcomes));
         permuted_ncomms = unique(permuted_outcomes);
         true_mat = zeros(length(group_columns));
