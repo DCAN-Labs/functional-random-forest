@@ -96,7 +96,7 @@ switch(learning_type)
         permuted_outcomes = struct2array(load(strcat(output_temp_dir,'_output/community_assignments.mat'),'community_matrix'));
         permuted_mat = zeros(length(permuted_outcomes));
         permuted_ncomms = unique(permuted_outcomes);
-        true_mat = zeros(length(group_columns));
+        true_mat = zeros(length(group_column));
         true_ncomms = unique(group_column);
         observed_ncomms = unique(observed_outcomes);
         for curr_comm = 1:length(true_ncomms)
