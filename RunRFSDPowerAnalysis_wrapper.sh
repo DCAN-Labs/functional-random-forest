@@ -2,6 +2,7 @@
 source $1
 #set defaults from source file
 if $groupby; then groupby_flag='GroupBy'; else groupby_flag='NONE'; fi
+if $zscore_flag; then zscore='ZscoreOutcomeVariable'; else zscore='NONE'; fi
 #If missing parameters, set defaults for other vars
 input_data_variable=${input_data_variable:-'input_data'}
 group_data_variable=${group_data_variable:-'group_data'}
@@ -20,4 +21,4 @@ performance_thresholds=${performance_thresholds:-0.6}
 num_cores=${num_cores:-1}
 data_range=${data_range:-0}
 #run power analysis command
-${matlab_command} -nodisplay -nosplash -r "addpath('"${repopath}"') ; RunRFSDPowerAnalysis('InputData',struct('path','"${input_data}"','variable','"${input_data_variable}"'),'"$groupby_flag"',struct('path','"${group_data}"','variable','"${group_data_variable}"'),'Categorical','"$categorical_vector"','NumSimCases',"$num_sim_cases",'DataRange',"$data_range",'OutputDirectory','"$output_directory"','PerformanceThresholds',"$performance_thresholds",'ForestType','"$forest_type"','LearningType','"$learning_type"','NumCores',"$num_cores",'NumSimulations',"$num_sims",'OutcomeColumnForRegression',"$outcome_regression_column",'InfomapFile','"$infomapfile"','CommandFile','"$command_file"'); exit"
+${matlab_command} -nodisplay -nosplash -r "addpath('"${repopath}"') ; RunRFSDPowerAnalysis('InputData',struct('path','"${input_data}"','variable','"${input_data_variable}"'),'"$groupby_flag"',struct('path','"${group_data}"','variable','"${group_data_variable}"'),'Categorical','"$categorical_vector"','NumSimCases',"$num_sim_cases",'DataRange',"$data_range",'OutputDirectory','"$output_directory"','PerformanceThresholds',"$performance_thresholds",'ForestType','"$forest_type"','LearningType','"$learning_type"','NumCores',"$num_cores",'NumSimulations',"$num_sims",'OutcomeColumnForRegression',"$outcome_regression_column",'InfomapFile','"$infomapfile"','CommandFile','"$command_file"','"$zscore"'); exit"

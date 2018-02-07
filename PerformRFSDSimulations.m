@@ -9,8 +9,9 @@ data_range = 0;
 forest_type = 'Classification';
 learning_type = 'supervised';
 outcol = 1;
-infomapfile='/group_shares/fnl/bulk/code/external/infomap/Infomap';
+infomapfile = '/group_shares/fnl/bulk/code/external/infomap/Infomap';
 commandfile = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
+zscore_flag = true;
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
         switch(varargin{i})
@@ -39,6 +40,8 @@ for i = 1:size(varargin,2)
                 infomapfile = varargin{i+1};
             case('CommandFile')
                 commandfile = varargin{i+1};
+            case('ZscoreOutcomeVariable')
+                zscore_flag = true;
         end
     end
 end
@@ -66,6 +69,10 @@ switch(learning_type)
             true_outcomes = simulated_data(:,outcol);
             mean_outcome = mean(true_outcomes);
             sd_outcome = std(true_outcomes);
+            if zscore_flag
+                zscored_outcomes = (true_outcomes - mean_outcome)./sd_outcome; %convert to z-score for power analysis
+                simulated_data(:,outcol) = zscored_outcomes;
+            end
         else
             true_outcomes = groups;
             temp_simulated_data = zeros(size(simulated_data,1),1+size(simulated_data,2));
@@ -81,8 +88,6 @@ switch(learning_type)
             case('Regression')
                 accuracy(:,1) = mean(mean(run_accuracy(1:2,:,:),2),3);
                 permuted_accuracy(:,1) = mean(mean(run_permute_accuracy(1:2,:,:),2),3);
-                accuracy(1,1) = (accuracy(1,1) - mean_outcome)/sd_outcome; %convert to z-score for power analysis
-                permuted_accuracy(1,1) = (permuted_accuracy(1,1) - mean_outcome)/sd_outcome;
         end
     case('unsupervised')
         while size(dir(strcat(output_temp_dir,'_output')),1) > 0

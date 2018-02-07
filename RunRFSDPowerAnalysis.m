@@ -17,6 +17,7 @@ nsims = 10;
 outcol = 1;
 infomapfile='/group_shares/fnl/bulk/code/external/infomap/Infomap';
 commandfile = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
+zscore_flag='NONE';
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
         if isstruct(varargin{i}) == 0
@@ -61,6 +62,8 @@ for i = 1:size(varargin,2)
                     infomapfile = varargin{i+1};
                 case('CommandFile')
                     commandfile = varargin{i+1};
+                case('ZscoreOutcomeVariable')
+                    zscore_flag = 'ZscoreOutcomeVariable';
             end
         end
     end
@@ -87,7 +90,7 @@ null_performance = observed_performance;
 false_positive = statistical_power;
 %run a PARFOR loop on the simulations
 parfor curr_sim = 1:nsims
-    [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile);
+    [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag);
 end
 %close the pool all other operations only need one core after
 if parallel_processing

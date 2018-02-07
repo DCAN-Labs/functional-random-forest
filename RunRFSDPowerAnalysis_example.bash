@@ -18,6 +18,7 @@ command_file=/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simpl
 forest_type='Classification' #sets whether a regression or classification RF is generated
 learning_type='supervised' #sets whether one is testing a supervised or unsupervised algorithm.
 outcome_regression_column=0 #if regression is selected, the number represents the column in the data matrix containing the outcome measure
+zscore_flag=true #if zscore_flag is set to true, regression outcome variables will be z-scored for simulated data
 
 ##power analysis parameters
 num_sim_cases=100 #the sample size to simulate
