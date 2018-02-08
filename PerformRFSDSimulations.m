@@ -93,7 +93,7 @@ switch(learning_type)
         while size(dir(strcat(output_temp_dir,'_output')),1) > 0
             output_temp_dir = strcat(output_temp_dir,num2str(randi(10,1)-1));
         end
-        simulated_permuted_data = SimulateGroupData('InputData',input_data,'GroupBy',group_column(randperm(length(group_column))),'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
+        [simulated_permuted_data,~,permuted_groups] = SimulateGroupData('InputData',input_data,'GroupBy',group_column(randperm(length(group_column))),'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
         ConstructModelTreeBag(simulated_data,0,0.7,3,1000,0,output_temp_dir,10000000,'TreebagsOff','CrossValidate',10,'unsupervised','Classification','InfomapFile',infomapfile,'CommandFile',commandfile);
         observed_outcomes = struct2array(load(strcat(output_temp_dir,'_output/community_assignments.mat'),'community_matrix'));
         observed_mat = zeros(length(observed_outcomes));
@@ -101,12 +101,18 @@ switch(learning_type)
         permuted_outcomes = struct2array(load(strcat(output_temp_dir,'_output/community_assignments.mat'),'community_matrix'));
         permuted_mat = zeros(length(permuted_outcomes));
         permuted_ncomms = unique(permuted_outcomes);
-        true_mat = zeros(length(group_column));
-        true_ncomms = unique(group_column);
+        true_mat = zeros(length(groups));
+        true_ncomms = unique(groups);
+        permuted_true_mat = zeros(length(permuted_groups));
+        permuted_true_ncomms = unique(permuted_groups);
         observed_ncomms = unique(observed_outcomes);
         for curr_comm = 1:length(true_ncomms)
-            cases_in_comm = find(group_column == true_ncomms(curr_comm));
+            cases_in_comm = find(groups == true_ncomms(curr_comm));
             true_mat(cases_in_comm,cases_in_comm) = true_mat(cases_in_comm,cases_in_comm) + 1;
+        end
+        for curr_comm = 1:length(permuted_true_ncomms)
+            cases_in_comm = find(permuted_groups == permuted_true_ncomms(curr_comm));
+            permuted_true_mat(cases_in_comm,cases_in_comm) = permuted_true_mat(cases_in_comm,cases_in_comm) + 1;
         end
         for curr_comm = 1:length(observed_ncomms)
             cases_in_comm = find(observed_outcomes == observed_ncomms(curr_comm));
@@ -117,7 +123,7 @@ switch(learning_type)
             permuted_mat(cases_in_comm,cases_in_comm) = permuted_mat(cases_in_comm,cases_in_comm) + 2;
         end
         comp_mat = observed_mat + true_mat;
-        permuted_comp_mat = permuted_mat + true_mat;
+        permuted_comp_mat = permuted_mat + permuted_true_mat;
         nodepairs = length(comp_mat)*(length(comp_mat) -1)/2;
         A = (length(find(comp_mat == 3)) - length(comp_mat))/2; %same true - same observed
         B = (length(find(comp_mat == 1)) - length(comp_mat))/2; %same true - different observed
