@@ -12,6 +12,7 @@ outcol = 1;
 infomapfile = '/group_shares/fnl/bulk/code/external/infomap/Infomap';
 commandfile = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
 zscore_flag = true;
+output_temp_index = 1;
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
         switch(varargin{i})
@@ -42,6 +43,8 @@ for i = 1:size(varargin,2)
                 commandfile = varargin{i+1};
             case('ZscoreOutcomeVariable')
                 zscore_flag = true;
+            case('OutputIndex')
+                output_temp_index = varargin{i+1};
         end
     end
 end
@@ -55,7 +58,7 @@ if strcmp(learning_type,'unsupervised')
     accuracy = 0;
 end
 permuted_accuracy = accuracy;
-output_temp_dir = 'simulated';
+output_temp_dir = strcat('simulated',num2str(output_temp_index));
 %generate simulated data and output TRUE groups
 [simulated_data,~,groups] = SimulateGroupData('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',ncases,'DataRange',data_range,'NoSave');
 %run simulated data through RF model: supervised differs from
