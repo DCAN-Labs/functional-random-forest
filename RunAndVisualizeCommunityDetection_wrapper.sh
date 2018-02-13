@@ -1,4 +1,7 @@
-#! /bin/bash
+#!/bin/bash
+
+set -euo pipefail
+
 #RunAndVisualizeCommunityDetection_wrapper.sh requires a ParamFile as an input (e.g. RunAndVisualizeCommunityDetection_wrapper.sh RunAndVisualizeCommunityDetection_example.bash). See the RunAndVisualizeCommunityDetection_example.bash for more information on available parameters.
 source $1
 #If missing parameters, set defaults
