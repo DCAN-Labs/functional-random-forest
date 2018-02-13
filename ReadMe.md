@@ -49,7 +49,7 @@ matlab functions themselves, one will need to add the package to the
 MATLAB path. After starting matlab type:  
 
 ```matlab  
-addpath(genpath(‘/destination/path/for/FRF/’))  
+addpath(genpath('/destination/path/for/FRF/'))  
 ```
   
 and the matlab functions will be available within a matlab session.
