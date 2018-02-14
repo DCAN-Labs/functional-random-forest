@@ -98,13 +98,27 @@ if parallel_processing
 end
 %if multiple thresholds were selected, let us calculate power over the
 %range
-for curr_thresh = 1:length(performance_thresholds)
+switch(forest_type)
+    case('Regression')
+        for curr_thresh = 1:length(performance_thresholds)
 %now that we have performance metrics, let us calculate observed power as
 %the percentage of H=1 tests confirmed as H=1 divided by the total H
-    statistical_power(:,curr_thresh) = sum(observed_performance >= performance_thresholds(curr_thresh),2)/nsims;
+            statistical_power(1,curr_thresh) = sum(observed_performance(1,:) <= performance_thresholds(curr_thresh))/nsims;
+            statistical_power(2,curr_thresh) = sum(observed_performance(2,:) >= performance_thresholds(curr_thresh))/nsims;
 %now let us calculate the false positive rate as the percentage of H=0
 %tests found to be H=1 divided by the total H
-    false_positive(:,curr_thresh) = sum(null_performance >= performance_thresholds(curr_thresh),2)/nsims;
+            false_positive(1,curr_thresh) = sum(null_performance(1,:) <= performance_thresholds(curr_thresh))/nsims;
+            false_positive(2,curr_thresh) = sum(null_performance(2,:) >= performance_thresholds(curr_thresh))/nsims;            
+        end        
+    case('Classification')
+        for curr_thresh = 1:length(performance_thresholds)
+%now that we have performance metrics, let us calculate observed power as
+%the percentage of H=1 tests confirmed as H=1 divided by the total H
+            statistical_power(:,curr_thresh) = sum(observed_performance >= performance_thresholds(curr_thresh),2)/nsims;
+%now let us calculate the false positive rate as the percentage of H=0
+%tests found to be H=1 divided by the total H
+            false_positive(:,curr_thresh) = sum(null_performance >= performance_thresholds(curr_thresh),2)/nsims;
+        end
 end
 save(strcat(filename,'.mat'),'statistical_power','observed_performance','null_performance','sample_size','false_positive','performance_thresholds');
 end

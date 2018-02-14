@@ -129,15 +129,15 @@ switch(learning_type)
         permuted_comp_mat = permuted_mat + permuted_true_mat;
         nodepairs = length(comp_mat)*(length(comp_mat) -1)/2;
         A = (length(find(comp_mat == 3)) - length(comp_mat))/2; %same true - same observed
-        B = (length(find(comp_mat == 1)) - length(comp_mat))/2; %same true - different observed
-        C = (length(find(comp_mat == 2)) - length(comp_mat))/2; %different true - same observed
-        D = (length(find(comp_mat == 0)) - length(comp_mat))/2; %different true - different observed
+        B = (length(find(comp_mat == 1)))/2; %same true - different observed
+        C = (length(find(comp_mat == 2)))/2; %different true - same observed
+        D = (length(find(comp_mat == 0)))/2; %different true - different observed
         perm_A = (length(find(permuted_comp_mat == 3)) - length(permuted_comp_mat))/2; %same true - same observed
-        perm_B = (length(find(permuted_comp_mat == 1)) - length(permuted_comp_mat))/2; %same true - different observed
-        perm_C = (length(find(permuted_comp_mat == 2)) - length(permuted_comp_mat))/2; %different true - same observed
-        perm_D = (length(find(permuted_comp_mat == 0)) - length(permuted_comp_mat))/2; %different true - different observed
-        accuracy = ((nodepairs*(A+D))-((A+B)*(A+C) + (C+D)*(B+D)))/(nodepairs - ((A+B)*(A+C) + (C+D)*(B+D)));
-        permuted_accuracy = ((nodepairs*(perm_A+perm_D))-((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)))/(nodepairs - ((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)));   
+        perm_B = (length(find(permuted_comp_mat == 1)))/2; %same true - different observed
+        perm_C = (length(find(permuted_comp_mat == 2)))/2; %different true - same observed
+        perm_D = (length(find(permuted_comp_mat == 0)))/2; %different true - different observed
+        accuracy = ((nodepairs*(A+D))-((A+B)*(A+C) + (C+D)*(B+D)))/((nodepairs^2) - ((A+B)*(A+C) + (C+D)*(B+D)));
+        permuted_accuracy = ((nodepairs*(perm_A+perm_D))-((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)))/((nodepairs^2) - ((perm_A+perm_B)*(perm_A+perm_C) + (perm_C+perm_D)*(perm_B+perm_D)));   
         system(['rm -rf ' output_temp_dir '_output']);
         system(['rm -rf ' output_temp_dir '.mat']);
 end  
