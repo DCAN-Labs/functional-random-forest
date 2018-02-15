@@ -19,6 +19,8 @@ ngroup1_substested = 0;
 ngroup2_substested = 0;
 group1class = 0;
 group2class = 0;
+group1predict = 0;
+group2predict = 0;
 class_method = 'classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
