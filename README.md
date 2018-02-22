@@ -44,7 +44,7 @@ Both the source and compiled versions also require that Infomap
 ### Using the package in the matlab environment
 
 FRF was designed such that an individual does not need to access the
-matlab environment to run the data. If one is planning to use any of the
+matlab IDE to run the data. If one is planning to use any of the
 matlab functions themselves, one will need to add the package to the
 MATLAB path. After starting matlab type:
 
