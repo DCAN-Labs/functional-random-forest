@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,outofbag_varimp,group1class,group2class,group1predict,group2predict] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
+function [accuracy,treebag,outofbag_error,outofbag_varimp,group1class,group2class,group1predict,group2predict,group1scores,group2scores] = TestTreeBags(learning_groups, learning_data, testing_groups, testing_data,ntrees,type,treebag,treeweights,categorical_vector,varargin)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('type','var') == 0
@@ -21,6 +21,8 @@ group1class = 0;
 group2class = 0;
 group1predict = 0;
 group2predict = 0;
+group1scores = 0;
+group2scores = 0;
 class_method = 'classification';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
@@ -112,7 +114,7 @@ switch(type)
         outofbag_error = NaN;
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
-            predicted_classes_new = predict(treebag,testing_data);
+            [predicted_classes_new,predicted_scores_new] = predict(treebag,testing_data);
             accuracy = zeros(3,1);
             accuracy_prediction = abs(predicted_classes_new - testing_groups);
             temp_sub_index = 0;
@@ -120,11 +122,13 @@ switch(type)
                 temp_sub_index = temp_sub_index + 1;
                 group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                 group1predict(i) = predicted_classes_new(temp_sub_index);
+                group1scores(i) = predicted_scores_new(temp_sub_index);
             end
             for i = 1:ngroup2_substested
                 temp_sub_index = temp_sub_index + 1;
                 group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                 group2predict(i) = predicted_classes_new(temp_sub_index);
+                group2scores(i) = predicted_scores_new(temp_sub_index);
             end
             accuracy(1,1) = mean(accuracy_prediction);
             accuracy(2,1) = corr(predicted_classes_new,testing_groups);
@@ -141,18 +145,21 @@ switch(type)
             s_squared = (nx1+nx2)/((2*N)-1);
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
-            predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
+           [predicted_classes,predicted_scores] = predict(treebag,testing_data);
+           predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
             for i = 1:ngroup1_substested
                 temp_sub_index = temp_sub_index + 1;
                 group1class(i) = accuracy_prediction(temp_sub_index);
                 group1predict(i) = predicted_classes(temp_sub_index);
+                group1scores(i) = predicted_scores(temp_sub_index);
             end
             for i = 1:ngroup2_substested
                 temp_sub_index = temp_sub_index + 1;
                 group2class(i) = accuracy_prediction(temp_sub_index);
                 group2predict(i) = predicted_classes(temp_sub_index);
+                group2scores(i) = predicted_scores(temp_sub_index);
             end
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);
@@ -168,7 +175,7 @@ switch(type)
         outofbag_error = NaN;
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
-            predicted_classes_new = predict(treebag,testing_data,'TreeWeights',treeweights);
+            [predicted_classes_new,predicted_scores_new] = predict(treebag,testing_data,'TreeWeights',treeweights);
             accuracy = zeros(3,1);
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -176,6 +183,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group1predict(i) = predicted_classes_new(temp_sub_index);
+                    group1scores(i) = predicted_scores_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -185,6 +193,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group2predict(i) = predicted_classes_new(temp_sub_index);
+                    group2scores(i) = predicted_scores_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
@@ -205,7 +214,8 @@ switch(type)
             s_squared = (nx1+nx2)/((2*N)-1);
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
-            predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights)));
+            [predicted_classes,predicted_scores] =predict(treebag,testing_data,'TreeWeights',treeweights);
+            predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -213,6 +223,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
                     group1predict(i) = predicted_classes(temp_sub_index);
+                    group1scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -222,6 +233,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
                     group2predict(i) = predicted_classes(temp_sub_index);
+                    group2scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group2class = NaN;
@@ -245,7 +257,7 @@ switch(type)
         outofbag_error = oobError(treebag);
         outofbag_varimp = treebag.OOBPermutedPredictorDeltaError;
         if strcmp(varargin{1},'regression')
-            predicted_classes_new = predict(treebag,testing_data);
+            [predicted_classes_new,predicted_scores_new] = predict(treebag,testing_data);
             accuracy = zeros(3,1);
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -253,6 +265,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group1predict(i) = predicted_classes_new(temp_sub_index);
+                    group1scores(i) = predicted_scores_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -262,6 +275,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group2predict(i) = predicted_classes_new(temp_sub_index);
+                    group2scores(i) = predicted_scores_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
@@ -282,7 +296,8 @@ switch(type)
             s_squared = (nx1+nx2)/((2*N)-1);
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
-            predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
+            [predicted_classes,predicted_scores] = predict(treebag,testing_data);
+            predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -290,6 +305,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
                     group1predict(i) = predicted_classes(temp_sub_index);
+                    group1scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -299,6 +315,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
                     group2predict(i) = predicted_classes(temp_sub_index);
+                    group2scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group2class = NaN;
@@ -322,7 +339,7 @@ switch(type)
         outofbag_error = oobError(treebag);
         outofbag_varimp = NaN;
         if strcmp(varargin{1},'regression')
-            predicted_classes_new = predict(treebag,testing_data);
+            [predicted_classes_new,predicted_scores_new] = predict(treebag,testing_data);
             accuracy = zeros(3,1);
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -330,6 +347,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group1predict(i) = predicted_classes_new(temp_sub_index);
+                    group1scores(i) = predicted_scores_new(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -339,6 +357,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group2predict(i) = predicted_classes_new(temp_sub_index);
+                    group2scores(i) = predicted_scores_new(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
@@ -359,7 +378,8 @@ switch(type)
             s_squared = (nx1+nx2)/((2*N)-1);
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
-            predicted_classes = str2num(cell2mat(predict(treebag,testing_data)));
+            [predicted_classes,predicted_scores] = predict(treebag,testing_data);
+            predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
 			if testing_indexgroup1 ~= 0
@@ -367,6 +387,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
                     group1predict(i) = predicted_classes(temp_sub_index);
+                    group1scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -376,6 +397,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
                     group2predict(i) = predicted_classes(temp_sub_index);
+                    group2scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group2class = NaN;
@@ -391,7 +413,8 @@ switch(type)
     case('validationPlusOOB_weighted')
         ngroups_index = union(unique(testing_groups),unique(learning_groups));
         ngroups = max(size(ngroups_index));
-        predicted_classes = str2num(cell2mat(predict(treebag,testing_data,'TreeWeights',treeweights,'Surrogate',surrogate)));
+        [predicted_classes,predicted_scores] = predict(treebag,testing_data,'TreeWeights',treeweights,'Surrogate',surrogate);
+        predicted_classes = str2num(cell2mat(predicted_classes));
         if strcmp(varargin{1},'regression')
             accuracy = zeros(3,1);
             predicted_classes_new = zeros(max(max(size(predicted_classes))),1);
@@ -404,6 +427,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group1predict(i) = predicted_classes_new(temp_sub_index);
+                    group1scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -413,6 +437,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = abs(predicted_classes_new(temp_sub_index) - testing_groups(temp_sub_index));
                     group2predict(i) = predicted_classes_new(temp_sub_index);
+                    group2scores(i) = predicted_scores(temp_sub_index);
             	end            
 			else
 				group2class = NaN;
@@ -440,6 +465,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group1class(i) = accuracy_prediction(temp_sub_index);
                     group1predict(i) = predicted_classes(temp_sub_index);
+                    group1scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group1class = NaN;
@@ -449,6 +475,7 @@ switch(type)
                 	temp_sub_index = temp_sub_index + 1;
                 	group2class(i) = accuracy_prediction(temp_sub_index);
                     group2predict(i) = predicted_classes(temp_sub_index);
+                    group2scores(i) = predicted_scores(temp_sub_index);
             	end
 			else
 				group2class = NaN;

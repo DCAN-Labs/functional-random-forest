@@ -338,6 +338,7 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
 %incorporating newer community detection here:
+ColorData = [0.8 0 0.8; 0.7 0 0.7; 0.6 0 0.6; 0.5 0 0.5; 0.4 0 0.4; 0.3 0 0.3; 0.2 0 0.2; 0.9 0.8 0; 0.8 0.7 0; 0.7 0.6 0; 0.6 0.5 0; 0.5 0.4 0; 0.4 0.3 0; 0.3 0.2 0]; 
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
@@ -355,7 +356,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     %visualize community matrix
     h = figure(4 + nfigures);
     imagesc(community_matrix);
-    colormap(colorcube)
+    colormap(ColorData)
     caxis([min(min(community_matrix)) max(max(community_matrix))]);
     xlabel('edge density (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -367,7 +368,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
     h = figure(5 + nfigures);
     community_matrix_sorted = community_matrix(sorting_order);
     imagesc(community_matrix_sorted);
-    colormap(colorcube)
+    colormap(ColorData)
     caxis([min(min(community_matrix_sorted)) max(max(community_matrix_sorted))]);
     xlabel('edge density (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
@@ -451,7 +452,7 @@ if outcomes_recorded == 1
 %visualize sorted commmunity matrix
     h = figure(8 + nfigures);
     imagesc(subgroup_community_num);
-    colormap(colorcube)
+    colormap(ColorData)
     caxis([min(min(subgroup_community_num)) max(max(subgroup_community_num))]);
     xlabel('group type','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
