@@ -207,8 +207,8 @@ parameter file").
 The `RFSD` and `FRF` packages contain `bash` wrappers for executing the algorithm
 from the command line. Parameter files are used to store the
 configuration for the analysis. Below are the parameters available for
-running the RFSD using the ConstructModelTreeBag_wrapper.sh. These
-parameters can be found in the TreeBagParamFile_example.bash:
+running the `RFSD` using the `ConstructModelTreeBag_wrapper.sh`. These
+parameters can be found in the `TreeBagParamFile_example.bash`:
 
 ```bash
 #!/bin/bash
