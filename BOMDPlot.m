@@ -96,7 +96,7 @@ LegendFont=8;
 FigWidth=8;
 FigHeight=6;
 TopMargin=0.1;
-BottomMargin=0;
+BottomMargin=0.13;
 LeftMargin=0.1;
 RightMargin=0.05;
 BetweenHorz=0.1;
@@ -239,7 +239,7 @@ NCharts = size(InputData{1},1);
 if exist('PValues','var') == 0
     PValues = zeros(NCharts,1) + NaN;
 end
-ylim([(YRange(1) - range(YRange)*0.2) YRange(2)])
+ylim([(YRange(1) - range(YRange)*0.2) YRange(2)+0.2+range(YRange)*0.3])
 MidY = YRange(1) + range(YRange)/2;
 if YRange(1) == 0 && YRange(2) == 1
     str_multi=100;
@@ -257,6 +257,8 @@ for curr_chart = 1:NCharts
     hold all
     line([1 1],y_t{1}(:,curr_chart),...
         'linewidth',ThinLineWidth,'color',ColorData(1,:))
+ylim([(YRange(1) - range(YRange)*0.2) YRange(2)+0.2+range(YRange)*0.3])
+MidY = YRange(1) + range(YRange)/2;
     line([1 1],y_T{1}(:,curr_chart),...
         'linewidth',ThickLineWidth,'color',ColorData(1,:))    
     plot(1,m_data{1}(curr_chart),'o','markeredgecolor',ColorData(1,:),'MarkerFaceColor','w','markersize',8);
@@ -305,12 +307,15 @@ for curr_chart = 1:NCharts
     else
         title(PlotTitle{curr_chart},'fontsize',TitleFont);
     end
-    text(mean(XRange),YRange(1)+range(YRange)*0.1,['p < ' num2str(PValues(curr_chart),'%0.3f')],...
-        'fontsize',LegendFont,...
-        'VerticalAlignment','cap',...
-        'HorizontalAlignment','center')
+    if isnan(PValues(curr_chart)) == 0
+        text(mean(XRange),YRange(1)+range(YRange)*0.1,['p < ' num2str(PValues(curr_chart),'%0.3f')],...
+            'fontsize',LegendFont,...
+            'VerticalAlignment','cap',...
+            'HorizontalAlignment','center')
+    end
 
 end
+
 for curr_legend = 1:length(LegendNames)
     line([(XRange(1)+((curr_legend-1) * 1)) (XRange(1)+((curr_legend-1)*1)+0.5)],[YRange(2)+range(YRange)*0.2 YRange(2)+range(YRange)*0.2],'linewidth',ThickLineWidth,'color',ColorData(curr_legend,:))
     text((XRange(1)+((curr_legend-1) * 1)),YRange(2)+range(YRange)*0.3,LegendNames{curr_legend},'FontSize',LegendFont)
