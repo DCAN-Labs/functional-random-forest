@@ -86,7 +86,9 @@ switch(type)
         for i = 1:size(temp_data,1);
             notempty = 0;
             if isempty(find(cellfun(@isempty, temp_data(i,:)) == 1))
-                notempty = 1;
+                if isempty(find(cell2mat((cellfun(@(x) strcmp(' ',x), temp_data(i,:),'UniformOutput',false))) == 1))
+                    notempty = 1;
+                end
             end               
             if isempty(find(cellfun(@(x) strcmp(char(num2str((x))),'NaN'),temp_data(i,:)) == 1)) && notempty
                 count = count + 1;
