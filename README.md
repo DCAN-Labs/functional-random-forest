@@ -11,7 +11,9 @@ brief introduction will walk the user through installing the software.
 
 ### Getting the package
 
-The FRF code can be found on the github repository (). This repository
+The FRF code can be found on the github
+[repository](https://github.com/DCAN-Labs/functional-random-forest).
+This repository
 is intended for public release as a stable build. For the developmental
 builds please contact Eric Feczko (<feczko@ohsu.edu>) or the Fair Lab.
 The repository itself can be installed at any location through use of
@@ -108,7 +110,7 @@ string_cols=[2 3 4]
 
 type='surrogate'
 # sets whether the output contains rows with missing data ('surrogate')
-#   or excludes the rows ('no surrogate')
+#   or excludes the rows ('no_surrogate')
 
 varname=group_data
 # the name of the variable saved to the .mat file
