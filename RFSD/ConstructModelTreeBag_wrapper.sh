@@ -6,6 +6,8 @@
 # See the TreeBagParamFile_example.bash for more information on available
 # parameters.
 
+set -e # error out on failure
+
 source $1
 
 #declare missing parameters that have logic flow as false -- correction 12/14/16
