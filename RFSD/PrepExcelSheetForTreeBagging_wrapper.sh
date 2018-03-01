@@ -12,4 +12,4 @@ varname=${varname:-'group_data'}
 type=${type:-'surrogate'}
 stringcols=${stringcols:-0}
 #Construct the model, which will save outputs to a filename.mat file
-${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; PrepExcelSheetForTreeBagging('"$excelfile"','"$output_matfile"',"$exists_header","$exists_header","$string_cols",'"$type"','DataName','"$varname"'); exit"
+${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; PrepExcelSheetForTreeBagging('"$excelfile"','"$output_matfile"',"$exists_header","$string_cols",'"$type"','DataName','"$varname"'); exit"
