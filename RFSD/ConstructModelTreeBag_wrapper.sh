@@ -46,6 +46,7 @@ if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
 if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
 if $matchgroups; then matchgroups='MatchGroups'; else matchgroups='NONE'; fi
 if $cross_validate; then cv='CrossValidate'; else cv='NONE'; fi
+
 #If missing other parameters, set defaults
 datasplit=${datasplit:-0.9}
 ntrees=${ntrees:-10000}
@@ -68,5 +69,6 @@ highdensity=${highdensity:-1}
 infomapfile=${infoampfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
 matlab_command=${matlab_command:-'matlab'}
+
 #Construct the model, which will save outputs to a filename.mat file
 ${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds",'InfomapFile','"$infomapfile"') ; exit"
