@@ -86,41 +86,41 @@ for documentation on usage.
 On a command line, the PrepExcelSheetForTreeBagging_wrapper.sh can be
 used to prepare your data from an excel sheet. The wrapper requires you
 to create a parameter file, which can be modified from the existing
-PrepExcelSheetForTreeBagging_example.bash file. The contents of the
+`PrepExcelSheetForTreeBagging_example.bash` file. The contents of the
 file are reprinted below. Each parameter precedes its definition; all
 definitions are noted by hashmarks, excluding the first line:
 
 ```bash
 #!/bin/bash
 
-excelfile=/path/to/excelfile/.xls
 # path and filename where the excel spreadsheet is located
+excelfile=/path/to/excelfile/.xls
 
-output_matfile=/path/to/dataset.mat
 # the name of the output (.mat) file.
+output_matfile=/path/to/dataset.mat
 
-exists_header=0
 # if set to anything but 0 or blank, the first row of the excel file is
 #   a header and will be ignored
+exists_header=0
 
-string_cols=[2 3 4]
 # a numeric vector encapsulated by square brackets, where each number
 #   denotes a column that represents a categorical variable, set to 0 if
 #   no such variable exists
+string_cols=[2 3 4]
 
-type='surrogate'
 # sets whether the output contains rows with missing data ('surrogate')
 #   or excludes the rows ('no_surrogate')
+type='surrogate'
 
-varname=group_data
 # the name of the variable saved to the .mat file
+varname=group_data
 
-repopath=/destination/path/for/FRF
 # the full path to the repository containing the RFAnalysis code.
+repopath=/destination/path/for/FRF
 
-matlab_command=matlab
 # the name of the matlab command line executable, can include arguments
 #   additional options, etc. SingleCompThread is enabled by default.
+matlab_command=matlab
 ```
 
 After generating a parameter file, one can prepare their data using the
@@ -128,9 +128,12 @@ wrapper. From a bash terminal, one can execute the wrapper on his or her
 parameter file:
 
 ```bash
-/path/to/RFAnalysis/PrepExcelSheetForTreeBagging_wrapper.sh \
-parameterfile.bash
+./RFSD/PrepExcelSheetForTreeBagging_wrapper.sh parameterfile.bash
 ```
+
+*NOTE* that parameter files in the `RFSD` directory end with the file
+extension `.bash`. This is to help discern if a file is intended to be
+an executable (ending in `.sh`) or a parameters file.
 
 The output from PrepExcelSheetForTreebagging will be a .mat file
 containing your named variable. Both the variable name and path must be
