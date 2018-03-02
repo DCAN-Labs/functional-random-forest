@@ -19,7 +19,6 @@ end
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
-infomapfile='/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap';
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -47,6 +46,10 @@ if size(dir(outdir),1) == 0
 end
 if isempty(dir(command_file))
     errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
+    error('TB:comfilechk',errmsg);
+end
+if isempty(dir(infomapfile))
+    errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
     error('TB:comfilechk',errmsg);
 end
 ncomps = nreps*ncomps_per_rep;
