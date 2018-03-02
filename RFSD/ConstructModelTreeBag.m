@@ -122,11 +122,18 @@ if isempty(varargin) == 0
         end
     end
 end
-if isempty(dir(command_file))
-    warning(strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file));
+if exist('command_file','var') == 0
+    warning('command file does not exist, subgroup detection will error at the end...')
+else
+    if isempty(dir(command_file))
+        warning(strcat('error: infomap command not found, command_file variable not valid, subgroup detection will error at the end...',command_file));
+    end
 end
-if isempty(dir(infomapfile))
-    warning(strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile));
+if exist('infomap_file','var') == 0
+    warning('infomap_file does not exist, subgroup detection will error at the end...')
+    if isempty(dir(infomapfile))
+        warning(strcat('error: infomap repo not found, infomapfile variable not valid, subgroup detection will error at the end...',infomapfile));
+    end
 end
 switch(size(varargin,2))
     case(0)
@@ -319,6 +326,14 @@ toc
 if write_file
     save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','group1scores','group2scores','-v7.3');
     sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
+    if exist('command_file','var') == 0
+        errmsg = 'command_file does not exist, quitting...';
+        error('TB:comfilechk',errmsg);
+    end
+    if exist('infomapfile','var') == 0
+        errmsg = 'command_file does not exist, quitting...';
+        error('TB:comfilechk',errmsg);
+    end    
     if isempty(dir(command_file))
         errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
         error('TB:comfilechk',errmsg);
