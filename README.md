@@ -303,7 +303,7 @@ be saved in:
 number X
 #### Stored outputs
 Data dictionaries for output files are specified below.
-##### filename.mat data dictionary
+##### `filename.mat` data dictionary
 
 | variable name    | matlab datatype                   | R datatype            | python datatype      | dimensions | minimum value     | maximum value     | null value     | description                                                                                                                                                                                                                                    |
 |------------------|-----------------------------------|-----------------------|----------------------|------------|-------------------|-------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
