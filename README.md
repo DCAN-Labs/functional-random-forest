@@ -238,7 +238,7 @@ Comments of the form below, are used to designate categories of defined variable
 # =====================
 ```
 
-Our example config file is found [here](./RFSD/TreeBagparamfile.bash).
+Our example config file is found [here](./RFSD/TreeBagParamFile_example.bash).
 
 ### Running the analysis
 
