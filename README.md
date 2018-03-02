@@ -261,7 +261,7 @@ The manual will cover two standard and two optional workflows:
 Once you have prepared the parameter file, you can run the RFSD analysis
 using the ConstructModelTreeBag_wrapper.sh command.
 ```bash
-/path/to/RFAnalysis/PrepExcelSheetForTreeBagging_wrapper.sh paramfile.bash
+ ./RFSD/ConstructModelTreeBag_wrapper.sh paramfile.bash
 ```
 The runtime for ConstructModelTreeBag varies by multiple factors.
 Individual forests are affected by the complexity of the data, the number
