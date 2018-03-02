@@ -166,21 +166,6 @@ estimate_predictors=false
 OOB_error=false
 
 # =====================
-# == Legacy options should not be used and are disabled by default
-# =====================
-# if set to true, the random forest algorithm will attempt to estimate the
-#   number of trees to use for classification per iteration using out-of-bag
-#   classification accuracy for optimization.
-estimate_trees=false
-
-# if set to true, the random forest algorithm will weight each tree in the
-#   random forest by the variance of its within-sample accuracy
-weight_trees=false
-
-# if set to true, the algorithm will estimate the number of predictors per tree
-estimate_treepred=false
-
-# =====================
 # == community detection parameters
 # =====================
 # used for community detection -- the lowest edge density to examine community structure
@@ -195,3 +180,19 @@ highdensity=1
 # the full path and filename for the Infomap executable, must be installed
 #   from http://mapequation.org
 infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
+
+# =====================
+# == Legacy options should not be used and are disabled by default
+# =====================
+# if set to true, the random forest algorithm will attempt to estimate the
+#   number of trees to use for classification per iteration using out-of-bag
+#   classification accuracy for optimization.
+estimate_trees=false
+
+# if set to true, the random forest algorithm will weight each tree in the
+#   random forest by the variance of its within-sample accuracy
+weight_trees=false
+
+# if set to true, the algorithm will estimate the number of predictors per tree
+estimate_treepred=false
+
