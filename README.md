@@ -70,7 +70,7 @@ to matlab and will need to be represented as a variable and stored in
 the .mat format. Depending on the type of source, different steps can be
 taken to prepare the data properly.
 
-It is important to note that empty cells in your data set are expected to 
+*NOTE* that empty cells in your data set are expected to
 be represented by `NaN`s before being passed into the `RFSD` algorithm.
 If you have empty cells, or cells with only whitespace, in an excel spreadsheet,
 the provided function `PrepExcelSheetForTreeBagging` will create a matlab struct
