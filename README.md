@@ -29,7 +29,6 @@ There are two versions of the FRF, the source version and the compiled
 version. The source FRF has two external dependencies:
 
 1)  MATLAB version 2016 or higher
-
 2)  MATLAB Machine learning and statistical toolbox
 
 <!-- end list -->
@@ -42,6 +41,13 @@ The compiled FRF has one external dependency:
 
 Both the source and compiled versions also require that Infomap
 (http://mapequation.org) is installed on your system.
+
+There is also a `python2.7` dependency in this project, to support a simpler
+interface to `Infomap`. In order to install this dependency you must install
+
+- `python2.7`
+- `numpy`
+- `scipy`
 
 ### Using the package in the matlab environment
 
