@@ -91,8 +91,6 @@ lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
 cross_validation = 0;
-infomapfile='/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap';
-command_file = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
 write_file = logical(1);
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
@@ -123,6 +121,12 @@ if isempty(varargin) == 0
             end
         end
     end
+end
+if isempty(dir(command_file))
+    warning(strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file));
+end
+if isempty(dir(infomapfile))
+    warning(strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile));
 end
 switch(size(varargin,2))
     case(0)
@@ -315,6 +319,14 @@ toc
 if write_file
     save(strcat(filename,'.mat'),'accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','group1scores','group2scores','-v7.3');
     sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
+    if isempty(dir(command_file))
+        errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
+        error('TB:comfilechk',errmsg);
+    end
+    if isempty(dir(infomapfile))
+        errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
+        error('TB:comfilechk',errmsg);
+    end
     VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
 end
 end

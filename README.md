@@ -70,7 +70,7 @@ to matlab and will need to be represented as a variable and stored in
 the .mat format. Depending on the type of source, different steps can be
 taken to prepare the data properly.
 
-*NOTE* that empty cells in your data set are expected to
+**NOTE** that empty cells in your data set are expected to
 be represented by `NaN`s before being passed into the `RFSD` algorithm.
 If you have empty cells, or cells with only whitespace, in an excel spreadsheet,
 the provided function `PrepExcelSheetForTreeBagging` will create a matlab struct
@@ -137,7 +137,7 @@ parameter file:
 ./RFSD/PrepExcelSheetForTreeBagging_wrapper.sh parameterfile.bash
 ```
 
-*NOTE* that parameter files in the `RFSD` directory end with the file
+**NOTE** that parameter files in the `RFSD` directory end with the file
 extension `.bash`. This is to help discern if a file is intended to be
 an executable (ending in `.sh`) or a parameters file.
 
@@ -250,16 +250,98 @@ Comments of the form below, are used to designate categories of defined variable
 Our example config file is found [here](./RFSD/TreeBagParamFile_example.bash).
 
 ### Running the analysis
+RFSD allows for multiple different workflows to analyze your data.
+The manual will cover two standard and two optional workflows:
+1) RFSD analysis
+2) RFSD power analysis
+3*) Rerun subgroup analysis
+4*) Perform community detection on a proximity matrix
+
+#### RFSD analysis
+Once you have prepared the parameter file, you can run the RFSD analysis
+using the ConstructModelTreeBag_wrapper.sh command.
+```bash
+/path/to/RFAnalysis/PrepExcelSheetForTreeBagging_wrapper.sh paramfile.bash
+```
+The runtime for ConstructModelTreeBag varies by multiple factors.
+Individual forests are affected by the complexity of the data, the number
+of trees, and model construction parameters like the number of variables
+examined per branch. Total runtime is affected by factors like the number
+of participants, and the type of validation performed. With OOB turned on
+each RF model increases in runtime as the number of subjects increases.
+With variable importance turned on, the runtime will increase by the
+number of variables.
+
+Currently, we have not performed a rigorous analysis of how each factor
+affects runtime. For a 10-fold cross-validation with 3 repetitions on
+1000 trees, the RF validation should take no more than an hour to
+complete, if out of bag (OOB) error and variable importance are turned off.
+It is recommended to perform a single large model (10 times as many trees)
+on one repetition when evaluating OOB error or variable importance; a
+single RF model may take 1-4 hours if these options are enabled.
+
+Subgroup detection runtime depends on the type of classifer, and the
+number of edge densities explored, as set by the parameter file. With
+the defaults enabled, subgroup detection will take 4 hours on unsupervised
+or regression models, and up to 12 hours on supervised classifiation
+models.
+#### RFSD power analysis
+RFSD power analysis requires preparation of the RFSD parameter file.
+Because the power analysis is computationally intensive, we recommended
+using a computing cluster to enable parallelization of the simulations.
+
 
 ### Interpreting the outputs
-
+Outputs are stored as .mat files. Although there are multiple intermediate
+outputs, only two contain the final outputs from the analysis:
+1) filename.mat -- contains relevant outputs from the RF models
+2) filename_output/subgroup_community_assignments.mat --  contains relevant outputs from the subgroup
+detection
+*If a supervised classifier is selected, additional intermediate outputs will
+be saved in:
+3*) filename_output_groupX/ -- contains relevant outputs from group (class)
+number X
 #### Stored outputs
+Data dictionaries for output files are specified below.
+##### filename.mat data dictionary
 
-##### Description of outputs
+| variable name    | matlab datatype                   | R datatype            | python datatype      | dimensions | minimum value     | maximum value     | null value     | description                                                                                                                                                                                                                                    |
+|------------------|-----------------------------------|-----------------------|----------------------|------------|-------------------|-------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| accuracy         | numeric matrix                    | data matrix           | numpy array          | 2-3        | -1                | 1                 | cannot be null | model performance: first dimension reflects statistic type (e.g. group accuracy, total performance, error, or correlation), second dimension reflects repetition/fold index, third dimension reflects repetition index (if CV is enabled).     |
+| features         | numeric matrix                    | data matrix           | numpy array          | 1          | 0                 | +inf              | cannot be null | #times each predictor is used                                                                                                                                                                                                                  |
+| final_data       | numeric matrix                    | data matrix           | numpy array          | 2          | depends on dataset| depends on dataset           | cannot be null | data excluding the outcome variable, can be used with "subgroup_community_assignments" to evaluate features used                                                                                                                                                                                                                  |
+| final_outcomes   | numeric matrix                    | data matrix           | numpy array          | 1          | depends on dataset| depends on dataset           | cannot be null | outcome_variable, can be used with "subgroup_community_assignments" to evaluate outcomes by subgroup                                                                                                                                                                                                              |
+| features         | numeric matrix                    | data matrix           | numpy array          | 1          | 0                 | +inf              | cannot be null | #times each predictor is used                                                                                                                                                                                                                  |
+| group1class      | numeric matrix                    | data matrix           | numpy array          | 1          | -1                | 1                 | cannot be null | individual performance for first dataset                                                                                                                                                                                                       |
+| group1predict    | numeric matrix                    | data matrix           | numpy array          | 1          | outcome dependent | outcome dependent | cannot be null | model prediction for first dataset                                                                                                                                                                                                             |
+| group1scores     | numeric matrix                    | data matrix           | numpy array          | 1          | outcome dependent | outcome dependent | cannot be null | model score for first dataset                                                                                                                                                                                                                  |
+| group2class      | numeric matrix                    | data matrix           | numpy array          | 1          | -1                | 1                 | NaN            | individual performance for second dataset                                                                                                                                                                                                      |
+| group2predict    | numeric matrix                    | data matrix           | numpy array          | 1          | outcome dependent | outcome dependent | NaN            | model prediction for second dataset                                                                                                                                                                                                            |
+| group2scores     | numeric matrix                    | data matrix           | numpy array          | 1          | outcome dependent | outcome dependent | NaN            | model score for second dataset                                                                                                                                                                                                                 |
+| npredictors      | numeric                           | int32                 | int32                | scalar     | 1                 | # of features     | NaN            | number of predictors used to grow each branch                                                                                                                                                                                                  |
+| outofbag_error   | numeric matrix                    | data matrix           | numpy array          | 2          | 0                 | 1                 | NaN            | Cumulative OOB error: first dimension reflects repetition index, second dimension reflects # of trees                                                                                                                                          |
+| outofbag_varimp  | numeric matrix                    | data matrix           | numpy array          | 2          | -1                | 1                 | NaN            | OOB measured variable importance: first dimension reflects repetition index, second dimension reflects feature index                                                                                                                           |
+| permute_accuracy | numeric matrix                    | data matrix           | numpy array          | 2-3        | -1                | 1                 | NaN            | Null model performance. See "accuracy" for format.                                                                                                                                                                                             |
+| proxmat          | cell matrix                       | list of data matrices | list of numpy arrays | 1          | 0                 | 1                 | cannot be null | NxN proximity matrices generated from the RF, one per forest is saved to limit space. N refers to the number of subjects. If group2_validate_only is set to true, then the proximity matrix will only reflect the independent testing dataset. |
+| treebag          | cell matrix containing RF objects | N/A                   | N/A                  | 1          | N/A               | N/A               | NaN            | this variable contains each model generated from the RF validation. The size of the matrix depends on the number of forests generated. Each model is stored as a TreeBagger class object, and cannot be loaded yet in R or python.             |
+| trimmed_features | numeric_matrix                    | data matrix           | numpy array          | 2-3        | 1                 | # of features     | NaN            | If features were trimmed using the legacy "estimate_features" option, this variable contains an index of which features were used. We do not advise using this feature.                                                                        |
+#####filename_output/subgroup_community_assignments.mat data dictionary
 
-##### Loading outputs in R
+| variable name                  | matlab datatype | R datatype            | python datatype      | dimensions | minimum value | maximum value | null value     | description                                                                                                                                                                                                                                              |
+|--------------------------------|-----------------|-----------------------|----------------------|------------|---------------|---------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| community_subgroup_performance | cell matrix     | list of lists         | list of numpy arrays | 1          | -1            | 1             | cannot be null | Contains the model performance for each individual, split first by class, then by subgroup within class. Each subgroup list contains a matrix of number reflecting performance. Mean absolute error is used for regression, accuracy for classification. |
+| subgroup_community_assignments | cell matrix     | list                  | list                 | 1          | G1_1          | GX_Xs         | cannot be null | list of subgroups identified by the RFSD, X refers to the class, Xs refers to the subgroup within the class                                                                                                                                              |
+| subgroup_community_num         | numeric matrix  | data matrix           | numpy array          | 2          | 1             | +inf          | cannot be null | numeric representation of subgroup_community_assignments: first column represents the class index, second column represents the subgroup index for that subject                                                                                          |
+| subgroup_communities           | cell matrix     | list of data matrices | list of numpy arrays | 1          | 1             | +inf          | cannot be null | list of subgroup communities for each class                                                                                                                                                                                                              |
+| subgroup_sorting_orders        | cell matrix     | list of data matrices | list of numpy arrays | 1          | 1             | # of cases    | cannot be null | list of order of subjects in the other variables split by subgroup, can be used to query "filename_output.mat"                                                                                                                                           |
+| proxmat_subgroup_sorted        | numeric_matrix  | data matrix           | numpy array          | 2          | 0             | 1             | cannot be null | The mean proximity matrix (NxN where N is the number of cases) sorted first by class and then by subgroup.                                                                                                                                               |
+Data dictionaries will be expanded for non-critical outputs in
+upcoming releases. Please contact the development team via github
+for questions and requests.
 
-##### Converting outputs to text
+#### Loading outputs in R
+
+#### Converting outputs to text
 
 #### Data visualizations
 
