@@ -66,7 +66,7 @@ group2outcome=${group2outcome:-0}
 lowdensity=${lowdensity:-0.2}
 stepdensity=${stepdensity:-0.05}
 highdensity=${highdensity:-1}
-infomapfile=${infoampfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
+infomapfile=${infomapfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
 infomap_command_file=${infomap_command_file=:-'/group_shares/fnl/bulk/projects/FAIR_users/RFAnalysis/simple_infomap/simple_infomap.py'}
 matlab_command=${matlab_command:-'matlab'}
