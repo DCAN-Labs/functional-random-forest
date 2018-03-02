@@ -261,7 +261,7 @@ The manual will cover two standard and two optional workflows:
 Once you have prepared the parameter file, you can run the RFSD analysis
 using the ConstructModelTreeBag_wrapper.sh command.
 ```bash
-/path/to/RFAnalysis/PrepExcelSheetForTreeBagging_wrapper.sh paramfile.bash
+ ./RFSD/ConstructModelTreeBag_wrapper.sh paramfile.bash
 ```
 The runtime for ConstructModelTreeBag varies by multiple factors.
 Individual forests are affected by the complexity of the data, the number
@@ -303,7 +303,7 @@ be saved in:
 number X
 #### Stored outputs
 Data dictionaries for output files are specified below.
-##### filename.mat data dictionary
+##### `filename.mat` data dictionary
 
 | variable name    | matlab datatype                   | R datatype            | python datatype      | dimensions | minimum value     | maximum value     | null value     | description                                                                                                                                                                                                                                    |
 |------------------|-----------------------------------|-----------------------|----------------------|------------|-------------------|-------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -325,7 +325,7 @@ Data dictionaries for output files are specified below.
 | proxmat          | cell matrix                       | list of data matrices | list of numpy arrays | 1          | 0                 | 1                 | cannot be null | NxN proximity matrices generated from the RF, one per forest is saved to limit space. N refers to the number of subjects. If group2_validate_only is set to true, then the proximity matrix will only reflect the independent testing dataset. |
 | treebag          | cell matrix containing RF objects | N/A                   | N/A                  | 1          | N/A               | N/A               | NaN            | this variable contains each model generated from the RF validation. The size of the matrix depends on the number of forests generated. Each model is stored as a TreeBagger class object, and cannot be loaded yet in R or python.             |
 | trimmed_features | numeric_matrix                    | data matrix           | numpy array          | 2-3        | 1                 | # of features     | NaN            | If features were trimmed using the legacy "estimate_features" option, this variable contains an index of which features were used. We do not advise using this feature.                                                                        |
-#####filename_output/subgroup_community_assignments.mat data dictionary
+##### `filename_output/subgroup_community_assignments.mat` data dictionary
 
 | variable name                  | matlab datatype | R datatype            | python datatype      | dimensions | minimum value | maximum value | null value     | description                                                                                                                                                                                                                                              |
 |--------------------------------|-----------------|-----------------------|----------------------|------------|---------------|---------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
