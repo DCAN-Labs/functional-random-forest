@@ -40,11 +40,21 @@ permute_accuracy = stuff.permute_accuracy;
 proxmat = stuff.proxmat;
 features = stuff.features;
 plot_performance_by_subgroups = 0;
-if isempty(dir(command_file))
+try
+    if isempty(dir(command_file))
+        errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
+        error('TB:comfilechk',errmsg);
+    end
+catch
     errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
     error('TB:comfilechk',errmsg);
 end
-if isempty(dir(infomapfile))
+try
+    if isempty(dir(infomapfile))
+        errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
+        error('TB:comfilechk',errmsg);
+    end
+catch
     errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
     error('TB:comfilechk',errmsg);
 end
