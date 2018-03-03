@@ -197,7 +197,7 @@ def args_defaults_and_validator(args):
 
 def generate_parser(arg_parser):
     arg_parser.add_argument(
-        '--infomap', type=os.path.abspath, required=True,
+        '-i', type=os.path.abspath, required=True,
         help=('Full path to infomap')
     )
 
