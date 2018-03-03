@@ -129,8 +129,9 @@ else
         warning(strcat('error: infomap command not found, command_file variable not valid, subgroup detection will error at the end...',command_file));
     end
 end
-if exist('infomap_file','var') == 0
+if exist('infomapfile','var') == 0
     warning('infomap_file does not exist, subgroup detection will error at the end...')
+else
     if isempty(dir(infomapfile))
         warning(strcat('error: infomap repo not found, infomapfile variable not valid, subgroup detection will error at the end...',infomapfile));
     end
