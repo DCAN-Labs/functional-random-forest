@@ -106,7 +106,7 @@ commproxpath = strcat(outdirpath,'commproxmat.mat');
 save(commproxpath,'commproxmat');
 outfoldname = strcat(outdirpath,'combined_infomap');
 mkdir(outfoldname);
-command = [command_file optionu optionm commproxpath optiono outfoldname optionp num2str(1)];
+command = [command_file optionu optionm commproxpath optiono outfoldname optionp num2str(1) optioni infomapfile];
 system(command);
 commfile=dir(strcat(outfoldname,slashies,'community_detection',slashies,'*.txt'));
 commdirplusfile=strcat(outfoldname,slashies,'community_detection',slashies,commfile.name);
