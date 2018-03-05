@@ -7,6 +7,7 @@ interface to `Infomap`. In order to install this dependency you must install
 - `python2.7`
 - `numpy`
 - `scipy`
+- [optional] `virtualenv`
 
 To install this with `virtualenv`
 
