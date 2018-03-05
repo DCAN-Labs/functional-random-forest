@@ -49,6 +49,9 @@ interface to `Infomap`. In order to install this dependency you must install
 - `numpy`
 - `scipy`
 
+These can be installed to your system, or by use of `virtualenv`. The
+instructions for this will are located [here](./simple_infomap/README.md)
+
 ### Using the package in the matlab environment
 
 FRF was designed such that an individual does not need to access the
