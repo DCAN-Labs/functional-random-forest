@@ -23,8 +23,7 @@ filename=./example_XCCvsUCC_output
 #   selected outcome variable.
 regression=false
 
-# the path and filename of the .mat variable where the results from RFModel itself
-#   as defined by the 'filename' variable
+# the path and filename of the .mat variable where the results are stored
 results_matfile=./example_XCCvsUCC.mat
 
 # the path and filename of the simple_infomap python function

@@ -166,22 +166,6 @@ estimate_predictors=false
 OOB_error=false
 
 # =====================
-# == community detection parameters
-# =====================
-# used for community detection -- the lowest edge density to examine community structure
-lowdensity=0.2
-
-# used for community detection -- the increment value for each edge density examined
-stepdensity=0.05
-
-# used for community detection -- highest edge density to examine community structure
-highdensity=1
-
-# the full path and filename for the Infomap executable, must be installed
-#   from http://mapequation.org
-infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
-
-# =====================
 # == Legacy options should not be used and are disabled by default
 # =====================
 # if set to true, the random forest algorithm will attempt to estimate the
@@ -196,3 +180,21 @@ weight_trees=false
 # if set to true, the algorithm will estimate the number of predictors per tree
 estimate_treepred=false
 
+# =====================
+# == community detection parameters
+# =====================
+# used for community detection -- the lowest edge density to examine community structure
+lowdensity=0.4
+
+# used for community detection -- the increment value for each edge density examined
+stepdensity=0.6
+
+# used for community detection -- highest edge density to examine community structure
+highdensity=1
+
+# the full path and filename for the Infomap executable, must be installed
+#   from http://mapequation.org
+infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
+
+# The full path and filename of simple_infomap.py
+infomap_command_file=/mnt/max/home/robinsph/git/Analysis/simple_infomap/simple_infomap.py
