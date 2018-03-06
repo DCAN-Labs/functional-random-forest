@@ -1,4 +1,7 @@
-#! /bin/bash
+#!/bin/bash
+
+set -eu
+
 source $1
 #set defaults from source file
 if $groupby; then groupby_flag='GroupBy'; else groupby_flag='NONE'; fi
