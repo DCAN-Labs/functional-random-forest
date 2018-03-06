@@ -30,6 +30,7 @@ version. The source FRF has two external dependencies:
 
 1)  MATLAB version 2016 or higher
 2)  MATLAB Machine learning and statistical toolbox
+3)  MATLAB Parallell Computing Toolbox [OPTIONAL]
 
 <!-- end list -->
 
@@ -295,7 +296,7 @@ the defaults enabled, subgroup detection will take 4 hours on unsupervised
 or regression models, and up to 12 hours on supervised classifiation
 models.
 #### RFSD power analysis
-The RFSD power analysis can be used to estimate statistical power for 
+The RFSD power analysis can be used to estimate statistical power for
 unsupervised and supervised analyses. A parameter for the expected effect size
 (as measured by accuracy, mean absolute error, or subgroup similarity) must be
 selected by the user to calculate statistical power. A range of parameters can
