@@ -15,8 +15,6 @@ parallel_processing = false;
 numpools = 2;
 nsims = 10;
 outcol = 1;
-infomapfile='/group_shares/fnl/bulk/code/external/infomap/Infomap';
-commandfile = '/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py';
 zscore_flag='NONE';
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
@@ -80,7 +78,7 @@ if strcmp(forest_type,'Regression')
     statistical_power = zeros(2,length(performance_thresholds));
 else
     observed_performance = zeros(ngroups+1,nsims);
-    statistical_power = zeros(ngroups+1,length(performance_thresholds));    
+    statistical_power = zeros(ngroups+1,length(performance_thresholds));
 end
 if strcmp(learning_type,'unsupervised')
     observed_performance = zeros(1,length(performance_thresholds));
@@ -108,8 +106,8 @@ switch(forest_type)
 %now let us calculate the false positive rate as the percentage of H=0
 %tests found to be H=1 divided by the total H
             false_positive(1,curr_thresh) = sum(null_performance(1,:) <= performance_thresholds(curr_thresh))/nsims;
-            false_positive(2,curr_thresh) = sum(null_performance(2,:) >= performance_thresholds(curr_thresh))/nsims;            
-        end        
+            false_positive(2,curr_thresh) = sum(null_performance(2,:) >= performance_thresholds(curr_thresh))/nsims;
+        end
     case('Classification')
         for curr_thresh = 1:length(performance_thresholds)
 %now that we have performance metrics, let us calculate observed power as
@@ -122,4 +120,3 @@ switch(forest_type)
 end
 save(strcat(filename,'.mat'),'statistical_power','observed_performance','null_performance','sample_size','false_positive','performance_thresholds');
 end
-
