@@ -8,7 +8,7 @@
 input_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/EXCEL_PREP/ExcelExampleOutput.mat
 
 # the name of the input variable stored in the .mat file
-input_data_variable=input_data
+input_data_variable=group_data
 
 # if set to true, a group_data column will be loaded as well
 groupby=false
@@ -24,7 +24,7 @@ output_directory=LONG_ADHD_OHSU_dataset
 # a numeric vector encapsulated by square brackets, where each number denotes
 #   a column that represents a categorical variable, set to 0 if no such
 #   variable exists
-categorical_vector='[3]'
+categorical_vector=[3]
 
 # =====================
 # == dependency parameters
@@ -71,7 +71,7 @@ num_sim_cases=100
 num_sims=1000
 
 # the thresholds for performance to use to calculate statistical power
-performance_thresholds='[0.4 0.5 0.6 0.7 0.8]'
+performance_thresholds='0.4:0.1:0.8'
 
 # =====================
 # == parallel execution parameters
