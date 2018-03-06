@@ -12,7 +12,7 @@ performance_thresholds = 0.7;
 forest_type = 'classification';
 learning_type = 'supervised';
 parallel_processing = false;
-numpools = 2;
+numpools = 1;
 nsims = 10;
 outcol = 1;
 infomapfile='/group_shares/fnl/bulk/code/external/infomap/Infomap';
@@ -89,8 +89,14 @@ end
 null_performance = observed_performance;
 false_positive = statistical_power;
 %run a PARFOR loop on the simulations
-parfor curr_sim = 1:nsims
-    [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+if parallel_processing
+    parfor curr_sim = 1:nsims
+        [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+    end
+else
+    for curr_sim = 1:nsims
+        [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+    end
 end
 %close the pool all other operations only need one core after
 if parallel_processing
