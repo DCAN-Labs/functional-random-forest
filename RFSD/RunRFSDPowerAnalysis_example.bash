@@ -11,12 +11,13 @@ input_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/EXCEL_PREP/ExcelExampl
 input_data_variable=group_data
 
 # if set to true, a group_data column will be loaded as well
-groupby=false
+# XXX PMR : In order to do classification, we need a groupby column set to true
+groupby=true
     # path and filename to where the group_column is stored can be same or
     #   different .mat file
-    group_data=/group_shares/FAIR_LAB2/Projects/FAIR_users/Feczko/projects/Long_ADHD_OHSU/raw_data.mat
+    group_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/CONSTRUCT_TREEBAGM/example_XCCvsUCC.mat
     # the name of the group variable stored in the .mat file
-    group_data_variable=group_data
+    group_data_variable=final_outcomes
 
 # the name of the output prefix
 output_directory=LONG_ADHD_OHSU_dataset
