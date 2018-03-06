@@ -1,6 +1,6 @@
 -------------------
 Copyright (c) 2018, Oregon Health & Science University 
-Authored by: Eric Feczko, Philip Robinson, Damion V. Demeter, Nadir Balba, Oscar Miranda-Dominguez, Shannon McWeeney, Damien A. Fair
+Authored by: Eric Feczko, Philip Robinson, Eric Leung, Damion V. Demeter, Nadir Balba, Oscar Miranda-Dominguez, Shannon McWeeney, Damien A. Fair
 Please cite: Feczko E, Balba N, Miranda-Dominguez O, Cordova M, Karalunas SL, Irwin L, Demeter DV, Hill AP, Langhorst BH, Grieser Painter J, Van Santen J, Fombonne EJ, Nigg JL, Fair DA. Subtyping cognitive profiles in Autism Spectrum Disorder using a random forest algorithm. Neuroimage. 2017. https://doi.org/10.1016/j.neuroimage.2017.12.044 
 
 FRF (Functional Random Forest) is free for non-commercial use by academic, government, and non-profit/not-for-profit institutions. 
