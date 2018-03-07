@@ -335,6 +335,14 @@ number X
 
 #### Stored outputs
 Data dictionaries for output files are specified below.
+
+##### `ExcelOutput.mat` data dictionary
+
+| variable name    | output from                  | used in                           | matlab datatype                   | R datatype            | python datatype      | dimensions | null value     | description                                                                                                                                                                                                                                    |
+|------------------|------------------------------|-----------------------------------|-----------------------------------|-----------------------|----------------------|------------|----------------|----------------------------------------------------|
+| group_data       | PrepExcelSheetForTreeBagging | VisualizeTreeBaggingResults       | numeric matrix                    | data matrix           | numpy array          | 2          | cannot be null | Matlab formated matrix representing input data     |
+
+
 ##### `filename.mat` data dictionary
 
 | variable name    | output from           | used in                           | matlab datatype                   | R datatype            | python datatype      | dimensions | minimum value     | maximum value     | null value     | description                                                                                                                                                                                                                                    |
