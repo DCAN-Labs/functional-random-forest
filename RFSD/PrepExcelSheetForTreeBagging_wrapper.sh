@@ -6,7 +6,7 @@ source $1
 #parameters set from the VisualizeTreeBagResultsParamFile
 #If missing parameters, set defaults
 excelfile=${excelfile:-'thenamelessone'}
-output_matfile=${output_matfile:-'group_data'}
+output_matfile=${output_matfile:-'ExcelExampleOutput.mat'}
 exists_header=${exists_header:-0}
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
 matlab_command=${matlab_command:-'matlab'}
