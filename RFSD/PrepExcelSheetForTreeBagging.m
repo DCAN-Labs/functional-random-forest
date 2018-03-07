@@ -1,7 +1,7 @@
 function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(excel_file,output_mat,header,string_cols,type,varargin)
 %PrepExcelSheetForTreeBagging will produce a matrix with data ready for
 %using ConstructModelTreebag
-%   USAGE: [group_data, subject_exclusion_list] = 
+%   USAGE: [group_data, subject_exclusion_list] =
 %   PrepExcelSheetForTreeBagging('/path/to/excel/file.xlsx',...
 %   .../path/to/output/file.mat',header,string_cols,type)
 %
@@ -19,8 +19,8 @@ function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(exc
 %           a column that should be represented as a string (and not as a
 %           number)
 %
-%           type -- a character string; either “surrogate” if missing data 
-%           cases are to be included. “no_surrogate” if one wants to exclude 
+%           type -- a character string; either “surrogate” if missing data
+%           cases are to be included. “no_surrogate” if one wants to exclude
 %           any cases with missing data.
 %
 %   *OPTIONAL INPUTS*: All optional inputs are paired inputs (each item in
@@ -36,8 +36,8 @@ function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(exc
 %           group_data -- an output cell matrix that contains the data to
 %           be used in RFAnalysis.
 %
-%           subject_exclusion_list -- a numerical array of length N, where 
-%           N is the number of subjects. Each item denotes whether the 
+%           subject_exclusion_list -- a numerical array of length N, where
+%           N is the number of subjects. Each item denotes whether the
 %           given row of the original data is excluded (0) or included (1)
 % Example:
 % PrepExcelSheetForTreeBagging(...
@@ -89,21 +89,18 @@ switch(type)
                 if isempty(find(cell2mat((cellfun(@(x) strcmp(' ',x), temp_data(i,:),'UniformOutput',false))) == 1))
                     notempty = 1;
                 end
-            end               
+            end
             if isempty(find(cellfun(@(x) strcmp(char(num2str((x))),'NaN'),temp_data(i,:)) == 1)) && notempty
                 count = count + 1;
                 subject_exclusion_list(i) = 1;
-                group_data(count,:) = temp_data(i,:);                
+                group_data(count,:) = temp_data(i,:);
             end
         end
         subject_exclusion_list = logical(subject_exclusion_list);
 end
-if exist('group_data','var') == 0
-    errmsg = 'error: group_data variable does not exist, quitting...'
-    error('TB:gpext',errmsg)
-end
-if isempty(group_data)
-    errmsg = 'error: group_data variable is empty, quitting...'
+
+if exist('group_data','var') == 0 || isempty(group_data)
+    errmsg = 'error: group_data variable is empty, or does not exist, quitting...\n "no_surrogates" may result in this behavour if every row is missing a cell'
     error('TB:gpemp',errmsg)
 end
 if nargin > 3 && isempty(string_cols) == 0
@@ -114,5 +111,3 @@ end
 S.(data_name) = group_data;
 save(output_mat,'-struct','S');
 end
-
-
