@@ -19,8 +19,8 @@ function [group_data, subject_exclusion_list] = PrepExcelSheetForTreeBagging(exc
 %           a column that should be represented as a string (and not as a
 %           number)
 %
-%           type -- a character string; either “surrogate” if missing data 
-%           cases are to be included. “no_surrogate” if one wants to exclude 
+%           type -- a character string; either â€œsurrogateâ€ if missing data 
+%           cases are to be included. â€œno_surrogateâ€ if one wants to exclude 
 %           any cases with missing data.
 %
 %   *OPTIONAL INPUTS*: All optional inputs are paired inputs (each item in
@@ -97,6 +97,14 @@ switch(type)
             end
         end
         subject_exclusion_list = logical(subject_exclusion_list);
+end
+if exist('group_data','var') == 0
+    errmsg = 'error: group_data variable does not exist, quitting...'
+    error('TB:gpext',errmsg)
+end
+if isempty(group_data)
+    errmsg = 'error: group_data variable is empty, quitting...'
+    error('TB:gpemp',errmsg)
 end
 if nargin > 3 && isempty(string_cols) == 0
     for i = 1:max(size(string_cols))
