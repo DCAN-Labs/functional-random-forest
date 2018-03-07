@@ -28,15 +28,15 @@ git clone https://gitlab.com/feczko/Analysis /destination/path/for/FRF
 There are two versions of the FRF, the source version and the compiled
 version. The source FRF has two external dependencies:
 
-1)  MATLAB version 2016 or higher
-2)  MATLAB Machine learning and statistical toolbox
-3)  MATLAB Parallell Computing Toolbox [OPTIONAL]
+1.  MATLAB version 2016 or higher
+2.  MATLAB Machine learning and statistical toolbox
+3.  MATLAB Parallell Computing Toolbox [OPTIONAL]
 
 <!-- end list -->
 
 The compiled FRF has one external dependency:
 
-1)  The MATLAB compiler engine which should be provided by the Fair Lab.
+1.  The MATLAB compiler engine which should be provided by the Fair Lab.
 
 <!-- end list -->
 
@@ -182,15 +182,12 @@ R.matlab also enables one to load outputs into R for inspection (see:
 CSVs (comma separated value files) can be implicitly handled by the FRF
 package. To use a CSV as an input, the following steps have to be taken:
 
-1)  The CSV must be organized as a table (i.e. 2D matrix) with rows
+1.  The CSV must be organized as a table (i.e. 2D matrix) with rows
     representing cases and columns representing features.
-
-2)  The delimiter used by the CSV
-
-3)  The CSV cannot contain any header information (i.e. a top row
+2.  The delimiter used by the CSV
+3.  The CSV cannot contain any header information (i.e. a top row
     depicting the column headers).
-
-4)  Missing or blank cells (see: “How to deal with missing data") must
+4.  Missing or blank cells (see: “How to deal with missing data") must
     be represented by NaNs.
 
 <!-- end list -->
@@ -262,14 +259,16 @@ Our example config file is found [here](./RFSD/TreeBagParamFile_example.bash).
 ### Running the analysis
 RFSD allows for multiple different workflows to analyze your data.
 The manual will cover two standard and two optional workflows:
-1) RFSD analysis
-2) RFSD power analysis
-3*) Rerun subgroup analysis
-4*) Perform community detection on a proximity matrix
+
+1. RFSD analysis
+2. RFSD power analysis
+3. [OPTIONAL] Rerun subgroup analysis
+4. [OPTIONAL] Perform community detection on a proximity matrix
 
 #### RFSD analysis
 Once you have prepared the parameter file, you can run the RFSD analysis
 using the ConstructModelTreeBag_wrapper.sh command.
+
 ```bash
  ./RFSD/ConstructModelTreeBag_wrapper.sh paramfile.bash
 ```
@@ -319,15 +318,16 @@ using the RunRFSDPowerAnalysis_wrapper.sh command.
 ### Interpreting the outputs
 Outputs are stored as .mat files. Although there are multiple intermediate
 outputs, only two contain the final outputs from the analysis:
-1) filename.mat -- contains relevant outputs from the RF models
-2) filename_output/subgroup_community_assignments.mat --  contains relevant outputs from the subgroup
-detection
-3) RFSD_filename_output.mat -- contains outputs from the RFSD power analysis,
+
+1. filename.mat -- contains relevant outputs from the RF models
+2. filename_output/subgroup_community_assignments.mat --  contains relevant 
+outputs from the subgroup detection
+3. RFSD_filename_output.mat -- contains outputs from the RFSD power analysis,
 such as statistical power and false positive rates.
-*If a supervised classifier is selected, additional intermediate outputs will
-be saved in:
-4*) filename_output_groupX/ -- contains relevant outputs from group (class)
+4. *If a supervised classifier is selected*, additional intermediate outputs will
+be saved in: `filename_output_groupX/` -- contains relevant outputs from group (class)
 number X
+
 #### Stored outputs
 Data dictionaries for output files are specified below.
 ##### `filename.mat` data dictionary
@@ -352,6 +352,7 @@ Data dictionaries for output files are specified below.
 | proxmat          | ConstructModelTreebag | RunAndVisualizeCommunityDetection | cell matrix                       | list of data matrices | list of numpy arrays | 1          | 0                 | 1                 | cannot be null | NxN proximity matrices generated from the RF, one per forest is saved to limit space. N refers to the number of subjects. If group2_validate_only is set to true, then the proximity matrix will only reflect the independent testing dataset. |
 | treebag          | ConstructModelTreebag | ConstructModelTreeBag             | cell matrix containing RF objects | N/A                   | N/A                  | 1          | N/A               | N/A               | NaN            | this variable contains each model generated from the RF validation. The size of the matrix depends on the number of forests generated. Each model is stored as a TreeBagger class object, and cannot be loaded yet in R or python.             |
 | trimmed_features | ConstructModelTreebag | R/MATLAB/python                   | data matrix                       | numpy array           | 2-3                  | 1          | # of features     | NaN               | NaN            | If features were trimmed using the legacy "estimate_features" option, this variable contains an index of which features were used. We do not advise using this feature.                                                                        |
+
 ##### `filename_output/subgroup_community_assignments.mat` data dictionary
 
 | variable name                  | output from                 | used in               | matlab datatype | R datatype            | python datatype      | dimensions | minimum value | maximum value | null value     | description                                                                                                                                                                                                                                              |
@@ -362,6 +363,7 @@ Data dictionaries for output files are specified below.
 | subgroup_communities           | VisualizeTreeBaggingResults | R/MATLAB/python       | cell matrix     | list of data matrices | list of numpy arrays | 1          | 1             | +inf          | cannot be null | list of subgroup communities for each class                                                                                                                                                                                                              |
 | subgroup_sorting_orders        | VisualizeTreeBaggingResults | R/MATLAB/python       | cell matrix     | list of data matrices | list of numpy arrays | 1          | 1             | # of cases    | cannot be null | list of order of subjects in the other variables split by subgroup, can be used to query "filename_output.mat"                                                                                                                                           |
 | proxmat_subgroup_sorted        | VisualizeTreeBaggingResults | R/MATLAB/python       | numeric_matrix  | data matrix           | numpy array          | 2          | 0             | 1             | cannot be null | The mean proximity matrix (NxN where N is the number of cases) sorted first by class and then by subgroup.                                                                                                                                               |
+
 ##### `RFSD_filename_output.mat` data dictionary
 
 | variable name                  | output from                 | used in               | matlab datatype | R datatype            | python datatype      | dimensions | minimum value | maximum value | null value     | description                                                                                                                                                                                                                                              |
