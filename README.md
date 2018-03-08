@@ -499,9 +499,6 @@ Feature error bar plots by subgroup
 Overall model performance
 ![alt text](./images/model_performance_summary.png)
 
-Subgroup model performance by class (if available)
-![alt text](./images/model_performance_by_community.png)
-
 
 #### Guide to determine community detection parameters
 
