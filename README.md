@@ -450,40 +450,40 @@ Examples of data visualizations are shown below. Examples will be added
 with new releases.
 
 Performance histograms (classification):
-![alt text](./images/total_accuracy.tif)
+![alt text](./images/total_accuracy.png)
 
 Performance histograms (regression):
-![alt text](./images/mean_error.tif)
+![alt text](./images/mean_error.png)
 
 Proximity matrix (unsorted)
-![alt text](./images/proximity_matrix.tif)
+![alt text](./images/proximity_matrix.png)
 
 Proximity matrix (sorted)
-![alt text](./images/proximity_matrix_sorted.tif)
+![alt text](./images/proximity_matrix_sorted.png)
 
 Proximity matrix sorted by subgroup and class (if available)
-![alt text](./images/proximity_matrix_sorted_by_subgroup.tif)
+![alt text](./images/proximity_matrix_sorted_by_subgroup.png)
 
 Subgroup community plot (unsorted)
-![alt text](./images/community_matrix.tif)
+![alt text](./images/community_matrix.png)
 
 Subgroup community plot (sorted)
-![alt text](./images/community_matrix_sorted.tif)
+![alt text](./images/community_matrix_sorted.png)
 
 Subgroup community plot with class labels (if available)
-![alt text](./images/community_matrix_sorted_by_subgroup.tif)
+![alt text](./images/community_matrix_sorted_by_subgroup.png)
 
 Feature usage
-![alt text](./images/feature_usage.tif)
+![alt text](./images/feature_usage.png)
 
 Feature error bar plots by subgroup
-![alt text](./images/features_by_subgroup_plot.tif)
+![alt text](./images/features_by_subgroup_plot.png)
 
 Overall model performance
-![alt text](./images/model_performance_summary.tif)
+![alt text](./images/model_performance_summary.png)
 
 Subgroup model performance by class (if available)
-![alt text](./images/model_performance_by_community.tif)
+![alt text](./images/model_performance_by_community.png)
 
 
 #### Guide to determine community detection parameters
