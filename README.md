@@ -179,9 +179,9 @@ R.matlab also enables one to load outputs into R for inspection (see:
 
 ##### python
 
-If your data is extracted using python, scipy can be used to export the
-data as a .mat file explicitly. The data must be stored as a 
-NxM numpy array or list where rows represent the cases (N) and columns
+If your data is extracted using `python`, `scipy` can be used to export the
+data as a `.mat` file explicitly. The data must be stored as a 
+**NxM** `numpy` array or list where rows represent the cases (N) and columns
 represents the features.
 
 ```python
@@ -273,6 +273,7 @@ Comments of the form below, are used to designate categories of defined variable
 Our example config file is found [here](./RFSD/TreeBagParamFile_example.bash).
 
 ### Running the analysis
+
 RFSD allows for multiple different workflows to analyze your data.
 The manual will cover two standard and two optional workflows:
 
@@ -282,6 +283,7 @@ The manual will cover two standard and two optional workflows:
 4. [OPTIONAL] Perform community detection on a proximity matrix
 
 #### RFSD analysis
+
 Once you have prepared the parameter file, you can run the RFSD analysis
 using the ConstructModelTreeBag_wrapper.sh command.
 
@@ -310,7 +312,9 @@ number of edge densities explored, as set by the parameter file. With
 the defaults enabled, subgroup detection will take 4 hours on unsupervised
 or regression models, and up to 12 hours on supervised classifiation
 models.
+
 #### RFSD power analysis
+
 The RFSD power analysis can be used to estimate statistical power for
 unsupervised and supervised analyses. A parameter for the expected effect size
 (as measured by accuracy, mean absolute error, or subgroup similarity) must be
@@ -332,6 +336,7 @@ using the RunRFSDPowerAnalysis_wrapper.sh command.
 ```
 
 ### Interpreting the outputs
+
 Outputs are stored as `.mat` files, which encapsulate several `matlab` variables.
 Although there are multiple intermediate outputs, only two contain the final 
 outputs from the analysis:
@@ -410,12 +415,12 @@ for questions and requests.
 
 #### Loading outputs externally
 
-All output matlab files are stored in HDF5 format. Therefore,
-any software package that can read HDF5. Below are HDF5 packages that should
+All output `matlab` files are stored in `HDF5` format. Therefore,
+any software package that can read `HDF5`. Below are `HDF5` packages that should
 work with our formats.
 
-R: "http://bioconductor.org/biocLite.R"
-Python: "https://www.h5py.org/"
+- R: "http://bioconductor.org/biocLite.R"
+- Python: "https://www.h5py.org/"
 
 The other packages below should also be able to load the outputs.
 
@@ -455,10 +460,17 @@ Performance histograms (classification):
 Performance histograms (regression):
 ![alt text](./images/mean_error.png)
 
-Proximity matrix (unsorted)
+Proximity matrix (unsorted) 
+
+**each colored line represents a subject belonging to that color's classification, 
+in provided order**
+
 ![alt text](./images/proximity_matrix.png)
 
 Proximity matrix (sorted)
+
+**same plot as above, except grouped by classification to represent population**
+
 ![alt text](./images/proximity_matrix_sorted.png)
 
 Proximity matrix sorted by subgroup and class (if available)
@@ -496,37 +508,29 @@ Under Construction
 
 ## known bugs and issues
 
-###Documentation issues
+### Documentation issues
 
--Guides for subgroup validation and community detection need to be documented
+- Guides for subgroup validation and community detection need to be documented
+- Usage of our R scripts needs to be documented
+- Data dictionaries for intermediate files need to be documented
+- Figure dictionary needs to be generated
+- Data visualizations need to be finished
+- holdout procedure for twin studies is undocumented
 
--Usage of our R scripts needs to be documented
+### known bugs
 
--Data dictionaries for intermediate files need to be documented
-
--Figure dictionary needs to be generated
-
--Data visualizations need to be finished
-
--holdout procedure for twin studies is undocumented
-
-###known bugs
-
--Unsupervised RFSD power analysis may produce inaccurate performance estimates
-
--Currently, output results are split into a "group1" and "group2" variable even
+- Unsupervised RFSD power analysis may produce inaccurate performance estimates
+- Currently, output results are split into a "group1" and "group2" variable even
 when "use_group2_data" is set to "false". In this case,
 "group1" refers to the first half of all rows in the input data, "group2" refers
 to the second half. This bug remains due to backwards compatability and will be
 resolved in the next release. 
 
-###planned features
+### planned features
 
--enable hyperparameter tuning for RFs, currently, one needs to rerun the FRF
+- enable hyperparameter tuning for RFs, currently, one needs to rerun the FRF
 to tune hyperparameters
-
--test and refine holdout code for twin studies
-
+- test and refine holdout code for twin studies
 
 ## Functional Random Forest (FRF)
 
