@@ -175,7 +175,23 @@ writeMat(con="…filepath",x=as.matrix(data))
 ```
 
 R.matlab also enables one to load outputs into R for inspection (see:
-“Stored outputs" under “Interpreting the Outputs").
+“loading outputs in R" under “Interpreting the Outputs").
+
+##### python
+
+If your data is extracted using python, scipy can be used to export the
+data as a .mat file explicitly. The data must be stored as a 
+NxM numpy array or list where rows represent the cases (N) and columns
+represents the features.
+
+```python
+data_mat=[]
+data_mat.append(data)
+scipy.io.savemat('group_data.mat', {'group_data':data_mat})
+```
+
+Scipy also enables one to load outputs into python for inspection (see:
+"loading outputs in python" under "Interpreting the Outputs")
 
 ##### CSV
 
@@ -338,9 +354,9 @@ Data dictionaries for output files are specified below.
 
 ##### `ExcelOutput.mat` data dictionary
 
-| variable name    | output from                  | used in                           | matlab datatype                   | R datatype            | python datatype      | dimensions | null value     | description                                                                                                                                                                                                                                    |
-|------------------|------------------------------|-----------------------------------|-----------------------------------|-----------------------|----------------------|------------|----------------|----------------------------------------------------|
-| group_data       | PrepExcelSheetForTreeBagging | VisualizeTreeBaggingResults       | numeric matrix                    | data matrix           | numpy array          | 2          | cannot be null | Matlab formated matrix representing input data     |
+| variable name    | output from                  | used in                                                                         | matlab datatype                   | R datatype            | python datatype      | dimensions | null value     | description                                                                                                                                                                                                                                    |
+|------------------|------------------------------|---------------------------------------------------------------------------------|-----------------------------------|-----------------------|----------------------|------------|----------------|----------------------------------------------------|
+| group_data       | PrepExcelSheetForTreeBagging | ConstructModelTreeBag, VisualizeTreeBaggingResults , RunRFSDPowerAnalysis       | numeric matrix                    | data matrix           | numpy array          | 2          | cannot be null | Matlab formated matrix representing input data     |
 
 
 ##### `filename.mat` data dictionary
@@ -392,15 +408,125 @@ Data dictionaries will be expanded for non-critical outputs in
 upcoming releases. Please contact the development team via github
 for questions and requests.
 
+#### Loading outputs externally
+
+All output matlab files are stored in HDF5 format. Therefore,
+any software package that can read HDF5. Below are HDF5 packages that should
+work with our formats.
+
+R: "http://bioconductor.org/biocLite.R"
+Python: "https://www.h5py.org/"
+
+The other packages below should also be able to load the outputs.
+
 #### Loading outputs in R
 
-#### Converting outputs to text
+Output matlab files can be read into R using the R.matlab package.
+
+```R
+FRF_outputs <- readmat(con="filename.mat")
+```
+
+Outputs are represented as integers, data matrices and lists. Please consult
+the respective data dictionary for variable names and formatting.
+Data visualization R scripts are available and will be documented in a future
+release.
+
+#### Loading outputs in python
+
+Output matlab files can be read into python using scipy.
+
+```python
+FRF_outputs = scipy.io.loadmat('filename.mat')
+```
+
+Outputs are represented as numpy arrays, integers, and lists. Please consult
+the respective data dictionary for variable names and formatting. 
+Python data visualization code is planned for a future release.
 
 #### Data visualizations
 
+Examples of data visualizations are shown below. Examples will be added 
+with new releases.
+
+Performance histograms (classification):
+![alt text](./images/total_accuracy.tif)
+
+Performance histograms (regression):
+![alt text](./images/mean_error.tif)
+
+Proximity matrix (unsorted)
+![alt text](./images/proximity_matrix.tif)
+
+Proximity matrix (sorted)
+![alt text](./images/proximity_matrix_sorted.tif)
+
+Proximity matrix sorted by subgroup and class (if available)
+![alt text](./images/proximity_matrix_sorted_by_subgroup.tif)
+
+Subgroup community plot (unsorted)
+![alt text](./images/community_matrix.tif)
+
+Subgroup community plot (sorted)
+![alt text](./images/community_matrix_sorted.tif)
+
+Subgroup community plot with class labels (if available)
+![alt text](./images/community_matrix_sorted_by_subgroup.tif)
+
+Feature usage
+![alt text](./images/feature_usage.tif)
+
+Feature error bar plots by subgroup
+![alt text](./images/features_by_subgroup_plot.tif)
+
+Overall model performance
+![alt text](./images/model_performance_summary.tif)
+
+Subgroup model performance by class (if available)
+![alt text](./images/model_performance_by_community.tif)
+
+
 #### Guide to determine community detection parameters
 
+Under Construction
+
 #### Post-hoc strategies for validating subgroups
+
+Under Construction
+
+## known bugs and issues
+
+###Documentation issues
+
+-Guides for subgroup validation and community detection need to be documented
+
+-Usage of our R scripts needs to be documented
+
+-Data dictionaries for intermediate files need to be documented
+
+-Figure dictionary needs to be generated
+
+-Data visualizations need to be finished
+
+-holdout procedure for twin studies is undocumented
+
+###known bugs
+
+-Unsupervised RFSD power analysis may produce inaccurate performance estimates
+
+-Currently, output results are split into a "group1" and "group2" variable even
+when "use_group2_data" is set to "false". In this case,
+"group1" refers to the first half of all rows in the input data, "group2" refers
+to the second half. This bug remains due to backwards compatability and will be
+resolved in the next release. 
+
+###planned features
+
+-enable hyperparameter tuning for RFs, currently, one needs to rerun the FRF
+to tune hyperparameters
+
+-test and refine holdout code for twin studies
+
 
 ## Functional Random Forest (FRF)
 
