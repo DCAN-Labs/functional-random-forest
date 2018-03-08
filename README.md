@@ -462,14 +462,9 @@ Performance histograms (regression):
 
 Proximity matrix (unsorted) 
 
-**each colored line represents a subject belonging to that color's classification, 
-in provided order**
-
 ![alt text](./images/proximity_matrix.png)
 
 Proximity matrix (sorted)
-
-**same plot as above, except grouped by classification to represent population**
 
 ![alt text](./images/proximity_matrix_sorted.png)
 
@@ -477,12 +472,22 @@ Proximity matrix sorted by subgroup and class (if available)
 ![alt text](./images/proximity_matrix_sorted_by_subgroup.png)
 
 Subgroup community plot (unsorted)
+
+**each colored line represents a subject belonging to that color's subgroup, 
+in provided order**
+
 ![alt text](./images/community_matrix.png)
 
 Subgroup community plot (sorted)
+
+**same plot as above, except grouped by subgroup to represent population**
+
 ![alt text](./images/community_matrix_sorted.png)
 
 Subgroup community plot with class labels (if available)
+
+**Two column plot. Left is classification; Right is subgroup within classification**
+
 ![alt text](./images/community_matrix_sorted_by_subgroup.png)
 
 Feature usage
