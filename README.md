@@ -22,7 +22,7 @@ The repository itself can be installed at any location through use of
 git:
 
 ```bash
-git clone https://gitlab.com/feczko/Analysis /destination/path/for/FRF
+https://github.com/DCAN-Labs/functional-random-forest.git /destination/path/for/FRF
 ```
 
 ### Dependencies
