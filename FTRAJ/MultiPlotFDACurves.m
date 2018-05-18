@@ -207,13 +207,13 @@ for current_trajectory = 1:ntrajectories
 end
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 if exist('outsuffix','var')
-    saveas(h,strcat(outsuffix,'_velocity',,imagesuffix));
+    saveas(h,strcat(outsuffix,'_velocity',imagesuffix));
 end
 close all
 count = 0;
 for current_trajectory = 1:ntrajectories
     timepts_temp = timepts{current_trajectory};
-    accmat_temp = accmat(:,current_trajectory);epopath=/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis
+    accmat_temp = accmat(:,current_trajectory);
     commcellmat_temp = commcellmat(:,current_trajectory);
     if exist('ylimdatarange','var')
         for j = 1:length(commcellmat_temp)
