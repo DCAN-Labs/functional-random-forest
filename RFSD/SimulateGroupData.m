@@ -46,7 +46,6 @@ ncols = size(group_data,2);
 if max(size(categorical_vector)) < 2
     categorical_vector = zeros(ncols,1);
 end
-categorical_vector
 %determine range for columns -- used to control appropriate values for
 %simulated outputs
 min_values = min(group_data,[],'omitnan');
