@@ -103,7 +103,7 @@ for density = lowdensity:stepdensity:highdensity
 end
 commproxmat = commproxmat./ncomps;
 commproxpath = strcat(outdirpath,'commproxmat.mat');
-save(commproxpath,'commproxmat');
+save(commproxpath,'commproxmat','v7.3');
 outfoldname = strcat(outdirpath,'combined_infomap');
 mkdir(outfoldname);
 command = [command_file optionu optionm commproxpath optiono outfoldname optionp num2str(1) optioni infomapfile];
