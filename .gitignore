@@ -10,3 +10,9 @@ tramp
 
 rfsd.sh
 frf.sh
+RFSD/readme.txt
+RFSD/mccExcludedFiles.log
+FTRAJ/mccExcludedFiles.log
+FTRAJ/readme.txt
+FTRAJ/requiredMCRProducts.txt
+RFSD/requiredMCRProducts.txt
