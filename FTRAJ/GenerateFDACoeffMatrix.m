@@ -64,12 +64,14 @@ if (save_data)
     timemat = sparsedatamat;
     timebinmat = sparsedatamat;
 end
-size(data_rangevector,1)
-if length(data_vector) > size(data_rangevector,1)
-for i = 1:length(data_vector)
-    data_rangevector(i,1) = data_rangevector(1,1);
-    data_rangevector(i,2) = data_rangevector(1,2);
-end
+if EDA
+	size(data_rangevector,1)
+	if length(data_vector) > size(data_rangevector,1)
+		for i = 1:length(data_vector)
+			data_rangevector(i,1) = data_rangevector(1,1);
+			data_rangevector(i,2) = data_rangevector(1,2);
+		end
+	end
 end
 if (piecewise_sampling)
     if (save_data)
