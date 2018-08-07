@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -27,7 +27,12 @@ independent_outcomes = 0;
 unsupervised = 0;
 matchgroups = 0;
 cross_valid = 0;
+dim_run = false;
 final_outcomes = NaN;
+dim_data = NaN;
+modules = 0;
+dim_type = 'PCA';
+networks_only = false;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -56,7 +61,7 @@ if isempty(varargin) == 0
                     estimate_predictors = 1;
                 case('OOBErrorOn')
                     OOB_error_on = 1;                    
-                case('EstimateTreePredictors');
+                case('EstimateTreePredictors')
                    estimate_tree_predictors = 1;
                 case('Regression')
                     regression = 1;
@@ -108,6 +113,10 @@ if isempty(varargin) == 0
                 case('CrossValidate')
                    holdout = 2;
                    nfolds = varargin{i+1};
+               case('DIMReduce')
+                   dim_reduce = true;
+                   modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                   dim_type = varargin{i+2};
             end
         end
     end
@@ -336,6 +345,11 @@ if holdout == 0
                 learning_data = learning_data(randperm(nsubs_group1),:);
                 testing_data = testing_data(randperm(nsubs_group2),:);                
             end
+            if dim_reduce
+                dim_data = all_data; 
+                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+            end
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
             else
@@ -468,6 +482,11 @@ if holdout == 0
             if group2test && independent_outcomes && permute_data
                 learning_data = randperms(learning_data,nsubs_group1);
                 testing_data = randperms(testing_data,nsubs_group2);
+            end
+            if dim_reduce
+                dim_data = all_data; 
+                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
             end
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
@@ -633,6 +652,11 @@ elseif holdout == 1
                     testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout,:);
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
+                if dim_reduce
+                    dim_data = all_data; 
+                    learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
+                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                end
                 if (estimate_tree_predictors)
                     npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
                 else
@@ -730,6 +754,11 @@ elseif holdout == 1
                     testing_indexgroup1 = group1_subjects(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout);
                     testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout,:);
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
+                end
+                if dim_reduce
+                    dim_data = all_data; 
+                    learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
+                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
                 end
                 if (estimate_tree_predictors)
                     npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
@@ -881,6 +910,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 trimmed_feature_sets(i,:) = trimmed_features;
                 all_data = all_data(:,trimmed_features);
                 categorical_vectors_to_use = categorical_vector(trimmed_features);
+            end
+            if dim_reduce
+                dim_data = all_data; 
+                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
             end
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(training_outcomes,training_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
