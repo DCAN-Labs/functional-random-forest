@@ -9,6 +9,7 @@ tramp
 .\#*
 
 rfsd.sh
+<<<<<<< HEAD
 frf.sh
 RFSD/readme.txt
 RFSD/mccExcludedFiles.log
@@ -16,3 +17,6 @@ FTRAJ/mccExcludedFiles.log
 FTRAJ/readme.txt
 FTRAJ/requiredMCRProducts.txt
 RFSD/requiredMCRProducts.txt
+=======
+frf.sh
+>>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
