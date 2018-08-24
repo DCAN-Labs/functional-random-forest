@@ -184,9 +184,17 @@ switch(type)
     end
     nfigures = i;
     if isnan(permute_accuracy) == 0
-        BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        try
+            BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        catch
+            warning('Could not produce summary plot, skipping');
+        end
     else
-        BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        try
+            BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',PlotTitle,'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+        catch
+            warning('Could not produce summary plot, skipping');
+        end
     end    
     nfigures = nfigures + 1;
     case('regression')
@@ -323,9 +331,17 @@ switch(type)
         hold
         nfigures = 3;
         if isnan(permute_accuracy) == 0
-            BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+            try
+                BOMDPlot('InputData',accuracy,'InputData',permute_accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+            catch
+                warning('Could not produce summary plot, skipping')
+            end
         else
-            BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+            try
+                BOMDPlot('InputData',accuracy,'OutputDirectory',strcat(output_directory,'/model_performance_summary.tif'),'PlotTitle',{'MAE','r','ICC'},'PValues',Pvalues,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+            catch
+                warning('Could not produce summary plot, skipping')
+            end
         end
         nfigures = nfigures + 1;
 end
@@ -414,7 +430,11 @@ ColorData = [0.8 0 0.8; 0.7 0 0.7; 0.6 0 0.6; 0.5 0 0.5; 0.4 0 0.4; 0.3 0 0.3; 0
         Pvalues_comm(iter) = mean(community_performance{iter});
     end
     save(strcat(output_directory,'/community_assignments.mat'),'community_matrix','community_matrix_sorted','sorting_order','community_performance');    
-    BOMDPlot('InputData',community_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    try
+        BOMDPlot('InputData',community_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
+    catch
+        warning('Could not produce community summary plot, skipping');
+    end
 %if the outcome measure is in the output file AND supervised classification was selected, subgroup detection will also be performed on the initial groups
 %this can help identify subgroups that may be hidden by the overarching
 %group distinctions
@@ -498,9 +518,17 @@ if outcomes_recorded == 1
         clear community_subgroup_performance_temp
     end
     if length(Pvalues_comm) > 6
-        BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',12,'TitleFont',14,'AxisFont',12,'ThinLineWidth',3,'ThickLineWidth',6);
+        try
+            BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',12,'TitleFont',14,'AxisFont',12,'ThinLineWidth',3,'ThickLineWidth',6);
+        catch
+            warning('Could not produce summary community plot, skipping')
+        end
     else
-        BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);  
+        try
+            BOMDPlot('InputData',community_subgroup_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);  
+        catch
+            warning('Could not produce summary community plot, skipping');
+        end
     end
     save(strcat(output_directory,'/subgroup_community_assignments.mat'),'proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance');
     end

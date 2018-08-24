@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
-=======
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0
@@ -31,16 +27,15 @@ independent_outcomes = 0;
 unsupervised = 0;
 matchgroups = 0;
 cross_valid = 0;
-<<<<<<< HEAD
-dim_run = false;
+dim_reduce = false;
 final_outcomes = NaN;
 dim_data = NaN;
 modules = 0;
 dim_type = 'PCA';
-networks_only = false;
-=======
-final_outcomes = NaN;
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
+num_components = 1;
+graph_reduce = false;
+systems = 0;
+edgedensity = 0.05;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -69,11 +64,7 @@ if isempty(varargin) == 0
                     estimate_predictors = 1;
                 case('OOBErrorOn')
                     OOB_error_on = 1;                    
-<<<<<<< HEAD
                 case('EstimateTreePredictors')
-=======
-                case('EstimateTreePredictors');
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
                    estimate_tree_predictors = 1;
                 case('Regression')
                     regression = 1;
@@ -125,16 +116,24 @@ if isempty(varargin) == 0
                 case('CrossValidate')
                    holdout = 2;
                    nfolds = varargin{i+1};
-<<<<<<< HEAD
-               case('DIMReduce')
+               case('DimReduce')
                    dim_reduce = true;
                    modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
                    dim_type = varargin{i+2};
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
+                   num_components = varargin{i+3};
+               case('GraphReduce')
+                   graph_reduce = true;
+                   systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                   modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                   edgedensity = varargin{i+3};
+                   bctpath = varargin{i+4};
             end
         end
     end
+end
+if graph_reduce
+    dim_data = group1_data;
+    group1_data = ModuleFeatureExtractor('InputData',dim_data,'Modules',modules,'DimType','graph','EdgeDensity',edgedensity,'BCTPath',bctpath,'Systems',systems);
 end
 if iscell(group1_data)
     [categorical_vector, group1_data] = ConvertCelltoMatrixforTreeBagging(group1_data);
@@ -360,14 +359,14 @@ if holdout == 0
                 learning_data = learning_data(randperm(nsubs_group1),:);
                 testing_data = testing_data(randperm(nsubs_group2),:);                
             end
-<<<<<<< HEAD
             if dim_reduce
-                dim_data = all_data; 
-                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
-                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                categorical_vectors_to_use = logical(zeros(size(training_data,2)));
+                dim_data = zeros(size(training_data,1)+size(testing_data,1),size(testing_data,2));
+                dim_data(training_selection,:) = training_data;
+                dim_data(testing_selection,:) = testing_data;
             end
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
             else
@@ -501,14 +500,14 @@ if holdout == 0
                 learning_data = randperms(learning_data,nsubs_group1);
                 testing_data = randperms(testing_data,nsubs_group2);
             end
-<<<<<<< HEAD
             if dim_reduce
-                dim_data = all_data; 
-                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
-                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                categorical_vectors_to_use = logical(zeros(size(training_data,2)));
+                dim_data = zeros(size(training_data,1)+size(testing_data,1),size(testing_data,2));
+                dim_data(training_selection,:) = training_data;
+                dim_data(testing_selection,:) = testing_data;
             end
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
             else
@@ -673,14 +672,14 @@ elseif holdout == 1
                     testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout,:);
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
-<<<<<<< HEAD
                 if dim_reduce
-                    dim_data = all_data; 
-                    learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
-                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                    training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                    categorical_vectors_to_use = logical(zeros(size(training_data,2)));
+                    dim_data = zeros(size(training_data,1)+size(testing_data,1),size(testing_data,2));
+                    dim_data(training_selection,:) = training_data;
+                    dim_data(testing_selection,:) = testing_data;
                 end
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
                 if (estimate_tree_predictors)
                     npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
                 else
@@ -779,14 +778,14 @@ elseif holdout == 1
                     testing_data(1:ncomps_to_remove,:) = resample_group1_data(matchsubs_group1_holdout-ncomps_to_remove+1:matchsubs_group1_holdout,:);
                     testing_data(ncomps_to_remove+1:ncomps_to_remove*2,:) = group2_data(data_to_remove,trimmed_features);
                 end
-<<<<<<< HEAD
                 if dim_reduce
-                    dim_data = all_data; 
-                    learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
-                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                    training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                    testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                    categorical_vectors_to_use = logical(zeros(size(training_data,2)));
+                    dim_data = zeros(size(training_data,1)+size(testing_data,1),size(testing_data,2));
+                    dim_data(training_selection,:) = training_data;
+                    dim_data(testing_selection,:) = testing_data;
                 end
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
                 if (estimate_tree_predictors)
                     npredictors_used = TestTreeBags(learning_groups,learning_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
                 else
@@ -852,25 +851,10 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             all_data_start(end+1:end+size(group2_data,1),:) = group2_data; 
             all_outcomes_start = group1_outcome;
             all_outcomes_start(end+1:end+size(group2_data,1),1) = group2_outcome;
-            unique_outcomes = unique(all_outcomes_start);
-            nsubs_by_outcome = zeros(length(unique_outcomes),1);
-            all_data = group1_data(1,:);
-            all_outcomes = group1_outcome(1);
-            for curr_outcome = 1:length(unique_outcomes)
-                nsubs_by_outcome(curr_outcome) = length(find(all_outcomes_start == unique_outcomes(curr_outcome)));
-            end
-            smallest_outcome = min(nsubs_by_outcome);
-            for curr_outcome = 1:length(unique_outcomes)
-                subject_index = find(all_outcomes_start == unique_outcomes(curr_outcome));
-                subs_to_use = subject_index(randperm(nsubs_by_outcome(curr_outcome),smallest_outcome));
-                all_data(end:end-1+length(subs_to_use),:) = all_data_start(subs_to_use,:);
-                all_outcomes(end:end-1+length(subs_to_use),:) = all_outcomes_start(subs_to_use,:);
-            end
-            nsubs = size(all_data,1);
-            group2_data = all_data(floor(nsubs/2)+1:end,:);
-            group1_data = all_data(1:floor(nsubs/2),:);
-            group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
-            group1_outcome = all_outcomes(1:floor(nsubs/2));
+            all_outcomes_start_mask = true(length(all_outcomes_start),1);
+            if dim_reduce
+                dim_data_start = ModuleFeatureExtractor('InputData',all_data_start,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+            end            
         end
         if unsupervised
             group2_data = group1_data;
@@ -912,6 +896,29 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
         end        
     for i = 1:nreps
         rng('Shuffle');
+        if matchgroups
+            unique_outcomes = unique(all_outcomes_start);
+            nsubs_by_outcome = zeros(length(unique_outcomes),1);
+            all_data = group1_data(1,:);
+            all_outcomes = group1_outcome(1);
+            all_outcomes_mask = all_outcomes_start_mask;
+            for curr_outcome = 1:length(unique_outcomes)
+                nsubs_by_outcome(curr_outcome) = length(find(all_outcomes_start == unique_outcomes(curr_outcome)));
+            end
+            smallest_outcome = min(nsubs_by_outcome);
+            for curr_outcome = 1:length(unique_outcomes)
+                subject_index = find(all_outcomes_start == unique_outcomes(curr_outcome));
+                subs_to_use = subject_index(randperm(nsubs_by_outcome(curr_outcome),smallest_outcome));
+                all_outcomes_mask(subs_to_use) = false;
+                all_data(end:end-1+length(subs_to_use),:) = all_data_start(subs_to_use,:);
+                all_outcomes(end:end-1+length(subs_to_use),:) = all_outcomes_start(subs_to_use,:);
+            end
+            nsubs = size(all_data,1);
+            group2_data = all_data(floor(nsubs/2)+1:end,:);
+            group1_data = all_data(1:floor(nsubs/2),:);
+            group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
+            group1_outcome = all_outcomes(1:floor(nsubs/2));
+        end        
         permuted_outcomes = all_outcomes(randperm(length(all_outcomes),length(all_outcomes)));
         folds = cvpartition(all_outcomes,'KFold',nfolds);
         for curr_fold = 1:nfolds
@@ -938,14 +945,14 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 all_data = all_data(:,trimmed_features);
                 categorical_vectors_to_use = categorical_vector(trimmed_features);
             end
-<<<<<<< HEAD
             if dim_reduce
-                dim_data = all_data; 
-                learning_data = ModuleFeatureExtractor('InputData',learning_data,'Modules',modules,'DimType',dim_type);
-                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type);
+                training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                testing_data = ModuleFeatureExtractor('InputData',testing_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
+                categorical_vectors_to_use = logical(zeros(size(training_data,2)));
+                dim_data = zeros(size(training_data,1)+size(testing_data,1),size(testing_data,2));
+                dim_data(training_selection,:) = training_data;
+                dim_data(testing_selection,:) = testing_data;
             end
-=======
->>>>>>> e8e4d4052c4b981722b8c5d49901fac7a3ac44dc
             if (estimate_tree_predictors)
                 npredictors_used = TestTreeBags(training_outcomes,training_data,[],[],ntrees,'EstimatePredictorsToSample',0,0,categorical_vectors_to_use,'npredictors',npredictors,'surrogate',surrogate, 'Prior', prior);
             else
@@ -979,7 +986,19 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             if (trim_features)
                 all_data = all_data(:,trimmed_features);
             end
-            proxmat{prox_count,1} = proximity(treebag_temp.compact,all_data);
+            if dim_reduce
+                if matchgroups
+                    proxmat{prox_count,1} = proximity(treebag_temp.compact,dim_data_start);
+                else
+                    proxmat{prox_count,1} = proximity(treebag_temp.compact,dim_data);
+                end
+            else
+                if matchgroups
+                    proxmat{prox_count,1} = proximity(treebag_temp.compact,all_data_start);
+                else
+                    proxmat{prox_count,1} = proximity(treebag_temp.compact,all_data);                
+                end
+            end
             features_used = features_used + CollateUsedFeatures(treebag_temp.Trees,nvars);
             if disable_treebag == 0
                 treebag{i,1} = treebag_temp;
@@ -1003,8 +1022,6 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 clear treebag_temp group1class_temp group2class_temp
                 sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:curr_fold,i,1)))))
                 sprintf('%s',strcat('run #',num2str(i),' cumulative null accuracy=',num2str(mean(accuracy(1,1:curr_fold,i,2)))))
-                size(group2scores)
-                size(group2class_scored)
         end
     end
     group1class = group1class./group1class_tested;
@@ -1013,7 +1030,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
     group2predict = group2predict./group2class_tested;
     group1scores = group1scores./group1class_scored;
     group2scores = group2scores./group2class_scored;
-    final_data = all_data;
+    if matchgroups
+        final_data = all_data_start;
+    else
+        final_data = all_data;
+    end
 toc             
 end
 end

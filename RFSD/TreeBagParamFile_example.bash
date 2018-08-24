@@ -68,6 +68,43 @@ disable_treebag=true
 proxsublimit_num=500
 
 # =====================
+# == dimensionality reduction options
+# =====================
+#if set to true, dimensionality reduction will be performed on training
+# and testing datasets separately. If set to false, other options can
+# be ignored
+dim_reduce=false
+#the type of dimensionality reduction, current options supported: PCA
+dim_type='PCA'
+#the number of components, used by: PCA
+num_components=1
+#the path to the .mat file that contains the modules for dimensionality reduction
+modpath='/this/mod.mat'
+#the variable name within the .mat file that contains the modules for dimensionality reduction
+modvar='modulevariable'
+
+# =====================
+# == graph reduction options
+# =====================
+#if set to true, dimensionality reduction will be performed using graph theory
+#because this operates on each individual subject, reduction will be performed
+#prior to any further steps
+graph_reduce=false
+#the path to the .mat file that contains the systems for calculating participation coefficient
+systempath='/this/system.mat'
+#the variable name within the systems.mat file for calculating participation coefficient
+systemvar='systems'
+#the edge density to use for thresholding -- for Evan Gordon's 353 ROIs, a lattice 
+#network would have 2.841 percent edge density
+edgedensity=0.03
+#the path to the .mat file that contains the modules for dimensionality reduction
+grphmodpath='/this/mod.mat'
+#the variable name within the .mat file that contains the modules for dimensionality reduction
+grphmodvar='modulevariable'
+#the path to the brain connectivity toolbox for performing graph extraction
+bctpath='/this/bct/path'
+
+# =====================
 # == RF validation procedure options
 # =====================
 # if set to true, will perform cross-validation

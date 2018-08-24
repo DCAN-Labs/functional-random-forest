@@ -25,6 +25,8 @@ surrogate=${surrogate:-'false'}
 group2test=${group2test:-'false'}
 fisher_z_transform=${fisher_z_transform:-'false'}
 cross_validate=${cross_validate:-'true'}
+dim_reduce=${dim_reduce:-'false'}
+graph_reduce=${graph_reduce:-'false'}
 
 #parameters set from the TreeBagParamFile
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
@@ -46,6 +48,8 @@ if $uniform_priors; then priors='Uniform'; else priors='Empirical'; fi
 if $use_unsupervised; then unsupervised='unsupervised'; else unsupervised='NONE'; fi
 if $matchgroups; then matchgroups='MatchGroups'; else matchgroups='NONE'; fi
 if $cross_validate; then cv='CrossValidate'; else cv='NONE'; fi
+if $dim_reduce; then reducedim='DimReduce'; else reducedim='NONE'; fi
+if $graph_reduce; then reducegraph='GraphReduce'; else reducegraph='NONE'; fi
 
 #If missing other parameters, set defaults
 datasplit=${datasplit:-0.9}
@@ -70,6 +74,17 @@ infomapfile=${infomapfile:-'/group_shares/fnl/bulk/code/external/utilities/infom
 repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
 infomap_command_file=${infomap_command_file=:-'/group_shares/fnl/bulk/projects/FAIR_users/RFAnalysis/simple_infomap/simple_infomap.py'}
 matlab_command=${matlab_command:-'matlab'}
+modpath=${modpath:-'NONE'}
+modvar=${modvar:-'NONE'}
+grphmodpath=${grphmodpath:-'NONE'}
+grphmodvar=${grphmodvar:-'NONE'}
+dim_type=${dim_type:-'NONE'}
+num_components=${num_components:-1}
+systempath=${systempath:-'NONE'}
+systemvar=${systemvar:-'NONE'}
+edgedensity=${edgedensity:-0.05}
+bctpath=${bctpath:-'/mnt/max/shared/code/external/utilities/BCT/'}
+
 
 #Construct the model, which will save outputs to a filename.mat file
-${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds",'InfomapFile','"$infomapfile"','CommandFile','"$infomap_command_file"') ; exit"
+${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds",'InfomapFile','"$infomapfile"','CommandFile','"$infomap_command_file"','"${reducedim}"',struct('path','"${modpath}"','variable','"${modvar}"'),'"${dim_type}"',"$num_components",'"${reducegraph}"',struct('path','"${systempath}"','variable','"${systemvar}"'),struct('path','"${grphmodpath}"','variable','"${grphmodvar}"'),"$edgedensity",'"${bctpath}"') ; exit"
