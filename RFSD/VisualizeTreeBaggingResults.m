@@ -364,13 +364,13 @@ proxmat_sum = proxmat_sum + proxmat{i};
 end
 h = figure(1 + nfigures);
 imagesc(proxmat_sum./max(size(proxmat)));
-colormap(jet)
+colormap(gray)
 xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
 ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
 title('proximity matrix','FontName','Arial','FontSize',24,'FontWeight','Bold');
 set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-caxis([0 max(max(triu(proxmat_sum./max(size(proxmat)),1)))]);
+caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
 colorbar
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 %plot features used
@@ -389,13 +389,13 @@ ColorData = [0.8 0 0.8; 0.7 0 0.7; 0.6 0 0.6; 0.5 0 0.5; 0.4 0 0.4; 0.3 0 0.3; 0
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(3 + nfigures);
     imagesc(proxmat_sum_sorted./max(size(proxmat)));
-    colormap(jet)
+    colormap(gray)
     xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
     title('proximity matrix','FontName','Arial','FontSize',24,'FontWeight','Bold');
     set(gca,'FontName','Arial','FontSize',18);
     set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-    caxis([0 max(max(triu(proxmat_sum_sorted./max(size(proxmat)),1)))]);
+    caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
     colorbar
     saveas(h,strcat(output_directory,'/proximity_matrix_sorted.tif'));
     %visualize community matrix
@@ -489,13 +489,13 @@ if outcomes_recorded == 1
 %visualize subgroup sorted proximity matrix
     h = figure(7 + nfigures);
     imagesc(proxmat_subgroup_sorted./max(size(proxmat)));
-    colormap(jet)
+    colormap(gray)
     xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
     ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
     title('proximity matrix sorted by subgroup','FontName','Arial','FontSize',24,'FontWeight','Bold');
     set(gca,'FontName','Arial','FontSize',18);
     set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-    caxis([0 max(max(triu(proxmat_subgroup_sorted./max(size(proxmat)),1)))]);
+    caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
     colorbar
     saveas(h,strcat(output_directory,'/proximity_matrix_sorted_by_subgroup.tif'));
 %visualize sorted commmunity matrix
