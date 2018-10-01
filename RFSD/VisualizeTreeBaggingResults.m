@@ -357,6 +357,8 @@ switch(type)
         end
         nfigures = nfigures + 1;
 end
+%load new colormaps
+load('group_colormap.mat');
 %generate proximity matrix figure
 proxmat_sum = zeros(size(proxmat{1}));
 for i = 1:max(size(proxmat))
@@ -372,6 +374,22 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
 colorbar
+num_outcomes = unique(final_outcomes);
+community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
+color_outcome = 0;
+for curr_outcome = 1:length(num_outcomes)
+    color_outcome = color_outcome + 1;
+    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),1) = primary_colors(color_outcome,1);
+    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),2) = primary_colors(color_outcome,2);
+    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),3) = primary_colors(color_outcome,3);
+    if curr_outcome == size(primary_colors,1)
+        color_outcome = 0;
+    end
+end
+hold on
+h = imshow(community_vis);
+hold off
+set(h,'AlphaData',0.3);
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 %plot features used
 h = figure(2 + nfigures);
@@ -383,7 +401,7 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 saveas(h,strcat(output_directory,'/feature_usage.tif'));
 %incorporating newer community detection here:
-ColorData = [0.8 0 0.8; 0.7 0 0.7; 0.6 0 0.6; 0.5 0 0.5; 0.4 0 0.4; 0.3 0 0.3; 0.2 0 0.2; 0.9 0.8 0; 0.8 0.7 0; 0.7 0.6 0; 0.6 0.5 0; 0.5 0.4 0; 0.4 0.3 0; 0.3 0.2 0]; 
+ColorData = all_colors;
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
@@ -397,6 +415,23 @@ ColorData = [0.8 0 0.8; 0.7 0 0.7; 0.6 0 0.6; 0.5 0 0.5; 0.4 0 0.4; 0.3 0 0.3; 0
     set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
     caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
     colorbar
+    community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
+    num_subgroups = unique(community_matrix);
+    community_initial_sorted = community_matrix(sorting_order);
+    color_outcome = 0;
+    for curr_outcome = 1:length(num_subgroups)
+        color_outcome = color_outcome + 1;
+        community_vis(find(community_initial_sorted == num_subgroups(curr_outcome)),find(community_initial_sorted == num_subgroups(curr_outcome)),1) = ColorData(color_outcome,1);
+        community_vis(find(community_initial_sorted == num_subgroups(curr_outcome)),find(community_initial_sorted == num_subgroups(curr_outcome)),2) = ColorData(color_outcome,2);
+        community_vis(find(community_initial_sorted == num_subgroups(curr_outcome)),find(community_initial_sorted == num_subgroups(curr_outcome)),3) = ColorData(color_outcome,3);
+        if color_outcome == curr_outcome
+            color_outcome = 0;
+        end
+    end
+    hold on
+    h = imshow(community_vis);
+    hold off
+    set(h,'AlphaData',0.3);
     saveas(h,strcat(output_directory,'/proximity_matrix_sorted.tif'));
     %visualize community matrix
     h = figure(4 + nfigures);
@@ -495,8 +530,33 @@ if outcomes_recorded == 1
     title('proximity matrix sorted by subgroup','FontName','Arial','FontSize',24,'FontWeight','Bold');
     set(gca,'FontName','Arial','FontSize',18);
     set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-    caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
+    caxis([quantile(quantile(triu(proxmat_subgroup_sorted./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_subgroup_sorted./max(size(proxmat)),1),0.95),0.95)]);
     colorbar
+    community_vis = zeros(size(proxmat_subgroup_sorted,1),size(proxmat_subgroup_sorted,2),3);
+    num_maingroups = unique(subgroup_community_num(:,1));
+    color_maingroup = 0;
+    for curr_maingroup = 1:length(num_maingroups)
+        color_maingroup = color_maingroup + 1;
+        color_outcome = (color_maingroup-1)*6;
+        subgroup_comm = find(subgroup_community_num(:,1) == curr_maingroup);
+        num_subgroups = unique(subgroup_community_num(subgroup_comm,2));
+        for curr_outcome = 1:length(num_subgroups)
+            color_outcome = color_outcome + 1;
+            community_vis(intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),1) = ColorData(color_outcome,1);
+            community_vis(intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),2) = ColorData(color_outcome,2);
+            community_vis(intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),intersect(subgroup_comm,find(subgroup_community_num(:,2) == num_subgroups(curr_outcome))),3) = ColorData(color_outcome,3);
+            if color_outcome > (color_maingroup-1)*6 + 5
+                color_outcome = (color_maingroup-1)*6;
+            end
+        end
+        if curr_maingroup > 4
+            color_maingroup = 0;
+        end
+    end
+    hold on
+    h = imshow(community_vis);
+    hold off
+    set(h,'AlphaData',0.3);
     saveas(h,strcat(output_directory,'/proximity_matrix_sorted_by_subgroup.tif'));
 %visualize sorted commmunity matrix
     h = figure(8 + nfigures);

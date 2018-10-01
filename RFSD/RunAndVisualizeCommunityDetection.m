@@ -102,7 +102,7 @@ for density = lowdensity:stepdensity:highdensity
             end
         end
     catch
-        warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.');
+        warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.'));
         ncomps = ncomps - nreps;
     end
 end
