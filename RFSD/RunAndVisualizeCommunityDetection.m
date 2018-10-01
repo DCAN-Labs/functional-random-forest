@@ -77,28 +77,33 @@ optionu = ' -u ';
 optioni = ' -i ';
 commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
 for density = lowdensity:stepdensity:highdensity
-    for i = 1:nreps
-        outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
-        mkdir(outfoldname); 
-        command = [command_file optionu optionm proxmatpath optiono outfoldname optionp num2str(density) optioni infomapfile];
-        system(command);        
-        temp = num2str(density,'%2.2f');
-        density_str=temp(strfind(temp,'.')+1:end);
-        if density < 0.1
-            density_dir=num2str(density*100);
-        elseif density == 1
-            density_dir='100';
-        else
-            density_dir=density_str;
+    try
+        for i = 1:nreps
+            outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
+            mkdir(outfoldname); 
+            command = [command_file optionu optionm proxmatpath optiono outfoldname optionp num2str(density) optioni infomapfile];
+            system(command);        
+            temp = num2str(density,'%2.2f');
+            density_str=temp(strfind(temp,'.')+1:end);
+            if density < 0.1
+                density_dir=num2str(density*100);
+            elseif density == 1
+                density_dir='100';
+            else
+                density_dir=density_str;
+            end
+            commfile=dir(strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,'*.txt'));
+            commdirplusfile=strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,commfile.name);
+            temp_community_matrix = dlmread(commdirplusfile);
+            ncomms_temp = unique(temp_community_matrix);
+            for j = 1:max(size(ncomms_temp))
+                ROIs_in_comm = find(temp_community_matrix == ncomms_temp(j));
+                commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
+            end
         end
-        commfile=dir(strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,'*.txt'));
-        commdirplusfile=strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,commfile.name);
-        temp_community_matrix = dlmread(commdirplusfile);
-        ncomms_temp = unique(temp_community_matrix);
-        for j = 1:max(size(ncomms_temp))
-            ROIs_in_comm = find(temp_community_matrix == ncomms_temp(j));
-            commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
-        end
+    catch
+        warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.');
+        ncomps = ncomps - nreps;
     end
 end
 commproxmat = commproxmat./ncomps;
