@@ -548,24 +548,32 @@ end
 %check the status of out of bag variables, generate visualizations if they
 %indeed exist.
 if isnan(oob_varimp(1)) == 0
-    h = figure(nfigures + 10);
-    bar(outofbag_varimp)
-    xlabel('input variable #','FontSize',20,'FontName','Arial','FontWeight','Bold');
-    ylabel('variable importance','FontSize',20,'FontName','Arial','FontWeight','Bold');
-    title('variable importance plot','FontName','Arial','FontSize',24,'FontWeight','Bold');
-    set(gca,'FontName','Arial','FontSize',18);
-    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-    saveas(h,strcat(output_directory,'/variable_importance.tif'));    
+    try
+        h = figure(nfigures + 10);
+        bar(outofbag_varimp)
+        xlabel('input variable #','FontSize',20,'FontName','Arial','FontWeight','Bold');
+        ylabel('variable importance','FontSize',20,'FontName','Arial','FontWeight','Bold');
+        title('variable importance plot','FontName','Arial','FontSize',24,'FontWeight','Bold');
+        set(gca,'FontName','Arial','FontSize',18);
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        saveas(h,strcat(output_directory,'/variable_importance.tif'));    
+    catch
+        warning('could not produce OOB variable importance plot despite presence of real variable...skipping');
+    end
 end
 if isnan(oob_error(1)) == 0
-    h = figure(nfigures + 11);
-    plot(outofbag_error,'LineWidth',3)
-    xlabel('# of trees','FontSize',20,'FontName','Arial','FontWeight','Bold');
-    ylabel('OOB error (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
-    title('out of bag error by # of trees','FontName','Arial','FontSize',24,'FontWeight','Bold');
-    set(gca,'FontName','Arial','FontSize',18);
-    set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-    saveas(h,strcat(output_directory,'/OOB_error.tif'));     
+    try
+        h = figure(nfigures + 11);
+        plot(outofbag_error,'LineWidth',3)
+        xlabel('# of trees','FontSize',20,'FontName','Arial','FontWeight','Bold');
+        ylabel('OOB error (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
+        title('out of bag error by # of trees','FontName','Arial','FontSize',24,'FontWeight','Bold');
+        set(gca,'FontName','Arial','FontSize',18);
+        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
+        saveas(h,strcat(output_directory,'/OOB_error.tif'));     
+    catch
+        warning('could not produce OOB error plot despite presence of real variable...skipping');
+    end
 end
 
 
