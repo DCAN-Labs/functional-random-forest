@@ -41,6 +41,7 @@ if isempty(varargin) == 0
                             ngroup1_substested = max(size(testing_indexgroup1));
                             group1class = zeros(ngroup1_substested,1);
                             group1predict = zeros(ngroup1_substested,1);
+                            group1scores = zeros(ngroup1_substested,length(unique(testing_groups)));
                         end
                     case('group2class')
                         testing_indexgroup2 = varargin{i+1};
@@ -55,6 +56,10 @@ if isempty(varargin) == 0
             end
         end
     end
+end
+if class_method == 'classification'
+    group1scores = zeros(ngroup1_substested,length(unique(testing_groups)));
+    group2scores = zeros(ngroup2_substested,length(unique(testing_groups)));
 end
 if numpredictors == 0
     numpredictors = round(sqrt(size(learning_data,2)));
@@ -146,6 +151,7 @@ switch(type)
             accuracy(3,1) = nxpooled/(N*s_squared);
         else
            [predicted_classes,predicted_scores] = predict(treebag,testing_data);
+           size(predicted_scores)
            predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
@@ -153,13 +159,13 @@ switch(type)
                 temp_sub_index = temp_sub_index + 1;
                 group1class(i) = accuracy_prediction(temp_sub_index);
                 group1predict(i) = predicted_classes(temp_sub_index);
-                group1scores(i) = predicted_scores(temp_sub_index);
+                group1scores(i,:) = predicted_scores(temp_sub_index,:);
             end
             for i = 1:ngroup2_substested
                 temp_sub_index = temp_sub_index + 1;
                 group2class(i) = accuracy_prediction(temp_sub_index);
                 group2predict(i) = predicted_classes(temp_sub_index);
-                group2scores(i) = predicted_scores(temp_sub_index);
+                group2scores(i,:) = predicted_scores(temp_sub_index,:);
             end
             accuracy = zeros(ngroups+1,1);
 %            accuracy(1,1) = size(find(accuracy_prediction == ngroups_index(1)),1)/size(testing_groups,1);

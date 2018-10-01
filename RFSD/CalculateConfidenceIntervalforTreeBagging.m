@@ -852,9 +852,13 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             all_outcomes_start = group1_outcome;
             all_outcomes_start(end+1:end+size(group2_data,1),1) = group2_outcome;
             all_outcomes_start_mask = true(length(all_outcomes_start),1);
+            group1scores = zeros(nsubs_group1,length(unique(all_outcomes_start)));
+            group2scores = zeros(nsubs_group2,length(unique(all_outcomes_start)));
+            group2class_scored = zeros(nsubs_group2,length(unique(all_outcomes_start)));
+            group1class_scored = zeros(nsubs_group1,length(unique(all_outcomes_start)));        
             if dim_reduce
                 dim_data_start = ModuleFeatureExtractor('InputData',all_data_start,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
-            end            
+            end
         end
         if unsupervised
             group2_data = group1_data;
@@ -886,6 +890,8 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
         all_data(end+1:end+size(group2_data,1),:) = group2_data; 
         group1_subjects = 1:size(group1_data,1);
         group2_subjects = 1:size(group2_data,1);
+        group1_allsubs = group1_subjects;
+        group2_allsubs = group2_subjects;        
         all_outcomes = group1_outcome;
         all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
         final_outcomes = all_outcomes;
@@ -902,6 +908,7 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             all_data = group1_data(1,:);
             all_outcomes = group1_outcome(1);
             all_outcomes_mask = all_outcomes_start_mask;
+            all_subject_index = 1;
             for curr_outcome = 1:length(unique_outcomes)
                 nsubs_by_outcome(curr_outcome) = length(find(all_outcomes_start == unique_outcomes(curr_outcome)));
             end
@@ -912,12 +919,16 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 all_outcomes_mask(subs_to_use) = false;
                 all_data(end:end-1+length(subs_to_use),:) = all_data_start(subs_to_use,:);
                 all_outcomes(end:end-1+length(subs_to_use),:) = all_outcomes_start(subs_to_use,:);
+                all_subject_index(end:end-1+length(subs_to_use),1) = subs_to_use;
             end
             nsubs = size(all_data,1);
             group2_data = all_data(floor(nsubs/2)+1:end,:);
             group1_data = all_data(1:floor(nsubs/2),:);
             group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
             group1_outcome = all_outcomes(1:floor(nsubs/2));
+            size(group1_allsubs)
+            group1_subjects = all_subject_index(all_subject_index <= size(group1_allsubs,2));
+            group2_subjects = all_subject_index(all_subject_index > size(group1_allsubs,2)) - size(group1_allsubs,2);
         end        
         permuted_outcomes = all_outcomes(randperm(length(all_outcomes),length(all_outcomes)));
         folds = cvpartition(all_outcomes,'KFold',nfolds);
@@ -1004,20 +1015,26 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 treebag{i,1} = treebag_temp;
             end
             if testing_indexgroup1 > 0
+                testing_indexgroup1
+                size(group1scores)
+                size(group1_allsubs)
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
                 group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
-                group1scores(testing_indexgroup1) = group1scores(testing_indexgroup1) + group1scores_temp';
+                group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp;
                 group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
-                group1class_scored(testing_indexgroup1) = group1class_scored(testing_indexgroup1) + 1;
+                group1class_scored(testing_indexgroup1,:) = group1class_scored(testing_indexgroup1,:) + 1;
             end
             if testing_indexgroup2 > 0
+                testing_indexgroup2
+                size(group2scores)
+                size(group2_allsubs)
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
                 group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
-                group2scores(testing_indexgroup2) = group2scores(testing_indexgroup2) + group2scores_temp';
+                group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp;
                 group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
-                group2class_scored(testing_indexgroup2) = group2class_scored(testing_indexgroup2) + 1;
+                group2class_scored(testing_indexgroup2,:) = group2class_scored(testing_indexgroup2,:) + 1;
             end
                 clear treebag_temp group1class_temp group2class_temp
                 sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:curr_fold,i,1)))))
@@ -1032,6 +1049,8 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
     group2scores = group2scores./group2class_scored;
     if matchgroups
         final_data = all_data_start;
+        group1_subjects = group1_allsubs;
+        group2_subjects = group2_allsubs;
     else
         final_data = all_data;
     end

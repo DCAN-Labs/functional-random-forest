@@ -77,7 +77,7 @@ try
     plot_performance_by_subgroups = 1;
 catch
     warning('could not find subject specific accuracy variable. Skipping individual and subgroup accuracy visualizations');
-end
+end   
 outcomes_recorded = 0;
 mkdir(output_directory);
 Pvalues = size(accuracy,1);
@@ -91,6 +91,18 @@ switch(type)
         catch
             warning('final outcomes values are not found. community detection will operate on entire matrix');
             final_outcomes = NaN;
+        end
+        if outcomes_recorded == 1
+            try
+                group1scores = stuff.group1scores;
+                group2scores = stuff.group2scores;
+                group1predict = stuff.group1predict;
+                group2predict = stuff.group2predict;
+                FRFAUC = ComputeROCfromFRF(group1predict,group2predict,group1scores,group2scores,final_outcomes,strcat(output_directory,'/summary'));
+                save(strcat(output_directory,'/AUC.mat'),'FRFAUC');
+            catch
+                warning('could not generate ROC curves -- skipping');
+            end
         end
         PlotTitle = {'Total'};
         nbins = 0:0.025:1;
