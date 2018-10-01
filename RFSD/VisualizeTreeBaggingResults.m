@@ -99,7 +99,7 @@ switch(type)
                 group1predict = stuff.group1predict;
                 group2predict = stuff.group2predict;
                 FRFAUC = ComputeROCfromFRF(group1predict,group2predict,group1scores,group2scores,final_outcomes,strcat(output_directory,'/summary'));
-                save(strcat(output_directory,'/AUC.mat'),'FRFAUC');
+                save(strcat(output_directory,'/AUC.mat'),'FRFAUC','-v7.3');
             catch
                 warning('could not generate ROC curves -- skipping');
             end
@@ -542,7 +542,7 @@ if outcomes_recorded == 1
             warning('Could not produce summary community plot, skipping');
         end
     end
-    save(strcat(output_directory,'/subgroup_community_assignments.mat'),'proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance');
+    save(strcat(output_directory,'/subgroup_community_assignments.mat'),'proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance','-v7.3');
     end
 end
 %check the status of out of bag variables, generate visualizations if they
