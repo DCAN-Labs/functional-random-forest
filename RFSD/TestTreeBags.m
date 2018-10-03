@@ -57,7 +57,7 @@ if isempty(varargin) == 0
         end
     end
 end
-if class_method == 'classification'
+if strcmp(class_method,'classification')
     group1scores = zeros(ngroup1_substested,length(unique(testing_groups)));
     group2scores = zeros(ngroup2_substested,length(unique(testing_groups)));
 end
