@@ -1020,7 +1020,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 size(group1_allsubs)
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
                 group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
-                group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp;
+                if regression == 0
+                    group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp;
+                else
+                    group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp';
+                end
                 group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
                 group1class_scored(testing_indexgroup1,:) = group1class_scored(testing_indexgroup1,:) + 1;
@@ -1031,7 +1035,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 size(group2_allsubs)
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
                 group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
-                group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp;
+                if regression == 0
+                    group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp;
+                else
+                    group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp';
+                end
                 group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
                 group2class_scored(testing_indexgroup2,:) = group2class_scored(testing_indexgroup2,:) + 1;
