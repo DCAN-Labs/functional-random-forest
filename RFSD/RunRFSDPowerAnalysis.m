@@ -16,6 +16,7 @@ numpools = 1;
 nsims = 10;
 outcol = 1;
 zscore_flag='NONE';
+sim_type = 'estimated';
 for i = 1:size(varargin,2)
     if ischar(varargin{i})
         if isstruct(varargin{i}) == 0
@@ -62,8 +63,22 @@ for i = 1:size(varargin,2)
                     commandfile = varargin{i+1};
                 case('ZscoreOutcomeVariable')
                     zscore_flag = 'ZscoreOutcomeVariable';
+                case('SimType')
+                    sim_type = varargin{i+1};
+                case('CovarianceMatrix')
+                    covariance_matrix = varargin{i+1};
+                case('MuGroups')
+                    mu_group = varargin{i+1};                    
             end
         end
+    end
+end
+if strcmp(sim_type,'manual')
+    if isstruct(covariance_matrix)
+        covariance_matrix = struct2array(load(covariance_matrix.path,covariance_matrix.variable));
+    end
+    if isstruct(mu_group)
+        mu_group = struct2array(load(mu_group.path,mu_group.variable)); 
     end
 end
 %load pool
@@ -87,14 +102,27 @@ end
 null_performance = observed_performance;
 false_positive = statistical_power;
 %run a PARFOR loop on the simulations
-if parallel_processing
-    parfor curr_sim = 1:nsims
-        [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
-    end
-else
-    for curr_sim = 1:nsims
-        [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
-    end
+switch(sim_type)
+    case('estimated')
+        if parallel_processing
+            parfor curr_sim = 1:nsims
+                [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('SimType',sim_type,'InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+            end
+        else
+            for curr_sim = 1:nsims
+                [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('SimType',sim_type,'InputData',input_data,'GroupBy',group_column,'Categorical',categorical_vector,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+            end
+        end
+    case('manual')
+        if parallel_processing
+            parfor curr_sim = 1:nsims
+                [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('SimType',sim_type,'CovarianceMatrix',covariance_matrix,'MuGroups',mu_group,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+            end
+        else
+            for curr_sim = 1:nsims
+                [observed_performance(:,curr_sim),null_performance(:,curr_sim)] = PerformRFSDSimulations('SimType',sim_type,'CovarianceMatrix',covariance_matrix,'MuGroups',mu_group,'NumSimCases',sample_size,'DataRange',data_range,'ForestType',forest_type,'LearningType',learning_type,'OutcomeColumnForRegression',outcol,'InfomapFile',infomapfile,'CommandFile',commandfile,zscore_flag,'OutputIndex',curr_sim);
+            end
+        end        
 end
 %close the pool all other operations only need one core after
 if parallel_processing

@@ -4,20 +4,37 @@
 # == input and output parameters
 # =====================
 
-# path and filename where the input data are located
-input_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/EXCEL_PREP/ExcelExampleOutput.mat
+# set the type of data simulation, which determines the inputs
+sim_type='manual'
 
-# the name of the input variable stored in the .mat file
-input_data_variable=group_data
+#the below parameters should be used when sim_type is set to 'manual'
 
-# if set to true, a group_data column will be loaded as well
-# XXX PMR : In order to do classification, we need a groupby column set to true
-groupby=true
-    # path and filename to where the group_column is stored can be same or
-    #   different .mat file
-    group_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/CONSTRUCT_TREEBAGM/example_XCCvsUCC.mat
-    # the name of the group variable stored in the .mat file
-    group_data_variable=final_outcomes
+    #set the path and variable name for the covariance matrix
+    covariance_matrix_path=/mnt/max/shared/projects/FAIR_users/Feczko/projects/FRF_power_analysis/simulation_parameters.mat
+    covariance_matrix_variable=covariance_matrix_1min
+
+    #set the path and variable name for the means
+    mu_group_path=/mnt/max/shared/projects/FAIR_users/Feczko/projects/FRF_power_analysis/simulation_parameters.mat
+    mu_group_variable=mu_TD
+
+#the below parameters should be used when sim_type is set to 'estimated'
+
+    # path and filename where the input data are located
+    input_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/EXCEL_PREP/ExcelExampleOutput.mat
+
+    # the name of the input variable stored in the .mat file
+    input_data_variable=group_data
+
+    # if set to true, a group_data column will be loaded as well
+    # XXX PMR : In order to do classification, we need a groupby column set to true
+    groupby=true
+        # path and filename to where the group_column is stored can be same or
+        #   different .mat file
+        group_data=/mnt/max/home/robinsph/git/Analysis/DataFolder/CONSTRUCT_TREEBAGM/example_XCCvsUCC.mat
+        # the name of the group variable stored in the .mat file
+        group_data_variable=final_outcomes
+
+# all other parameters should be unaffected by sim_type
 
 # the name of the output prefix
 output_directory=LONG_ADHD_OHSU_dataset

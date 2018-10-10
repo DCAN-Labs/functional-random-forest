@@ -1018,12 +1018,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 testing_indexgroup1
                 size(group1scores)
                 size(group1_allsubs)
+                size(group1scores_temp)
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
                 group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
                 if regression == 0
                     group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp;
-                else
-                    group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp';
                 end
                 group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
@@ -1033,12 +1032,11 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 testing_indexgroup2
                 size(group2scores)
                 size(group2_allsubs)
+                size(group2scores_temp)
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
                 group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
                 if regression == 0
                     group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp;
-                else
-                    group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp';
                 end
                 group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
@@ -1053,8 +1051,10 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
     group2class = group2class./group2class_tested;
     group1predict = group1predict./group1class_predicted;
     group2predict = group2predict./group2class_tested;
-    group1scores = group1scores./group1class_scored;
-    group2scores = group2scores./group2class_scored;
+    if regression == 0
+        group1scores = group1scores./group1class_scored;
+        group2scores = group2scores./group2class_scored;
+    end
     if matchgroups
         final_data = all_data_start;
         group1_subjects = group1_allsubs;
