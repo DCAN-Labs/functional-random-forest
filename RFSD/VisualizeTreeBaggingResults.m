@@ -212,6 +212,12 @@ switch(type)
     case('regression')
 %plot observed and permuted regression results and print ttest results on figure itself
 %plot mean error first
+        try
+            final_outcomes = stuff.final_outcomes;
+        catch
+            warning('final outcomes values are not found. community detection will operate on entire matrix');
+            final_outcomes = NaN;
+        end
         nbins = round(size(accuracy,2)/20);
         if nbins < 10
             nbins = 10;
@@ -374,22 +380,24 @@ set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
 caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
 colorbar
-num_outcomes = unique(final_outcomes);
-community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
-color_outcome = 0;
-for curr_outcome = 1:length(num_outcomes)
-    color_outcome = color_outcome + 1;
-    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),1) = primary_colors(color_outcome,1);
-    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),2) = primary_colors(color_outcome,2);
-    community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),3) = primary_colors(color_outcome,3);
-    if curr_outcome == size(primary_colors,1)
-        color_outcome = 0;
+if strcmp(type,'classification')
+    num_outcomes = unique(final_outcomes);
+    community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
+    color_outcome = 0;
+    for curr_outcome = 1:length(num_outcomes)
+        color_outcome = color_outcome + 1;
+        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),1) = primary_colors(color_outcome,1);
+        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),2) = primary_colors(color_outcome,2);
+        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),3) = primary_colors(color_outcome,3);
+        if curr_outcome == size(primary_colors,1)
+            color_outcome = 0;
+        end
     end
+    hold on
+    h = imshow(community_vis);
+    hold off
+    set(h,'AlphaData',0.3);
 end
-hold on
-h = imshow(community_vis);
-hold off
-set(h,'AlphaData',0.3);
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 %plot features used
 h = figure(2 + nfigures);
