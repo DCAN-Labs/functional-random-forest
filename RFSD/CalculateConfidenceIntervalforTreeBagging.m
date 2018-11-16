@@ -859,7 +859,17 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             if dim_reduce
                 dim_data_start = ModuleFeatureExtractor('InputData',all_data_start,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
             end
-        end
+        else
+	    if regression==0
+                all_outcomes = group1_outcome;
+                all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
+                final_outcomes = all_outcomes;
+                group1scores = zeros(nsubs_group1,length(unique(all_outcomes)));
+                group2scores = zeros(nsubs_group2,length(unique(all_outcomes)));
+                group2class_scored = zeros(nsubs_group2,length(unique(all_outcomes)));
+                group1class_scored = zeros(nsubs_group1,length(unique(all_outcomes)));
+	    end 		
+	end
         if unsupervised
             group2_data = group1_data;
             nsubs_group1 = size(group1_data,1);
