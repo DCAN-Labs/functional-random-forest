@@ -846,6 +846,10 @@ elseif holdout == 1
     end
 elseif holdout==2 %WARNING cross-validate carries its own parameters and will overwrite everything else
         tic
+        if independent_outcomes == 0
+            group1_outcome = zeros(size(group1_data,1),1) + 1;
+            group2_outcome = ones(size(group2_data,1),1) + 1;
+        end
         if matchgroups
             all_data_start = group1_data;
             all_data_start(end+1:end+size(group2_data,1),:) = group2_data; 
@@ -860,7 +864,7 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 dim_data_start = ModuleFeatureExtractor('InputData',all_data_start,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
             end
         else
-	    if regression==0
+            if regression==0
                 all_outcomes = group1_outcome;
                 all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
                 final_outcomes = all_outcomes;
@@ -868,8 +872,8 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 group2scores = zeros(nsubs_group2,length(unique(all_outcomes)));
                 group2class_scored = zeros(nsubs_group2,length(unique(all_outcomes)));
                 group1class_scored = zeros(nsubs_group1,length(unique(all_outcomes)));
-	    end 		
-	end
+            end 		
+        end
         if unsupervised
             group2_data = group1_data;
             nsubs_group1 = size(group1_data,1);
