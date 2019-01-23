@@ -132,8 +132,10 @@ if isempty(varargin) == 0
     end
 end
 if graph_reduce
+    size(group1_data)
     dim_data = group1_data;
     group1_data = ModuleFeatureExtractor('InputData',dim_data,'Modules',modules,'DimType','graph','EdgeDensity',edgedensity,'BCTPath',bctpath,'Systems',systems);
+    size(group1_data)
 end
 if iscell(group1_data)
     [categorical_vector, group1_data] = ConvertCelltoMatrixforTreeBagging(group1_data);
@@ -174,6 +176,8 @@ if independent_outcomes
 %            group1_outcome = group1_outcome(1:floor(nsubs/2));
             cross_valid = 1;
         end
+        size(group1_outcome)
+        size(group2_outcome)
     end
 else
     accuracy = zeros(3,nreps,max(size(holdout_data)));
@@ -868,6 +872,7 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
                 all_outcomes = group1_outcome;
                 all_outcomes(end+1:end+size(group2_data,1),1) = group2_outcome;
                 final_outcomes = all_outcomes;
+                size(all_outcomes)
                 group1scores = zeros(nsubs_group1,length(unique(all_outcomes)));
                 group2scores = zeros(nsubs_group2,length(unique(all_outcomes)));
                 group2class_scored = zeros(nsubs_group2,length(unique(all_outcomes)));
@@ -941,6 +946,9 @@ elseif holdout==2 %WARNING cross-validate carries its own parameters and will ov
             group2_outcome = all_outcomes(floor(nsubs/2)+1:end);
             group1_outcome = all_outcomes(1:floor(nsubs/2));
             size(group1_allsubs)
+            size(group1_data)
+            size(group2_data)
+            size(all_outcomes)
             group1_subjects = all_subject_index(all_subject_index <= size(group1_allsubs,2));
             group2_subjects = all_subject_index(all_subject_index > size(group1_allsubs,2)) - size(group1_allsubs,2);
         end        
