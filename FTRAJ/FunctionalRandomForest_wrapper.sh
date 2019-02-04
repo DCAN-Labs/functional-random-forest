@@ -5,7 +5,7 @@ source $1
 agecol=${agecol:-2}
 idcol=${idcol:-1}
 filename=${filename:-'thenamelessone'}
-infomap_command_file=${infomap_command_file:-'/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py'}
+infomap_command_file=${infomap_command_file:-'/mnt/max/shared/code/internal/utilities/simple_infomap/simple_infomap.py'}
 fdapath=${fdapath:-'/mnt/max/shared/code/external/utilities/fdaM'}
 lowdensity=${lowdensity:-0.01}
 stepdensity=${stepdensity:-0.05}
@@ -34,8 +34,8 @@ vel_range_high=${vel_range_high:-10}
 acc_range_low=${acc_range_low:-0}
 acc_range_high=${acc_range_high:-5}
 image_suffix=${image_suffix:-'.tif'}
-infomapfile=${infomapfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
-repopath=${repopath:-'/group_shares/fnl/bulk/code/internal/analyses/RFAnalysis'}
+infomapfile=${infomapfile:-'/mnt/max/shared/utilities/infomap/Infomap'}
+repopath=${repopath:-'/mnt/max/shared/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
 matlab_command=${matlab_command:-'matlab'}
 #Construct the model, which will save outputs to a filename.mat file
 if $EDA; then EDAvar='EDA'; else EDAvar='NONE'; fi
