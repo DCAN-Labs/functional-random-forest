@@ -1,4 +1,4 @@
-function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
+function [accuracy,treebag,outofbag_error,proxmat,features_used,trimmed_feature_sets,npredictor_sets,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores,group1_data,group2_data] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nreps,proximity_sub_limit,varargin)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 if exist('proximity_sub_limit','var') == 0

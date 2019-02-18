@@ -109,11 +109,14 @@ switch(type)
         h = figure(1);
         acc_elements = hist(accuracy(1,:),nbins);
         hist(accuracy(1,:),nbins);
+        size(accuracy)
+        size(permute_accuracy)
         hold
         if isnan(permute_accuracy) == 0
             perm_elements = hist(permute_accuracy(1,:),nbins);
             hist(permute_accuracy(1,:),nbins);
             acc_h = findobj(gca,'Type','patch');
+            size(acc_h)
             permute_h = acc_h(1);
             acc_h = acc_h(2);
             set(permute_h,'FaceColor',[1 0 0],'EdgeColor','k','FaceAlpha',0.5);            

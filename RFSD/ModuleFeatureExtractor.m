@@ -73,11 +73,11 @@ switch(dim_type)
         disp('Betweenness Centrality')
         disp('Degree Centrality')
         disp('Clustering Coefficient')
-        disp('Within module degree zscore')
         disp('participation coefficient')
         disp('local assortativity')
         disp('diversity coefficient')
         disp('eigenvector centrality')
+        disp('Within module degree zscore*participation coefficient')
         disp('---------------------')
         disp('metrics extracted: Mean')
         disp('8 total metrics extracted per module')
@@ -107,16 +107,17 @@ switch(dim_type)
             feature_data = zeros(nsubs,nmodules*8);      
             for curr_sub = 1:nsubs
                 threshed_mat = threshold_proportional(input_data(:,:,curr_sub),edgedensity);
-                metrics = zeros(nrois,3);
+                metrics = zeros(nrois,8);
                 metrics(:,1) = betweenness_wei(threshed_mat);
                 metrics(:,1) = metrics(:,1)./((nrois-1)*(nrois-2));
                 metrics(:,2) = degrees_und(threshed_mat);
                 metrics(:,3) = clustering_coef_wu(threshed_mat);                
-                metrics(:,4) = module_degree_zscore(threshed_mat,systems,0);
-                metrics(:,5) = participation_coef(threshed_mat,systems,0);
-                metrics(:,6) = local_assortativity_wu_sign(input_data(:,:,curr_sub));
-                metrics(:,7) = diversity_coef_sign(input_data(:,:,curr_sub),systems);
-                metrics(:,8) = eigenvector_centrality_und(threshed_mat);
+                temp_metric(:,1) = module_degree_zscore(threshed_mat,systems,0);
+                metrics(:,4) = participation_coef(threshed_mat,systems,0);
+                metrics(:,5) = local_assortativity_wu_sign(input_data(:,:,curr_sub));
+                metrics(:,6) = diversity_coef_sign(input_data(:,:,curr_sub),systems);
+                metrics(:,7) = eigenvector_centrality_und(threshed_mat);
+                metrics(:,8) = temp_metric.*metrics(:,4);
                 curr_mod_count = 1;
                 for curr_mod = 1:nmodules
                     feature_data(curr_sub,curr_mod_count:curr_mod_count+7) = mean(metrics(modules(modules(:,1) == module_sets(curr_mod),2),:));

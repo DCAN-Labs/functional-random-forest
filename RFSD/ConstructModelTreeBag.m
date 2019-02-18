@@ -92,6 +92,7 @@ highdensity = 1;
 stepdensity = 0.05;
 cross_validation = 0;
 write_file = logical(1);
+data_reduce = 0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -118,6 +119,10 @@ if isempty(varargin) == 0
                     write_file = logical(0);
                 case('CommandFile')
                     command_file = varargin{i+1};
+                case('DimReduce')
+                    data_reduce = true;
+                case('GraphReduce')
+                    data_reduce = true;                    
             end
         end
     end
@@ -136,7 +141,7 @@ else
         warning(strcat('error: infomap repo not found, infomapfile variable not valid, subgroup detection will error at the end...',infomapfile));
     end
 end
-[accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{:});
+[accuracy,treebag,outofbag_error,proxmat,features,trimmed_features,npredictors,group1class,group2class,outofbag_varimp,final_data,dim_data,final_outcomes,group1predict,group2predict,group1scores,group2scores,group1_data_reduced,group2_data_reduced] = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,varargin{:});
 if nrepsPM > 0
     tic
     for i = 1:nrepsPM
@@ -175,7 +180,7 @@ if unsupervised
 end
 toc
 if write_file
-    save(strcat(filename,'.mat'),'dim_data','accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','group1scores','group2scores','-v7.3');
+    save(strcat(filename,'.mat'),'group1_data_reduced','group2_data_reduced','dim_data','accuracy','permute_accuracy','treebag','proxmat','features','trimmed_features','npredictors','group1class','group2class','outofbag_error','outofbag_varimp','final_data','final_outcomes','group1predict','group2predict','group1scores','group2scores','-v7.3');
     sprintf('%s','Calculating confidence intervals for Treebagging completed! Computing community detection using simple_infomap.py')
     if exist('command_file','var') == 0
         errmsg = 'command_file does not exist, quitting...';
@@ -193,6 +198,10 @@ if write_file
         errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
         error('TB:comfilechk',errmsg);
     end
-    VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+    if data_reduce
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data_reduced,group2_data_reduced,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+    else
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+    end
 end
 end

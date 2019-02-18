@@ -235,8 +235,8 @@ for current_trajectory = 1:ntrajectories
     count = count + 1;
     subplot(ntrajectories,size(accmat_temp,2)+1,count);
     if size(accmat_temp{1},1) > 1
-        for cols = 1:size(accmat_temp{j},2)
-            mean_accmat_temp(cols) = mean(accmat_temp{j}((isnan(accmat_temp{j}(:,cols)) == 0),cols));
+        for cols = 1:size(accmat_temp{1},2)
+            mean_accmat_temp(cols) = mean(accmat_temp{1}((isnan(accmat_temp{1}(:,cols)) == 0),cols));
         end
         plot(timepts_temp,mean_accmat_temp,'Color',colormapdata(1,1:3),'LineWidth',3)
         clear mean_accmat_temp

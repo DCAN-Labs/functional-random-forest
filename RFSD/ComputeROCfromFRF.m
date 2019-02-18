@@ -44,6 +44,6 @@ saveas(h,[filename '_ROC_WTA.tif'],'tif');
 figure(2)
 h2 = plotroc(sparse_outcomes',tested_scores');
 saveas(h2,[filename '_ROC_SCORES.tif'],'tif');
-%close all
+close all
 end
 
