@@ -41,7 +41,7 @@ if isempty(varargin) == 0
                             ngroup1_substested = max(size(testing_indexgroup1));
                             group1class = zeros(ngroup1_substested,1);
                             group1predict = zeros(ngroup1_substested,1);
-                            group1scores = zeros(ngroup1_substested,length(unique(testing_groups)));
+                            group1scores = zeros(ngroup1_substested,length(unique(learning_groups)));
                         end
                     case('group2class')
                         testing_indexgroup2 = varargin{i+1};
@@ -58,8 +58,8 @@ if isempty(varargin) == 0
     end
 end
 if strcmp(class_method,'classification')
-    group1scores = zeros(ngroup1_substested,length(unique(testing_groups)));
-    group2scores = zeros(ngroup2_substested,length(unique(testing_groups)));
+    group1scores = zeros(ngroup1_substested,length(unique(learning_groups)));
+    group2scores = zeros(ngroup2_substested,length(unique(learning_groups)));
 end
 if numpredictors == 0
     numpredictors = round(sqrt(size(learning_data,2)));
@@ -152,6 +152,8 @@ switch(type)
         else
            [predicted_classes,predicted_scores] = predict(treebag,testing_data);
            size(predicted_scores)
+           size(group1scores)
+           size(group2scores)
            predicted_classes = str2num(cell2mat(predicted_classes));
             accuracy_prediction = predicted_classes == testing_groups;
             temp_sub_index = 0;
