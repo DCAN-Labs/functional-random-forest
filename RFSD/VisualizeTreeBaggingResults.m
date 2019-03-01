@@ -384,23 +384,32 @@ set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 102
 caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
 colorbar
 if strcmp(type,'classification')
-    modularity_classification = CalculateModularityPerGroup(proxmat,final_outcomes);
-    num_outcomes = unique(final_outcomes);
-    community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
-    color_outcome = 0;
-    for curr_outcome = 1:length(num_outcomes)
-        color_outcome = color_outcome + 1;
-        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),1) = primary_colors(color_outcome,1);
-        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),2) = primary_colors(color_outcome,2);
-        community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),3) = primary_colors(color_outcome,3);
-        if curr_outcome == size(primary_colors,1)
-            color_outcome = 0;
+    if length(proxmat{1}) == length(final_outcomes)/2
+        display('unsupervised classification detected, will not calculate modularity on classification')
+        modularity_classification = NaN;
+        modularity_classification_p = NaN;
+    else
+        [modularity_classification modularity_classification_p] = PermuteModularityPerGroup(proxmat,final_outcomes,10000);
+        num_outcomes = unique(final_outcomes);
+        community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
+        color_outcome = 0;
+        for curr_outcome = 1:length(num_outcomes)
+            color_outcome = color_outcome + 1;
+            community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),1) = primary_colors(color_outcome,1);
+            community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),2) = primary_colors(color_outcome,2);
+            community_vis(find(final_outcomes == num_outcomes(curr_outcome)),find(final_outcomes == num_outcomes(curr_outcome)),3) = primary_colors(color_outcome,3);
+            if curr_outcome == size(primary_colors,1)
+                color_outcome = 0;
+            end
         end
+        hold on
+        h = imshow(community_vis);
+        hold off
+        set(h,'AlphaData',0.3);
     end
-    hold on
-    h = imshow(community_vis);
-    hold off
-    set(h,'AlphaData',0.3);
+else
+    modularity_classification = NaN;
+    modularity_classification_p = NaN;
 end
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 %plot features used
@@ -416,7 +425,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
 ColorData = all_colors;
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
-    modularity_communities = CalculateModularityPerGroup(proxmat,community_matrix);
+    [modularity_communities modularity_communities_p] = PermuteModularityPerGroup(proxmat,community_matrix,10000);
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(3 + nfigures);
     imagesc(proxmat_sum_sorted./max(size(proxmat)));
@@ -489,7 +498,7 @@ ColorData = all_colors;
         PlotTitle_comm{iter} = strcat('subgroup',num2str(iter));
         Pvalues_comm(iter) = mean(community_performance{iter});
     end
-    save(strcat(output_directory,'/community_assignments.mat'),'modularity_classification','modularity_communities','community_matrix','community_matrix_sorted','sorting_order','community_performance');    
+    save(strcat(output_directory,'/community_assignments.mat'),'modularity_classification','modularity_communities','modularity_classification_p','modularity_communities_p','community_matrix','community_matrix_sorted','sorting_order','community_performance');    
     try
         BOMDPlot('InputData',community_performance,'OutputDirectory',strcat(output_directory,'/model_performance_by_community.tif'),'PlotTitle',PlotTitle_comm,'PValues',Pvalues_comm,'BetweenHorz',0.2,'LegendFont',24,'TitleFont',28,'AxisFont',24,'ThinLineWidth',6,'ThickLineWidth',12);
     catch
@@ -508,6 +517,7 @@ if outcomes_recorded == 1
     subgroup_index = cell(nsubgroups,1);
     subgroup_communities = cell(nsubgroups,1);
     modularity_subgroup_communities = cell(nsubgroups,1);
+    modularity_subgroup_communities_p = cell(nsubgroups,1);
     subgroup_sorting_orders = cell(nsubgroups,1);
     sub_index = 1;
     for iter = 1:nsubgroups
@@ -515,11 +525,12 @@ if outcomes_recorded == 1
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,1) = iter;
         proxmat_subgroups(iter) = {proxmat_sum(subgroup_index{iter},subgroup_index{iter})};
         [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
-        modularity_subgroup_temp = CalculateModularityPerGroup(promxat_subgroups(iter),community_matrix_temp);
+        [modularity_subgroup_temp, modularity_subgroup_temp_p] = PermuteModularityPerGroup(promxat_subgroups(iter),community_matrix_temp,10000);
         subgroup_community_assignments(sub_index:length(subgroup_index{iter})+sub_index-1,1) = cellstr( [repmat(strcat('G',num2str(iter),'_'),length(community_matrix_temp),1),num2str(community_matrix_temp(sorting_order_temp))]);        
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,2) = community_matrix_temp(sorting_order_temp);    
         subgroup_communities{iter} = community_matrix_temp;
         modularity_subgroup_communities{iter} = modularity_subgroup_temp;
+        modularity_subgroup_communities_p{iter} = modularity_subgroup_temp_p;
         subgroup_sorting_orders{iter} = sorting_order_temp;
         sub_index = sub_index + length(subgroup_index{iter});
     end
@@ -618,7 +629,7 @@ if outcomes_recorded == 1
             warning('Could not produce summary community plot, skipping');
         end
     end
-    save(strcat(output_directory,'/subgroup_community_assignments.mat'),'modularity_subgroup_communities','proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance','-v7.3');
+    save(strcat(output_directory,'/subgroup_community_assignments.mat'),'modularity_subgroup_communities','modularity_subgroup_communities_p','proxmat_subgroup_sorted','subgroup_community_num','subgroup_sorting_orders','subgroup_communities','subgroup_community_assignments','community_subgroup_performance','-v7.3');
     end
 end
 %check the status of out of bag variables, generate visualizations if they
