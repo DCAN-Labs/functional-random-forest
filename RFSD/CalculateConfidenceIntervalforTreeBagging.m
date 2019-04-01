@@ -193,14 +193,21 @@ group1class = zeros(nsubs_group1,1);
 group2class = zeros(nsubs_group2,1);
 group1predict = zeros(nsubs_group1,1);
 group2predict = zeros(nsubs_group2,1);
-group1scores = zeros(nsubs_group1,1);
-group2scores = zeros(nsubs_group2,1);
+if regression == 0
+    group1scores = zeros(nsubs_group1,length(unique(group1_outcome)));
+    group2scores = zeros(nsubs_group2,length(unique(group2_outcome)));
+    group2class_scored = zeros(nsubs_group2,length(unique(group1_outcome)));
+    group1class_scored = zeros(nsubs_group1,length(unique(group1_outcome)));  
+else
+    group1scores = zeros(nsubs_group1,1);
+    group2scores = zeros(nsubs_group2,1);
+    group2class_scored = zeros(nsubs_group2,1);
+    group1class_scored = zeros(nsubs_group1,1);     
+end
 group1class_tested = zeros(nsubs_group1,1);
 group1class_predicted = zeros(nsubs_group1,1);
-group1class_scored = zeros(nsubs_group1,1);
 group2class_tested = zeros(nsubs_group2,1);
 group2class_predicted = zeros(nsubs_group2,1);
-group2class_scored = zeros(nsubs_group2,1);
 if exist('npredictors','var') == 0
     npredictors = round(sqrt(nvars));
 end
@@ -405,21 +412,31 @@ if holdout == 0
                 treebag{i,1} = treebag_temp;
             end
             if testing_indexgroup1 > 0
+                testing_indexgroup1
+                size(group1scores)
+                size(group1scores_temp)
                 group1class(testing_indexgroup1) = group1class(testing_indexgroup1) + group1class_temp;
                 group1predict(testing_indexgroup1) = group1predict(testing_indexgroup1) + group1predict_temp;
-                group1scores(testing_indexgroup1) = group1scores(testing_indexgroup1) + group1scores_temp';
+                if regression == 0
+                    group1scores(testing_indexgroup1,:) = group1scores(testing_indexgroup1,:) + group1scores_temp;
+                end
                 group1class_predicted(testing_indexgroup1) = group1class_predicted(testing_indexgroup1) + 1;
                 group1class_tested(testing_indexgroup1) = group1class_tested(testing_indexgroup1) + 1;
-                group1class_scored(testing_indexgroup1) = group1class_scored(testing_indexgroup1) + 1;
+                group1class_scored(testing_indexgroup1,:) = group1class_scored(testing_indexgroup1,:) + 1;
             end
             if testing_indexgroup2 > 0
+                testing_indexgroup2
+                size(group2scores)
+                size(group2scores_temp)
                 group2class(testing_indexgroup2) = group2class(testing_indexgroup2) + group2class_temp;
                 group2predict(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2predict_temp;
-                group2scores(testing_indexgroup2) = group2predict(testing_indexgroup2) + group2scores_temp';
+                if regression == 0
+                    group2scores(testing_indexgroup2,:) = group2scores(testing_indexgroup2,:) + group2scores_temp;
+                end
                 group2class_predicted(testing_indexgroup2) = group2class_predicted(testing_indexgroup2) + 1;
                 group2class_tested(testing_indexgroup2) = group2class_tested(testing_indexgroup2) + 1;
-                group2class_scored(testing_indexgroup2) = group2class_scored(testing_indexgroup2) + 1;
-            end
+                group2class_scored(testing_indexgroup2,:) = group2class_scored(testing_indexgroup2,:) + 1;
+            end            
             clear treebag_temp group1class_temp group2class_temp
             sprintf('%s',strcat('run #',num2str(i),' cumulative accuracy=',num2str(mean(accuracy(1,1:i)))))
         end
