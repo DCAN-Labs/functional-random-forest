@@ -146,7 +146,6 @@ if nrepsPM > 0
     tic
     for i = 1:nrepsPM
         permute_accuracy_temp = CalculateConfidenceIntervalforTreeBagging(group1_data,group2_data,datasplit,ntrees,nrepsCI,proximity_sub_limit,'Permute',varargin{:});               
-    end
         if i == 1
             if (holdout)
                 permute_accuracy = zeros(size(permute_accuracy_temp,1),nrepsCI,max(size(struct2array(load(holdout_data)))),nrepsPM);
@@ -159,6 +158,7 @@ if nrepsPM > 0
         else
             permute_accuracy(:,:,i) = permute_accuracy_temp;
         end
+    end
     toc
 else
     permute_accuracy = NaN;

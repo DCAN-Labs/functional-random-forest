@@ -3,7 +3,16 @@ function [categorical_vector datamat] = ConvertCelltoMatrixforTreeBagging(data)
 datamat = zeros(nsubs,nvars);
 categorical_vector = zeros(1,nvars);
 for k = 1:nvars
-    if isstr(data{1,k}) == 0
+    if isnumeric(data{1,k}) == 0
+        try 
+            unique(data(:,k));
+        catch
+            data(:,k) = cellfun(@(x) cellstr(x(1)), data(:,k));
+        end
+    end
+end
+for k = 1:nvars
+    if isnumeric(data{1,k})
         datamat(:,k) = cell2mat(data(:,k));
     else
         categorical_vector(k) = 1;

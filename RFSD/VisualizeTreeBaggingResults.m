@@ -34,6 +34,7 @@ end
 if isstruct(group2_data)
     group2_data = struct2array(load(group2_data.path,group2_data.variable));
 end
+ncomps_per_rep = length(lowdensity:stepdensity:highdensity);
 stuff = load(matfile);
 accuracy = stuff.accuracy;
 permute_accuracy = stuff.permute_accuracy;
@@ -151,7 +152,7 @@ switch(type)
         saveas(h,strcat(output_directory,'/total_accuracy.tif'));
         hold
 %plot group accuracies in a loop
-    for i = 2:size(accuracy,1);
+    for i = 2:size(accuracy,1)
         PlotTitle(end+1) = {strcat('group',num2str(i-1))};
         h = figure(i);
         acc_elements = hist(accuracy(i,:),nbins);
@@ -389,7 +390,13 @@ if strcmp(type,'classification')
         modularity_classification = NaN;
         modularity_classification_p = NaN;
     else
-        [modularity_classification modularity_classification_p] = PermuteModularityPerGroup(proxmat,final_outcomes,10000);
+        modularity_classification = zeros(unique(final_outcomes),ncomps_per_rep);
+        modularity_classification_p = modularity_classification;
+        col_count = 1;
+        for curr_density = lowdensity:stepdensity:highdensity
+            [modularity_classification(:,col_count), modularity_classification_p(:,col_count)] = PermuteModularityPerGroup(proxmat,final_outcomes,10000,'EdgeDensity',curr_density);
+            col_count = col_count + 1;
+        end
         num_outcomes = unique(final_outcomes);
         community_vis = zeros(size(proxmat_sum,1),size(proxmat_sum,2),3);
         color_outcome = 0;
@@ -425,7 +432,13 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
 ColorData = all_colors;
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
-    [modularity_communities modularity_communities_p] = PermuteModularityPerGroup(proxmat,community_matrix,10000);
+    modularity_communities = zeros(unique(community_matrix),ncomps_per_rep);
+    modularity_communities_p = modularity_communities;
+    col_count = 1;
+    for curr_density = lowdensity:stepdensity:highdensity
+        [modularity_communities(:,col_count), modularity_communities_p(:,col_count)] = PermuteModularityPerGroup(proxmat,community_matrix,10000,'EdgeDensity',curr_density);
+        col_count = col_count + 1;
+    end
     proxmat_sum_sorted = proxmat_sum(sorting_order,sorting_order);
     h = figure(3 + nfigures);
     imagesc(proxmat_sum_sorted./max(size(proxmat)));
@@ -525,7 +538,13 @@ if outcomes_recorded == 1
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,1) = iter;
         proxmat_subgroups(iter) = {proxmat_sum(subgroup_index{iter},subgroup_index{iter})};
         [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
-        [modularity_subgroup_temp, modularity_subgroup_temp_p] = PermuteModularityPerGroup(promxat_subgroups(iter),community_matrix_temp,10000);
+        modularity_subgroup_temp = zeros(unique(community_matrix_temp),ncomps_per_rep));
+        modularity_subgroup_temp_p = modularity_subgroup_temp;
+        col_count = 1;
+        for curr_density = lowdensity:stepdensity:highdensity
+            [modularity_subgroup_temp(:,col_count), modularity_subgroup_temp_p(:,col_count)] = PermuteModularityPerGroup(promxat_subgroups(iter),community_matrix_temp,10000,'EdgeDensity',curr_density);
+            col_count = col_count + 1;
+        end
         subgroup_community_assignments(sub_index:length(subgroup_index{iter})+sub_index-1,1) = cellstr( [repmat(strcat('G',num2str(iter),'_'),length(community_matrix_temp),1),num2str(community_matrix_temp(sorting_order_temp))]);        
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,2) = community_matrix_temp(sorting_order_temp);    
         subgroup_communities{iter} = community_matrix_temp;
@@ -642,7 +661,6 @@ if isnan(oob_varimp(1)) == 0
         ylabel('variable importance','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('variable importance plot','FontName','Arial','FontSize',24,'FontWeight','Bold');
         set(gca,'FontName','Arial','FontSize',18);
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
         saveas(h,strcat(output_directory,'/variable_importance.tif'));    
     catch
         warning('could not produce OOB variable importance plot despite presence of real variable...skipping');
@@ -656,7 +674,6 @@ if isnan(oob_error(1)) == 0
         ylabel('OOB error (%)','FontSize',20,'FontName','Arial','FontWeight','Bold');
         title('out of bag error by # of trees','FontName','Arial','FontSize',24,'FontWeight','Bold');
         set(gca,'FontName','Arial','FontSize',18);
-        set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
         saveas(h,strcat(output_directory,'/OOB_error.tif'));     
     catch
         warning('could not produce OOB error plot despite presence of real variable...skipping');
