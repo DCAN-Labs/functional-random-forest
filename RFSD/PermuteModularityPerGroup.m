@@ -1,4 +1,4 @@
-function [observed_modularity,modularity_p] = PermuteModularityPerGroup(adj_mat,modules,nperms,varargin)
+function [observed_modularity,modularity_p] = PermuteModularityPerGroupByEdge(adj_mat,modules,nperms,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 edgedensity = 1;

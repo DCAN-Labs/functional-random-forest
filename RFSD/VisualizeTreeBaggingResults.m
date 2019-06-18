@@ -390,7 +390,7 @@ if strcmp(type,'classification')
         modularity_classification = NaN;
         modularity_classification_p = NaN;
     else
-        modularity_classification = zeros(unique(final_outcomes),ncomps_per_rep);
+        modularity_classification = zeros(length(unique(final_outcomes)),ncomps_per_rep);
         modularity_classification_p = modularity_classification;
         col_count = 1;
         for curr_density = lowdensity:stepdensity:highdensity
@@ -432,7 +432,7 @@ saveas(h,strcat(output_directory,'/feature_usage.tif'));
 ColorData = all_colors;
     [community_matrix, sorting_order] = RunAndVisualizeCommunityDetection(proxmat,output_directory,command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
     %reproduce sorted matrix
-    modularity_communities = zeros(unique(community_matrix),ncomps_per_rep);
+    modularity_communities = zeros(length(unique(community_matrix)),ncomps_per_rep);
     modularity_communities_p = modularity_communities;
     col_count = 1;
     for curr_density = lowdensity:stepdensity:highdensity
@@ -538,7 +538,7 @@ if outcomes_recorded == 1
         subgroup_community_num(sub_index:length(subgroup_index{iter})+sub_index-1,1) = iter;
         proxmat_subgroups(iter) = {proxmat_sum(subgroup_index{iter},subgroup_index{iter})};
         [community_matrix_temp, sorting_order_temp] = RunAndVisualizeCommunityDetection(proxmat_subgroups(iter),strcat(output_directory,'group_',num2str(iter)),command_file,nreps,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
-        modularity_subgroup_temp = zeros(unique(community_matrix_temp),ncomps_per_rep));
+        modularity_subgroup_temp = zeros(length(unique(community_matrix_temp)),ncomps_per_rep);
         modularity_subgroup_temp_p = modularity_subgroup_temp;
         col_count = 1;
         for curr_density = lowdensity:stepdensity:highdensity
