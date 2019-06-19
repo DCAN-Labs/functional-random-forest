@@ -542,7 +542,7 @@ if outcomes_recorded == 1
         modularity_subgroup_temp_p = modularity_subgroup_temp;
         col_count = 1;
         for curr_density = lowdensity:stepdensity:highdensity
-            [modularity_subgroup_temp(:,col_count), modularity_subgroup_temp_p(:,col_count)] = PermuteModularityPerGroup(promxat_subgroups(iter),community_matrix_temp,10000,'EdgeDensity',curr_density);
+            [modularity_subgroup_temp(:,col_count), modularity_subgroup_temp_p(:,col_count)] = PermuteModularityPerGroup(proxmat_subgroups(iter),community_matrix_temp,10000,'EdgeDensity',curr_density);
             col_count = col_count + 1;
         end
         subgroup_community_assignments(sub_index:length(subgroup_index{iter})+sub_index-1,1) = cellstr( [repmat(strcat('G',num2str(iter),'_'),length(community_matrix_temp),1),num2str(community_matrix_temp(sorting_order_temp))]);        
