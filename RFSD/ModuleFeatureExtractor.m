@@ -128,8 +128,12 @@ switch(dim_type)
         feature_data_corr = corr(feature_data);
         h = imagesc(feature_data_corr);
         colorbar
-        caxis([min(min(feature_data_corr)) max(max(triu(feature_data_corr,1)))])
-        saveas(h,'graph_correlation.tif');
+        try
+            caxis([min(min(feature_data_corr)) max(max(triu(feature_data_corr,1)))])
+            saveas(h,'graph_correlation.tif');
+        catch
+            warning('metric comparison graph invalid -- probably because only one subject was used')
+        end
         disp('---------------------')
         disp('graph theory metric extraction complete, RFSD analysis continuing...')
         

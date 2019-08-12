@@ -11,10 +11,10 @@ if isstruct(proxmat)
     clear proxmat
     proxmat_new = struct2cell(load(proxmat_old.path,proxmat_old.variable));
     proxmat = proxmat_new{1};
-    if isnumeric(proxmat)
-        proxmat = {proxmat};
-    end
     clear proxmat_new proxmat_old
+end
+if iscell(proxmat) == 0
+    proxmat = {proxmat};
 end
 lowdensity = 0.2;
 highdensity = 1;
