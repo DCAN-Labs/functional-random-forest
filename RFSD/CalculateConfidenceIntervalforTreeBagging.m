@@ -81,6 +81,8 @@ if isempty(varargin) == 0
                         group1_outcome = varargin{i+1};
                     elseif isstruct(varargin{i+1})
                         group1_outcome = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                    elseif ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                        group1_outcome = struct2array(load(varargin{i+1},varargin{i+2}));
                     end
                     if iscell(group1_outcome)
                         group1_outcome = cell2mat(group1_outcome);
@@ -96,6 +98,8 @@ if isempty(varargin) == 0
                         group2_outcome = varargin{i+2};
                     elseif isstruct(varargin{i+2})
                         group2_outcome = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                    elseif ischar(varargin{i+3}) && strcmp(varargin{i+3}(end-3:end),'.mat')
+                        group2_outcome = struct2array(load(varargin{i+3},varargin{i+4}));
                     end
                     if size(group2_data,1) > 1 || size(group2_data,2) > 1
                         if iscell(group2_outcome)
@@ -118,15 +122,28 @@ if isempty(varargin) == 0
                    nfolds = varargin{i+1};
                case('DimReduce')
                    dim_reduce = true;
-                   modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
-                   dim_type = varargin{i+2};
-                   num_components = varargin{i+3};
+                   if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                    modules = struct2array(load(varargin{i+1},varargin{i+2}));
+                    dim_type = varargin{i+3};
+                    num_components = varargin{i+4};                       
+                   elseif isstruct(varargin{i+1})
+                    modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                    dim_type = varargin{i+2};
+                    num_components = varargin{i+3};
+                   end
                case('GraphReduce')
                    graph_reduce = true;
-                   systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
-                   modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
-                   edgedensity = varargin{i+3};
-                   bctpath = varargin{i+4};
+                   if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                    systems = struct2array(load(varargin{i+1},varargin{i+2}));
+                    modules = struct2array(load(varargin{i+3},varargin{i+4}));
+                    edgedensity = varargin{i+5};
+                    bctpath = varargin{i+6};                       
+                   elseif isstruct(varargin{i+1})
+                    systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                    modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                    edgedensity = varargin{i+3};
+                    bctpath = varargin{i+4};
+                   end
             end
         end
     end

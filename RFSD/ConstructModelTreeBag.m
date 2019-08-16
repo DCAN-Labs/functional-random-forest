@@ -77,6 +77,15 @@ if ischar(group2_data) && strcmp(group2_data(end-3:end),'.csv')
     end
     clear loaded_data
 end
+if ischar(group1_data) && strcmp(group1_data(end-3:end),'.csv')
+    loaded_data = importdata(group1_data);
+    if size(loaded_data.data,2) > size(loaded_data.textdata,2)
+        group1_data = loaded_data.data;
+    else
+        group1_data = loaded_data.textdata;
+    end
+    clear loaded_data
+end  
 holdout = 0;
 if exist('proximity_sub_limit','var') == 0
     proximity_sub_limit = 500;
@@ -122,10 +131,20 @@ if isempty(varargin) == 0
                 case('DimReduce')
                     data_reduce = true;
                 case('GraphReduce')
-                    data_reduce = true;                    
+                    data_reduce = true;
+                case('group1_varname')
+                    group1_varname = varargin{i+1};
+                case('group2_varname')
+                    group2_varname = varargin{i+1};
             end
         end
     end
+end
+if ischar(group1_data) && strcmp(group1_data(end-3:end,'.mat'))
+    group1_data = struct2array(load(group1_data,group1_varname));
+end
+if ischar(group2_data) && strcmp(group2_data(end-3:end,'.mat'))
+    group2_data = struct2array(load(group2_data,group2_varname));
 end
 if exist('command_file','var') == 0
     warning('command file does not exist, subgroup detection will error at the end...')
