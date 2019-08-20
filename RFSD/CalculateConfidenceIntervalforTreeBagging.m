@@ -36,6 +36,18 @@ num_components = 1;
 graph_reduce = false;
 systems = 0;
 edgedensity = 0.05;
+if ischar(nreps)
+    nreps = str2num(nreps);
+end
+if ischar(ntrees)
+    ntrees = str2num(ntrees);
+end
+if ischar(proximity_sub_limit)
+    proximity_sub_limit = str2num(proximity_sub_limit);
+end
+if ischar(datasplit)
+    datasplit = str2num(datasplit);
+end
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -47,6 +59,9 @@ if isempty(varargin) == 0
                 case('TrimFeatures')
                     trim_features = 1;
                     nfeatures = varargin{i+1};
+                    if ischar(nfeatures)
+                        nfeatures = str2num(nfeatures);
+                    end
                 case('Holdout')
                     holdout = 1;
                     holdout_data = struct2array(load(varargin{i+1}));
@@ -60,6 +75,9 @@ if isempty(varargin) == 0
                     permute_data = 1;
                 case('npredictors')
                     npredictors = varargin{i+1};
+                    if ischar(npredictors)
+                        npredictors = str2num(npredictors);
+                    end
                 case('EstimatePredictors')
                     estimate_predictors = 1;
                 case('OOBErrorOn')
@@ -120,16 +138,25 @@ if isempty(varargin) == 0
                 case('CrossValidate')
                    holdout = 2;
                    nfolds = varargin{i+1};
+                   if ischar(nfolds)
+                       nfolds = str2num(nfolds);
+                   end
                case('DimReduce')
                    dim_reduce = true;
                    if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
                     modules = struct2array(load(varargin{i+1},varargin{i+2}));
                     dim_type = varargin{i+3};
-                    num_components = varargin{i+4};                       
+                    num_components = varargin{i+4};
+                    if ischar(num_components)
+                        num_components = str2num(numcomponents);
+                    end
                    elseif isstruct(varargin{i+1})
                     modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
                     dim_type = varargin{i+2};
                     num_components = varargin{i+3};
+                    if ischar(num_components)
+                        num_components = str2num(numcomponents);
+                    end                    
                    end
                case('GraphReduce')
                    graph_reduce = true;
@@ -137,11 +164,17 @@ if isempty(varargin) == 0
                     systems = struct2array(load(varargin{i+1},varargin{i+2}));
                     modules = struct2array(load(varargin{i+3},varargin{i+4}));
                     edgedensity = varargin{i+5};
+                    if ischar(edgedensity)
+                        edgedensity = str2num(edgedensity);
+                    end
                     bctpath = varargin{i+6};                       
                    elseif isstruct(varargin{i+1})
                     systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
                     modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
                     edgedensity = varargin{i+3};
+                    if ischar(edgedensity)
+                        edgedensity = str2num(edgedensity);
+                    end                    
                     bctpath = varargin{i+4};
                    end
             end

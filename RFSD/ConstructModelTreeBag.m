@@ -68,6 +68,9 @@ end
 if isstruct(group2_data)
     group2_data = struct2array(load(group2_data.path,group2_data.variable));
 end
+if ischar(group2_data) && strcmp(group2_data,'0')
+    group2_data = 0;
+end
 if ischar(group2_data) && strcmp(group2_data(end-3:end),'.csv')
     loaded_data = importdata(group2_data);
     if size(loaded_data.data,2) > size(loaded_data.textdata,2)
@@ -116,10 +119,19 @@ if isempty(varargin) == 0
                     unsupervised = 1;
                 case('LowDensity')
                     lowdensity = varargin{i+1};
+                    if ischar(lowdensity)
+                        lowdensity = str2num(lowdensity);
+                    end
                 case('HighDensity')
                     highdensity = varargin{i+1};
+                    if ischar(lowdensity)
+                        highdensity = str2num(highdensity);
+                    end                    
                 case('StepDensity')
                     stepdensity = varargin{i+1};
+                    if ischar(stepdensity)
+                        stepdensity = str2num(stepdensity);
+                    end
                 case('CrossValidate')
                     cross_validation = 1;
                 case('InfomapFile')
@@ -140,10 +152,10 @@ if isempty(varargin) == 0
         end
     end
 end
-if ischar(group1_data) && strcmp(group1_data(end-3:end,'.mat'))
+if ischar(group1_data) && strcmp(group1_data(end-3:end),'.mat')
     group1_data = struct2array(load(group1_data,group1_varname));
 end
-if ischar(group2_data) && strcmp(group2_data(end-3:end,'.mat'))
+if ischar(group2_data) && strcmp(group2_data(end-3:end),'.mat')
     group2_data = struct2array(load(group2_data,group2_varname));
 end
 if exist('command_file','var') == 0
