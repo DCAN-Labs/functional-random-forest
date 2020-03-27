@@ -144,6 +144,8 @@ if isempty(varargin) == 0
                     data_reduce = true;
                 case('GraphReduce')
                     data_reduce = true;
+                case('ConnMatReduce')
+                    data_reduce = true;
                 case('group1_varname')
                     group1_varname = varargin{i+1};
                 case('group2_varname')

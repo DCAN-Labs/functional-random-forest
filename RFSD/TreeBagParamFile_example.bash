@@ -68,6 +68,14 @@ disable_treebag=true
 proxsublimit_num=500
 
 # =====================
+# == connectivity matrix reduction options
+# =====================
+#if set to true, connectivity matrices are the assumed input and will
+#be converted to 2d matrices, excluding symmetric connections 
+#If set to false, this will be ignored.
+connmat_reduce=false
+
+# =====================
 # == dimensionality reduction options
 # =====================
 #if set to true, dimensionality reduction will be performed on training

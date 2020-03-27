@@ -389,6 +389,8 @@ if strcmp(type,'classification')
         display('unsupervised classification detected, will not calculate modularity on classification')
         modularity_classification = NaN;
         modularity_classification_p = NaN;
+        modularity_all_classification = NaN;
+        modularity_all_classification_p = NaN;
     else
         modularity_classification = zeros(length(unique(final_outcomes)),ncomps_per_rep);
         modularity_classification_p = modularity_classification;

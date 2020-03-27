@@ -34,6 +34,7 @@ modules = 0;
 dim_type = 'PCA';
 num_components = 1;
 graph_reduce = false;
+connmat_reduce = false;
 systems = 0;
 edgedensity = 0.05;
 if ischar(nreps)
@@ -177,15 +178,24 @@ if isempty(varargin) == 0
                     end                    
                     bctpath = varargin{i+4};
                    end
+               case('ConnMatReduce')
+                   connmat_reduce = true;
             end
         end
     end
 end
+if connmat_reduce
+    dim_data = group1_data;
+    dim_data(:,:,end+1:size(group2_data,3)) = group2_data;
+    group1_3ddata = group1_data;
+    group2_3ddata =group2_data;
+    group1_data = Convert3dConnMatTo2dCaseMat(group1_3ddata);
+    clear group1_3ddata
+    group2_data = Convert3dConnMatTo2dCaseMat(group2_3ddata);
+end
 if graph_reduce
-    size(group1_data)
     dim_data = group1_data;
     group1_data = ModuleFeatureExtractor('InputData',dim_data,'Modules',modules,'DimType','graph','EdgeDensity',edgedensity,'BCTPath',bctpath,'Systems',systems);
-    size(group1_data)
 end
 if iscell(group1_data)
     [categorical_vector, group1_data] = ConvertCelltoMatrixforTreeBagging(group1_data);
