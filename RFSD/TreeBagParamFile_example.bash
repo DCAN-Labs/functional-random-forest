@@ -237,6 +237,9 @@ stepdensity=0.6
 # used for community detection -- highest edge density to examine community structure
 highdensity=1
 
+# used for community detection -- the number of iterations to run infomap per edge density
+infomap_nreps=10
+
 # the full path and filename for the Infomap executable, must be installed
 #   from http://mapequation.org
 infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap

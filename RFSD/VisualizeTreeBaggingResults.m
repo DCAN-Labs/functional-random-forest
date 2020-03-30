@@ -1,7 +1,7 @@
 function VisualizeTreeBaggingResults(matfile,output_directory,type,group1_data,group2_data,command_file,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-nreps = 100;
+nreps = 10;
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
@@ -17,6 +17,8 @@ if isempty(varargin) == 0
                     stepdensity = varargin{i+1};
                 case('InfomapFile')
 					infomapfile = varargin{i+1};
+                case('InfomapNreps')
+                    nreps = varargin{i+1};
             end
         end
     end

@@ -105,6 +105,7 @@ stepdensity = 0.05;
 cross_validation = 0;
 write_file = logical(1);
 data_reduce = 0;
+infomapnreps = 10;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -150,6 +151,8 @@ if isempty(varargin) == 0
                     group1_varname = varargin{i+1};
                 case('group2_varname')
                     group2_varname = varargin{i+1};
+                case('InfomapNreps')
+                    infomapnreps = varargin{i+1};
             end
         end
     end
@@ -232,9 +235,9 @@ if write_file
         error('TB:comfilechk',errmsg);
     end
     if data_reduce
-        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data_reduced,group2_data_reduced,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data_reduced,group2_data_reduced,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps);
     else
-        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile);
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps);
     end
 end
 end

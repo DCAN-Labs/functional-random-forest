@@ -33,6 +33,9 @@ stepdensity=0.05
 #   community structure
 highdensity=1
 
+# used for community detection -- number of infomap iterations
+infomap_nreps=10
+
 # the full path and filename for the Infomap executable, must be installed
 #   from http://mapequation.org
 infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
