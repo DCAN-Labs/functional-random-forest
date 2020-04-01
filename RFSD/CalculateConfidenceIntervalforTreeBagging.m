@@ -186,7 +186,7 @@ if isempty(varargin) == 0
 end
 if connmat_reduce
     dim_data = group1_data;
-    dim_data(:,:,end+1:size(group2_data,3)) = group2_data;
+    dim_data(:,:,end+1:end+size(group2_data,3)) = group2_data;
     group1_3ddata = group1_data;
     group2_3ddata =group2_data;
     group1_data = Convert3dConnMatTo2dCaseMat(group1_3ddata);
