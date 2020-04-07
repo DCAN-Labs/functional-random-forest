@@ -578,8 +578,8 @@ if holdout == 0
                 end
             end
             if group2test && independent_outcomes && permute_data
-                learning_data = randperms(learning_data,nsubs_group1);
-                testing_data = randperms(testing_data,nsubs_group2);
+                learning_data = randperm(learning_data,nsubs_group1);
+                testing_data = randperm(testing_data,nsubs_group2);
             end
             if dim_reduce
                 training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
