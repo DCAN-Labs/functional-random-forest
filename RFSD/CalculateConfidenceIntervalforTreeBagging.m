@@ -185,13 +185,21 @@ if isempty(varargin) == 0
     end
 end
 if connmat_reduce
-    dim_data = group1_data;
-    dim_data(:,:,end+1:end+size(group2_data,3)) = group2_data;
-    group1_3ddata = group1_data;
-    group2_3ddata =group2_data;
-    group1_data = Convert3dConnMatTo2dCaseMat(group1_3ddata);
-    clear group1_3ddata
-    group2_data = Convert3dConnMatTo2dCaseMat(group2_3ddata);
+    if group2_data ~= 0
+        dim_data = group1_data;
+        dim_data(:,:,end+1:end+size(group2_data,3)) = group2_data;
+        group1_3ddata = group1_data;
+        group2_3ddata =group2_data;
+        group1_data = Convert3dConnMatTo2dCaseMat(group1_3ddata);
+        clear group1_3ddata
+        group2_data = Convert3dConnMatTo2dCaseMat(group2_3ddata);
+        clear group2_3ddata
+    else
+        dim_data = group1_data;
+        group1_3ddata = group1_data;
+        group1_data = Convert3dConnMatTo2dCaseMat(group1_3ddata);
+        clear group1_3ddata
+    end
 end
 if graph_reduce
     dim_data = group1_data;
@@ -578,8 +586,8 @@ if holdout == 0
                 end
             end
             if group2test && independent_outcomes && permute_data
-                learning_data = randperm(learning_data,nsubs_group1);
-                testing_data = randperm(testing_data,nsubs_group2);
+                learning_data = learning_data(randperm(nsubs_group1),:);
+                testing_data = testing_data(randperm(nsubs_group2),:);  
             end
             if dim_reduce
                 training_data = ModuleFeatureExtractor('InputData',training_data,'Modules',modules,'DimType',dim_type,'NumComponents',num_components);
