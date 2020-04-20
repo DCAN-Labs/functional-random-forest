@@ -435,6 +435,7 @@ if holdout == 0
                 end
             end
             if group2test && independent_outcomes && permute_data
+                rng('shuffle');
                 learning_data = learning_data(randperm(nsubs_group1),:);
                 testing_data = testing_data(randperm(nsubs_group2),:);                
             end
@@ -586,6 +587,7 @@ if holdout == 0
                 end
             end
             if group2test && independent_outcomes && permute_data
+                rng('shuffle');
                 learning_data = learning_data(randperm(nsubs_group1),:);
                 testing_data = testing_data(randperm(nsubs_group2),:);  
             end
