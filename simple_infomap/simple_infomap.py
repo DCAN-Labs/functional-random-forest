@@ -184,7 +184,7 @@ def main(argv=sys.argv):
         
         rand_num = random.randint(1,9999)
         
-        infomap_comm = ' '.join([infomap,dst_file,output_dir,'--clu --map --tree --bftree -i pajek',mat_command,'-s',str(rand_num),'-N',str(args.attempts)])
+        infomap_comm = ' '.join([infomap,dst_file,output_dir,'--clu -2 --tree --ftree -i pajek',mat_command,'-s',str(rand_num),'-N',str(args.attempts)])
              
         subprocess.call(infomap_comm, shell=True)
         
