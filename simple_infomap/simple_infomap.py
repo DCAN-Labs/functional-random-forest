@@ -84,7 +84,7 @@ def main(argv=sys.argv):
         print 'Processing matrix as UNDIRECTED.'
         mat_type = 'undir'
         mat_type_string = 'UNDIRECTED'
-        mat_command = '-u'
+        mat_command = '-fundirected'
     ## THRESHOLD PERCENTAGE ##        
     if args.perc_thresh == 1.0:
         print 'Using default PERCENT THRESHOLD of 1.0 (100% of connections)'
