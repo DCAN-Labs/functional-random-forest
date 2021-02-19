@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 #
 # See help option for usage
 # Originally written by Damion Demeter, 09.03.2015
