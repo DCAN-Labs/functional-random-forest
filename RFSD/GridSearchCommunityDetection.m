@@ -1,11 +1,7 @@
 function [modularity_max,lowdensityopt,stepdensityopt,highdensityopt] = GridSearchCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-if isempty(strfind(computer,'WIN'))
-    slashies = '/';
-else
-    slashies = '\';
-end
+slashies=filesep;
 if isstruct(proxmat)
     proxmat_old = proxmat;
     clear proxmat

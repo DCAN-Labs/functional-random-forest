@@ -1,11 +1,6 @@
 function [community, sorting_order,commproxmat] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-if isempty(strfind(computer,'WIN'))
-    slashies = '/';
-else
-    slashies = '\';
-end
 if isstruct(proxmat)
     proxmat_old = proxmat;
     clear proxmat
@@ -46,12 +41,12 @@ if size(dir(outdir),1) == 0
 end
 try
     if isempty(dir(command_file))
-        errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
-        error('TB:comfilechk',errmsg);
+        errmsg = strcat('error: infomap command not found, command_file variable not valid, but unused as of latest update',command_file);
+        warning(errmsg);
     end
 catch
-    errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
-    error('TB:comfilechk',errmsg);
+    errmsg = strcat('error: infomap command not found, command_file variable not valid, but unused as of latest update',command_file);
+    warning(errmsg);
 end
 try
     if isempty(dir(infomapfile))
@@ -62,48 +57,54 @@ catch
     errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
     error('TB:comfilechk',errmsg);
 end
-ncomps = nreps*ncomps_per_rep;
-outdirpath = strcat(outdir,slashies);
+ncomps = ncomps_per_rep;
+outdirpath = strcat(outdir,filesep);
 proxmat_sum = zeros(size(proxmat{1}));
 for i = 1:max(size(proxmat))
     proxmat_sum = proxmat_sum + proxmat{i};
 end
 proxmatpath = strcat(outdirpath,'proxmat_sum.mat');
 save(proxmatpath,'proxmat_sum');
-optionm = ' -m ';
-optiono = ' -o ';
-optionp = ' -p ';
-optionu = ' -u ';
-optioni = ' -i ';
 commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
+nnodes=size(proxmat_sum,1);
+for iter=1:nnodes
+    proxmat_sum(iter,iter) = 0;
+end
+rng('Shuffle');
 for density = lowdensity:stepdensity:highdensity
     try
-        for i = 1:nreps
-            outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
-            mkdir(outfoldname); 
-            command = [command_file optionu optionm proxmatpath optiono outfoldname optionp num2str(density) optioni infomapfile];
-            system(command);        
-            temp = num2str(density,'%2.2f');
-            density_str=temp(strfind(temp,'.')+1:end);
-            if density < 0.1
-                density_dir=num2str(density*100);
-            elseif density == 1
-                density_dir='100';
-            else
-                density_dir=density_str;
-            end
-            commfile=dir(strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,'*.txt'));
-            commdirplusfile=strcat(outdirpath,'community0p',density_dir,slashies,'community_detection',slashies,commfile.name);
-            temp_community_matrix = dlmread(commdirplusfile);
-            ncomms_temp = unique(temp_community_matrix);
-            for j = 1:max(size(ncomms_temp))
-                ROIs_in_comm = find(temp_community_matrix == ncomms_temp(j));
-                commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
-            end
+        outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
+        mkdir(outfoldname); 
+       % EF 3/12/21 -- refactoring out simple_infomap.py so running
+        % threhsolding and map2pajek here
+        indices = matrix_thresholder_simple(proxmat_sum,density);
+        pajekfilename = strcat(outfoldname,filesep,'community0p',num2str(density*100),'_pajekfile.net');
+        mat2pajek_byindex(proxmat_sum,indices,pajekfilename);
+        command = strcat(infomapfile," ",pajekfilename," ",outfoldname,...
+            " --clu -2 --tree --ftree -i pajek -fundirected -s ",num2str(randi(9999))," -N ",num2str(nreps));
+        system(command);        
+        temp = num2str(density,'%2.2f');
+        density_str=temp(strfind(temp,'.')+1:end);
+        if density < 0.1
+            density_dir=num2str(density*100);
+        elseif density == 1
+            density_dir='100';
+        else
+            density_dir=density_str;
+        end
+        commfile=dir(strcat(outdirpath,'community0p',density_dir,filesep,'*.clu'));
+        commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
+        clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
+        cluarray = sort(cellfun(@str2num, table2cell(clutable(4:end,1:2))));
+        temp_community_matrix = cluarray(:,2);
+        dlmwrite(strcat(outdirpath,'community0p',density_dir,filesep,'community0p',density_dir,'_communities.txt'),temp_community_matrix);
+        ncomms_temp = unique(temp_community_matrix);
+        for j = 1:max(size(ncomms_temp))
+            ROIs_in_comm = find(temp_community_matrix == ncomms_temp(j));
+            commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
         end
     catch
-        warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.'));
-        ncomps = ncomps - nreps;
+    warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.'))
     end
 end
 commproxmat = commproxmat./ncomps;
@@ -111,12 +112,19 @@ commproxpath = strcat(outdirpath,'commproxmat.mat');
 save(commproxpath,'commproxmat','-v7.3');
 outfoldname = strcat(outdirpath,'combined_infomap');
 mkdir(outfoldname);
-command = [command_file optionu optionm commproxpath optiono outfoldname optionp num2str(1) optioni infomapfile];
-system(command);
-commfile=dir(strcat(outfoldname,slashies,'community_detection',slashies,'*.txt'));
-commdirplusfile=strcat(outfoldname,slashies,'community_detection',slashies,commfile.name);
-community = dlmread(commdirplusfile);
-[~,sorting_order] = sort(community,'ascend');
+indices = matrix_thresholder_simple(commproxmat,1);
+pajekfilename = strcat(outfoldname,filesep,'combined_filemap_pajekfile.net');
+mat2pajek_byindex(proxmat_sum,indices,pajekfilename);
+command = strcat(infomapfile," ",pajekfilename," ",outfoldname,...
+" --clu -2 --tree --ftree -i pajek -fundirected -s ",num2str(randi(9999))," -N ",num2str(nreps));
+system(command);    
+commfile=dir(strcat(outfoldname,filesep,'*.clu'));
+commdirplusfile=strcat(outfoldname,filesep,commfile.name);
+clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
+cluarray = sort(cellfun(@str2num, table2cell(clutable(4:end,1:2))));
+community = cluarray(:,1);
+sorting_order = cluarray(:,2);
+dlmwrite(strcat(outfoldname,filesep,'combined_infomap_communities.txt'),community);
 outputcommpath = strcat(outdirpath,'final_community_assignments.mat');
 save(outputcommpath,'community','sorting_order');
 
