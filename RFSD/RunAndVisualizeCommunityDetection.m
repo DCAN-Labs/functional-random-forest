@@ -1,4 +1,4 @@
-function [community, sorting_order,commproxmat] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
+function [community, sorting_order,commproxmat,unsorted_community,reverse_sorting_order] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 if isstruct(proxmat)
@@ -75,6 +75,7 @@ for density = lowdensity:stepdensity:highdensity
     try
         outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
         mkdir(outfoldname); 
+        system(strcat("rm -rf ",outfoldname,filesep,'*'));
        % EF 3/12/21 -- refactoring out simple_infomap.py so running
         % threhsolding and map2pajek here
         indices = matrix_thresholder_simple(proxmat_sum,density);
@@ -95,12 +96,15 @@ for density = lowdensity:stepdensity:highdensity
         commfile=dir(strcat(outdirpath,'community0p',density_dir,filesep,'*.clu'));
         commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
         clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
-        cluarray = sort(cellfun(@str2num, table2cell(clutable(4:end,1:2))));
+        cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
         temp_community_matrix = cluarray(:,2);
-        dlmwrite(strcat(outdirpath,'community0p',density_dir,filesep,'community0p',density_dir,'_communities.txt'),temp_community_matrix);
-        ncomms_temp = unique(temp_community_matrix);
+        temp_sorting_order = cluarray(:,1);
+        [~,reverse_sorting_order] = sort(temp_sorting_order,'ascend');
+        temp_unsorted_communities = temp_community_matrix(reverse_sorting_order);
+        dlmwrite(strcat(outdirpath,'community0p',density_dir,filesep,'community0p',density_dir,'_communities.txt'),temp_unsorted_communities);
+        ncomms_temp = unique(temp_unsorted_communities);
         for j = 1:max(size(ncomms_temp))
-            ROIs_in_comm = find(temp_community_matrix == ncomms_temp(j));
+            ROIs_in_comm = find(temp_unsorted_communities == ncomms_temp(j));
             commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
         end
     catch
@@ -112,19 +116,22 @@ commproxpath = strcat(outdirpath,'commproxmat.mat');
 save(commproxpath,'commproxmat','-v7.3');
 outfoldname = strcat(outdirpath,'combined_infomap');
 mkdir(outfoldname);
+system(strcat("rm -rf ",outfoldname,filesep,'*'));
 indices = matrix_thresholder_simple(commproxmat,1);
 pajekfilename = strcat(outfoldname,filesep,'combined_filemap_pajekfile.net');
-mat2pajek_byindex(proxmat_sum,indices,pajekfilename);
+mat2pajek_byindex(commproxmat,indices,pajekfilename);
 command = strcat(infomapfile," ",pajekfilename," ",outfoldname,...
 " --clu -2 --tree --ftree -i pajek -fundirected -s ",num2str(randi(9999))," -N ",num2str(nreps));
 system(command);    
 commfile=dir(strcat(outfoldname,filesep,'*.clu'));
 commdirplusfile=strcat(outfoldname,filesep,commfile.name);
 clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
-cluarray = sort(cellfun(@str2num, table2cell(clutable(4:end,1:2))));
-community = cluarray(:,1);
-sorting_order = cluarray(:,2);
-dlmwrite(strcat(outfoldname,filesep,'combined_infomap_communities.txt'),community);
+cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+community = cluarray(:,2);
+sorting_order = cluarray(:,1);
+[~,reverse_sorting_order] = sort(sorting_order,'ascend');
+unsorted_community=community(reverse_sorting_order);
+dlmwrite(strcat(outfoldname,filesep,'combined_infomap_communities.txt'),unsorted_community);
 outputcommpath = strcat(outdirpath,'final_community_assignments.mat');
-save(outputcommpath,'community','sorting_order');
+save(outputcommpath,'community','sorting_order','unsorted_community','reverse_sorting_order');
 

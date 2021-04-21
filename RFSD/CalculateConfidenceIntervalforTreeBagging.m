@@ -52,135 +52,137 @@ end
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
-           switch(varargin{i})
-                case('EstimateTrees')
-                    estimate_trees = 1;
-                case('WeightForest')
-                    weight_forest = 1;
-                case('TrimFeatures')
-                    trim_features = 1;
-                    nfeatures = varargin{i+1};
-                    if ischar(nfeatures)
-                        nfeatures = str2num(nfeatures);
-                    end
-                case('Holdout')
-                    holdout = 1;
-                    holdout_data = struct2array(load(varargin{i+1}));
-                    group_holdout = varargin{i+2};
-                case('FisherZ')
-                    zform = 1;
-                case('TreebagsOff')
-                    disable_treebag = 1;
-                    treebag = NaN;
-                case('Permute')
-                    permute_data = 1;
-                case('npredictors')
-                    npredictors = varargin{i+1};
-                    if ischar(npredictors)
-                        npredictors = str2num(npredictors);
-                    end
-                case('EstimatePredictors')
-                    estimate_predictors = 1;
-                case('OOBErrorOn')
-                    OOB_error_on = 1;                    
-                case('EstimateTreePredictors')
-                   estimate_tree_predictors = 1;
-                case('Regression')
-                    regression = 1;
-                    class_method = 'regression';
-                case('useoutcomevariable')
-                    independent_outcomes = 1;
-                    if isnumeric(varargin{i+1}) && isscalar(varargin{i+1})
-                        group1_outcome = group1_data(:,varargin{i+1});
-                        index = true(1, size(group1_data,2));
-                        index([varargin{i+1}]) = false;
-                        group1_data = group1_data(:,index);
-                        clear index
-                    elseif isnumeric(varargin{i+1}) && ismatrix(varargin{i+1})
-                        group1_outcome = varargin{i+1};
-                    elseif isstruct(varargin{i+1})
-                        group1_outcome = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
-                    elseif ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
-                        group1_outcome = struct2array(load(varargin{i+1},varargin{i+2}));
-                    end
-                    if iscell(group1_outcome)
-                        group1_outcome = cell2mat(group1_outcome);
-                    end
-                    if size(group2_data,1) == 1 && size(group2_data,2) == 1
-                    elseif isnumeric(varargin{i+2}) && isscalar(varargin{i+2})
-                        group2_outcome = group2_data(:,varargin{i+2});
-                        index = true(1, size(group2_data,2));
-                        index([varargin{i+1}]) = false;
-                        group2_data = group2_data(:,index);
-                        clear index
-                    elseif isnumeric(varargin{i+2}) && ismatrix(varargin{i+2})
-                        group2_outcome = varargin{i+2};
-                    elseif isstruct(varargin{i+2})
-                        group2_outcome = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
-                    elseif ischar(varargin{i+3}) && strcmp(varargin{i+3}(end-3:end),'.mat')
-                        group2_outcome = struct2array(load(varargin{i+3},varargin{i+4}));
-                    end
-                    if size(group2_data,1) > 1 || size(group2_data,2) > 1
-                        if iscell(group2_outcome)
-                            group2_outcome = cell2mat(group2_outcome);
+           if (isnumeric(varargin{i}) && size(varargin{i},1) > 1) == 0
+               switch(varargin{i})
+                    case('EstimateTrees')
+                        estimate_trees = 1;
+                    case('WeightForest')
+                        weight_forest = 1;
+                    case('TrimFeatures')
+                        trim_features = 1;
+                        nfeatures = varargin{i+1};
+                        if ischar(nfeatures)
+                            nfeatures = str2num(nfeatures);
                         end
-                    end
-                case('surrogate')
-                    surrogate = 'on';
-                case('group2istestdata')
-                    group2test = 1;
-                case('Prior')
-                    prior = varargin{i+1};
-                case('unsupervised')
-                    group2_data = group1_data;
-                    unsupervised = 1;
-                case('MatchGroups')
-                    matchgroups = 1;
-                case('CrossValidate')
-                   holdout = 2;
-                   nfolds = varargin{i+1};
-                   if ischar(nfolds)
-                       nfolds = str2num(nfolds);
-                   end
-               case('DimReduce')
-                   dim_reduce = true;
-                   if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
-                    modules = struct2array(load(varargin{i+1},varargin{i+2}));
-                    dim_type = varargin{i+3};
-                    num_components = varargin{i+4};
-                    if ischar(num_components)
-                        num_components = str2num(numcomponents);
-                    end
-                   elseif isstruct(varargin{i+1})
-                    modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
-                    dim_type = varargin{i+2};
-                    num_components = varargin{i+3};
-                    if ischar(num_components)
-                        num_components = str2num(numcomponents);
-                    end                    
-                   end
-               case('GraphReduce')
-                   graph_reduce = true;
-                   if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
-                    systems = struct2array(load(varargin{i+1},varargin{i+2}));
-                    modules = struct2array(load(varargin{i+3},varargin{i+4}));
-                    edgedensity = varargin{i+5};
-                    if ischar(edgedensity)
-                        edgedensity = str2num(edgedensity);
-                    end
-                    bctpath = varargin{i+6};                       
-                   elseif isstruct(varargin{i+1})
-                    systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
-                    modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
-                    edgedensity = varargin{i+3};
-                    if ischar(edgedensity)
-                        edgedensity = str2num(edgedensity);
-                    end                    
-                    bctpath = varargin{i+4};
-                   end
-               case('ConnMatReduce')
-                   connmat_reduce = true;
-            end
+                    case('Holdout')
+                        holdout = 1;
+                        holdout_data = struct2array(load(varargin{i+1}));
+                        group_holdout = varargin{i+2};
+                    case('FisherZ')
+                        zform = 1;
+                    case('TreebagsOff')
+                        disable_treebag = 1;
+                        treebag = NaN;
+                    case('Permute')
+                        permute_data = 1;
+                    case('npredictors')
+                        npredictors = varargin{i+1};
+                        if ischar(npredictors)
+                            npredictors = str2num(npredictors);
+                        end
+                    case('EstimatePredictors')
+                        estimate_predictors = 1;
+                    case('OOBErrorOn')
+                        OOB_error_on = 1;                    
+                    case('EstimateTreePredictors')
+                       estimate_tree_predictors = 1;
+                    case('Regression')
+                        regression = 1;
+                        class_method = 'regression';
+                    case('useoutcomevariable')
+                        independent_outcomes = 1;
+                        if isnumeric(varargin{i+1}) && isscalar(varargin{i+1})
+                            group1_outcome = group1_data(:,varargin{i+1});
+                            index = true(1, size(group1_data,2));
+                            index([varargin{i+1}]) = false;
+                            group1_data = group1_data(:,index);
+                            clear index
+                        elseif isnumeric(varargin{i+1}) && ismatrix(varargin{i+1})
+                            group1_outcome = varargin{i+1};
+                        elseif isstruct(varargin{i+1})
+                            group1_outcome = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                        elseif ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                            group1_outcome = struct2array(load(varargin{i+1},varargin{i+2}));
+                        end
+                        if iscell(group1_outcome)
+                            group1_outcome = cell2mat(group1_outcome);
+                        end
+                        if size(group2_data,1) == 1 && size(group2_data,2) == 1
+                        elseif isnumeric(varargin{i+2}) && isscalar(varargin{i+2})
+                            group2_outcome = group2_data(:,varargin{i+2});
+                            index = true(1, size(group2_data,2));
+                            index([varargin{i+1}]) = false;
+                            group2_data = group2_data(:,index);
+                            clear index
+                        elseif isnumeric(varargin{i+2}) && ismatrix(varargin{i+2})
+                            group2_outcome = varargin{i+2};
+                        elseif isstruct(varargin{i+2})
+                            group2_outcome = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                        elseif ischar(varargin{i+3}) && strcmp(varargin{i+3}(end-3:end),'.mat')
+                            group2_outcome = struct2array(load(varargin{i+3},varargin{i+4}));
+                        end
+                        if size(group2_data,1) > 1 || size(group2_data,2) > 1
+                            if iscell(group2_outcome)
+                                group2_outcome = cell2mat(group2_outcome);
+                            end
+                        end
+                    case('surrogate')
+                        surrogate = 'on';
+                    case('group2istestdata')
+                        group2test = 1;
+                    case('Prior')
+                        prior = varargin{i+1};
+                    case('unsupervised')
+                        group2_data = group1_data;
+                        unsupervised = 1;
+                    case('MatchGroups')
+                        matchgroups = 1;
+                    case('CrossValidate')
+                       holdout = 2;
+                       nfolds = varargin{i+1};
+                       if ischar(nfolds)
+                           nfolds = str2num(nfolds);
+                       end
+                   case('DimReduce')
+                       dim_reduce = true;
+                       if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                        modules = struct2array(load(varargin{i+1},varargin{i+2}));
+                        dim_type = varargin{i+3};
+                        num_components = varargin{i+4};
+                        if ischar(num_components)
+                            num_components = str2num(numcomponents);
+                        end
+                       elseif isstruct(varargin{i+1})
+                        modules = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                        dim_type = varargin{i+2};
+                        num_components = varargin{i+3};
+                        if ischar(num_components)
+                            num_components = str2num(numcomponents);
+                        end                    
+                       end
+                   case('GraphReduce')
+                       graph_reduce = true;
+                       if ischar(varargin{i+1}) && strcmp(varargin{i+1}(end-3:end),'.mat')
+                        systems = struct2array(load(varargin{i+1},varargin{i+2}));
+                        modules = struct2array(load(varargin{i+3},varargin{i+4}));
+                        edgedensity = varargin{i+5};
+                        if ischar(edgedensity)
+                            edgedensity = str2num(edgedensity);
+                        end
+                        bctpath = varargin{i+6};                       
+                       elseif isstruct(varargin{i+1})
+                        systems = struct2array(load(varargin{i+1}.path,varargin{i+1}.variable));
+                        modules = struct2array(load(varargin{i+2}.path,varargin{i+2}.variable));
+                        edgedensity = varargin{i+3};
+                        if ischar(edgedensity)
+                            edgedensity = str2num(edgedensity);
+                        end                    
+                        bctpath = varargin{i+4};
+                       end
+                   case('ConnMatReduce')
+                       connmat_reduce = true;
+               end
+           end
         end
     end
 end
