@@ -1,6 +1,9 @@
 function [community, sorting_order,commproxmat,unsorted_community,reverse_sorting_order] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
+blah = version;
+matlab_version = blah(strfind(version,'(')+1:strfind(version,'(')+5);
+clear blah
 if isstruct(proxmat)
     proxmat_old = proxmat;
     clear proxmat
@@ -96,7 +99,11 @@ for density = lowdensity:stepdensity:highdensity
         commfile=dir(strcat(outdirpath,'community0p',density_dir,filesep,'*.clu'));
         commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
         clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
-        cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+        if strcmp(matlab_version,'R2021')
+            cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
+        else
+            cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+        end
         temp_community_matrix = cluarray(:,2);
         temp_sorting_order = cluarray(:,1);
         [~,reverse_sorting_order] = sort(temp_sorting_order,'ascend');
