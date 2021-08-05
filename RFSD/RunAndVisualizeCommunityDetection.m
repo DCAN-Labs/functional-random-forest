@@ -133,7 +133,11 @@ system(command);
 commfile=dir(strcat(outfoldname,filesep,'*.clu'));
 commdirplusfile=strcat(outfoldname,filesep,commfile.name);
 clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
-cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+if strcmp(matlab_version,'R2021')
+    cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
+else
+    cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+end
 community = cluarray(:,2);
 sorting_order = cluarray(:,1);
 [~,reverse_sorting_order] = sort(sorting_order,'ascend');
