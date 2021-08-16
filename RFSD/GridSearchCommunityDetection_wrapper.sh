@@ -1,25 +1,49 @@
 #!/bin/bash
-
-set -euo pipefail
-
-# RunAndVisualizeCommunityDetection_wrapper.sh requires a ParamFile as an input (e.g. RunAndVisualizeCommunityDetection_wrapper.sh RunAndVisualizeCommunityDetection_example.bash). See the RunAndVisualizeCommunityDetection_example.bash for more information on available parameters.
-source $1
-
-#If missing parameters, set defaults
-filename=${filename:-'thenamelessone'}
-infomap_command_file=${infomap_command_file:-'/group_shares/fnl/bulk/code/internal/utilities/simple_infomap/simple_infomap.py'}
-lowdensitymin=${lowdensitymin:-0.01}
-lowdensitystep=${lowdensitystep:-0.01}
-lowdensitymax=${lowdensitymax:-0.2}
-stepdensitymin=${stepdensitymin:-0.05}
-stepdensitystep=${stepdensitystep:-0.05}
-stepdensitymax=${stepdensitymax:-1}
-highdensitymin=${highdensitymin:-0.2}
-highdensitystep=${highdensitystep:-0.1}
-highdensitymax=${highdensitymax:-1}
-infomapfile=${infomapfile:-'/group_shares/fnl/bulk/code/external/utilities/infomap/Infomap'}
-repopath=${repopath:-'/group_shares/fnl/bulk/projects/FAIR_users/Feczko/code_in_dev/RFAnalysis'}
-matlab_command=${matlab_command:-'matlab'}
-infomap_nreps=${infomap_nreps:-10}
-#Construct the model, which will save outputs to a filename.mat file
-${matlab_command} -nodisplay -nosplash -r "addpath('"${repopath}"') ; GridSearchCommunityDetection(struct('path','"${corrmatpath}"','variable','"${corrmatvar}"'),'"$filename"','"$infomap_command_file"',"$infomap_nreps",'LowDensityMin',"$lowdensitymin",'LowDensityStep',"$lowdensitystep",'LowDensityMax',"$lowdensitymax",'StepDensityMin',"$stepdensitymin",'StepDensityStep',"$stepdensitystep",'StepDensityMax',"$stepdensitymax",'HighDensityMin',"$highdensitymin",'HighDensityStep',"$highdensitystep",'HighDensityMax',"$highdensitymax",'InfomapFile','"$infomapfile"'); exit"
+paramfile=$1; shift
+GRID_program=$1; shift
+GRID_files=$1; shift
+matlab_command=$1; shift
+if [[ -d ${GRID_files} ]]; then
+  echo ${GRID_files} exists!
+else
+  mkdir ${GRID_files}
+fi
+LowDensityMin=`grep lowdensitymin= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+LowDensityStep=`grep lowdensitystep= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+LowDensityMax=`grep lowdensitymax= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+StepDensityMin=`grep stepdensitymin= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+StepDensityStep=`grep stepdensitystep= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+StepDensityMax=`grep stepdensitymax= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+HighDensityMin=`grep highdensitymin= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+HighDensityStep=`grep highdensitystep= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+HighDensityMax=`grep highdensitymax= ${paramfile} | cut -f2 -d'=' | cut -f1 -d';'`
+output_directory=`grep output_directory= ${paramfile} | cut -f2 -d"'" | cut -f1 -d'{'`
+if [[ -d ${output_directory} ]]; then 
+  echo ${output_directory} exists!
+else 
+  mkdir ${output_directory}
+fi
+mkdir ${GRID_files}/sbatch_logs
+for LowDensity in $(seq $LowDensityMin $LowDensityStep $LowDensityMax); do
+  for StepDensity in $(seq $StepDensityMin $StepDensityStep $StepDensityMax); do
+    for HighDensity in $(seq $HighDensityMin $HighDensityStep $HighDensityMax); do
+      eval_density=`echo "$LowDensity<$HighDensity" | bc -l`
+      if [[ $eval_density -eq 1 ]]; then
+        new_output_root=`echo "GS_Low${LowDensity}_Step${StepDensity}_High${HighDensity}" | sed 's|\.|p|g'`
+        mkdir ${output_directory}/${new_output_root}
+        sed "s|{LOWDENSITY}|${LowDensity}|" <${paramfile} > ${GRID_files}/lowdensity_temp.m
+        sed "s|{STEPDENSITY}|${StepDensity}|" <${GRID_files}/lowdensity_temp.m > ${GRID_files}/stepdensity_temp.m
+        sed "s|{HIGHDENSITY}|${HighDensity}|" <${GRID_files}/stepdensity_temp.m > ${GRID_files}/highdensity_temp.m
+        sed "s|{OUTPUT}|${new_output_root}|" <${GRID_files}/highdensity_temp.m > ${GRID_files}/${new_output_root}.m
+        rm ${GRID_files}/*temp.m
+        pushd ${GRID_files}
+        echo ${GRID_files}/sbatch_logs/${new_output_root}.out
+        echo ${GRID_files}/sbatch_logs/${new_output_root}.err
+        echo ${GRID_program}/bin/run_GridSearchCommunityDetection.sh
+        sbatch --job-name=${new_output_root} --output=${GRID_files}/sbatch_logs/${new_output_root}.out --error=${GRID_files}/sbatch_logs/${new_output_root}.err "$@" ${GRID_program}/bin/run_GridSearchCommunityDetection.sh ${matlab_command} ${new_output_root}.m
+        popd
+        sleep 5
+      fi
+    done
+  done
+done

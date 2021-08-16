@@ -17,6 +17,7 @@ end
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
+use_search_params=0;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -29,6 +30,9 @@ if isempty(varargin) == 0
                     stepdensity = varargin{i+1};
                 case('InfomapFile')
 					infomapfile = varargin{i+1};
+                case('GridSearchDir')
+                    use_search_params=1;
+                    gridsearchdir = varargin{i+1};
             end
         end
     end
@@ -72,6 +76,86 @@ commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
 nnodes=size(proxmat_sum,1);
 for iter=1:nnodes
     proxmat_sum(iter,iter) = 0;
+end
+if use_search_params
+    modularity_data = csvread(strcat(gridsearchdir,'/output_parameters.csv'));
+    modularity_values=modularity_data(:,1);
+    modularity_low=modularity_data(:,2);
+    modularity_step=modularity_data(:,3);
+    modularity_high=modularity_data(:,4);
+    %plot low vs high grid for edge density
+    figure(1)
+    comparison_graph=gramm('x',modularity_low,'y',modularity_high,'lightness',round(modularity_values,4));
+    comparison_graph.geom_point();
+    comparison_graph.set_names('x','low edge density','y','high edge density','lightness','modularity');
+    comparison_graph.set_title('low/high edge density grid');
+    comparison_graph.set_text_options('font','Courier',...
+        'base_size',14,...
+        'label_scaling',1,...
+        'legend_scaling',1.5,...
+        'legend_title_scaling',1.5,...
+        'facet_scaling',1,...
+        'title_scaling',1.3);
+    comparison_graph.draw();
+    comparison_graph.export('file_name',strcat(outdirpath,filesep,'low_vs_high_edge_density'));
+
+    %plot modularity by low edge density
+    figure(2)
+    comparison_graph=gramm('x',modularity_low,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph.geom_point();
+    comparison_graph.set_names('x','low edge density','y','modularity');
+    comparison_graph.set_title('modularity by low edge density');
+    comparison_graph.set_text_options('font','Courier',...
+        'base_size',14,...
+        'label_scaling',1,...
+        'legend_scaling',1.5,...
+        'legend_title_scaling',1.5,...
+        'facet_scaling',1,...
+        'title_scaling',1.3);
+    comparison_graph.no_legend();
+    comparison_graph.draw();
+    comparison_graph.export('file_name',strcat(outdirpath,filesep,'low_edge_density_by_modularity'));
+
+    %plot modularity by step edge density
+    figure(3)
+    comparison_graph=gramm('x',modularity_step,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph.geom_point();
+    comparison_graph.set_names('x','step edge density','y','modularity');
+    comparison_graph.set_title('modularity by step edge density');
+    comparison_graph.set_text_options('font','Courier',...
+        'base_size',14,...
+        'label_scaling',1,...
+        'legend_scaling',1.5,...
+        'legend_title_scaling',1.5,...
+        'facet_scaling',1,...
+        'title_scaling',1.3);
+    comparison_graph.no_legend();
+    comparison_graph.draw();
+    comparison_graph.export('file_name',strcat(outdirpath,filesep,'step_edge_density_by_modularity'));
+
+
+    %plot modularity by high edge density
+    figure(4)
+    comparison_graph=gramm('x',modularity_high,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph.geom_point();
+    comparison_graph.set_names('x','high edge density','y','modularity');
+    comparison_graph.set_title('modularity by high edge density');
+    comparison_graph.set_text_options('font','Courier',...
+        'base_size',14,...
+        'label_scaling',1,...
+        'legend_scaling',1.5,...
+        'legend_title_scaling',1.5,...
+        'facet_scaling',1,...
+        'title_scaling',1.3);
+    comparison_graph.no_legend();
+    comparison_graph.draw();
+    comparison_graph.export('file_name',strcat(outdirpath,filesep,'high_edge_density_by_modularity'));
+
+    close all
+    modularity_data_sorted = sort(modularity_data,'descend');
+    lowdensity = modularity_data_sorted(1,2);
+    stepdensity = modularity_data_sorted(1,3);
+    highdensity = modularity_data_sorted(1,4);
 end
 rng('Shuffle');
 for density = lowdensity:stepdensity:highdensity
