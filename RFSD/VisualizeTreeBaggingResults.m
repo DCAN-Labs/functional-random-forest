@@ -46,11 +46,11 @@ plot_performance_by_subgroups = 0;
 try
     if isempty(dir(command_file))
         errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
-        error('TB:comfilechk',errmsg);
+        warning('TB:comfilechk',errmsg);
     end
 catch
     errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
-    error('TB:comfilechk',errmsg);
+    warning('TB:comfilechk',errmsg);
 end
 try
     if isempty(dir(infomapfile))

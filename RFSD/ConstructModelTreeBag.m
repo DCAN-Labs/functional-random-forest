@@ -227,8 +227,8 @@ if write_file
         error('TB:comfilechk',errmsg);
     end    
     if isempty(dir(command_file))
-        errmsg = strcat('error: infomap command not found, command_file variable not valid, quitting...',command_file);
-        error('TB:comfilechk',errmsg);
+        errmsg = strcat('error: infomap command not found, command_file variable not valid, but unused as of latest code changes...ignoring',command_file);
+        warning('TB:comfilechk',errmsg);
     end
     if isempty(dir(infomapfile))
         errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);

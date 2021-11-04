@@ -2,6 +2,8 @@ function [modularity,lowdensity,stepdensity,highdensity] = GridSearchCommunityDe
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 slashies=filesep;
+blah = version;
+matlab_version = blah(strfind(version,'(')+1:strfind(version,'(')+5);
 if isstruct(proxmat)
     proxmat_old = proxmat;
     clear proxmat
@@ -35,9 +37,9 @@ if isempty(varargin) == 0
     end
 end
 modularity = 0;
-lowdensityopt = lowdensitymin;
-stepdensityopt = stepdensitymin;
-highdensityopt = highdensitymin;
+lowdensityopt = lowdensity;
+stepdensityopt = stepdensity;
+highdensityopt = highdensity;
 if size(dir(outdir),1) == 0
     try
         mkdir(outdir);
@@ -55,6 +57,7 @@ catch
     errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
     error('TB:comfilechk',errmsg);
 end
+ncomps_per_rep = length(lowdensity:stepdensity:highdensity);
 ncomps = ncomps_per_rep;
 outdirpath = strcat(outdir,filesep);
 proxmat_sum = zeros(size(proxmat{1}));

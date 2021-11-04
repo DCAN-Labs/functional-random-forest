@@ -78,14 +78,30 @@ for iter=1:nnodes
     proxmat_sum(iter,iter) = 0;
 end
 if use_search_params
-    modularity_data = csvread(strcat(gridsearchdir,'/output_parameters.csv'));
-    modularity_values=modularity_data(:,1);
-    modularity_low=modularity_data(:,2);
-    modularity_step=modularity_data(:,3);
-    modularity_high=modularity_data(:,4);
+    modularitygridmax=0;
+    grid_folders = dir(strcat(gridsearchdir,'/GS*Low*p*Step*p*High*p*'));
+    ngrid_cells  = length(grid_folders);
+    count = 0;
+    for curr_cell=1:ngrid_cells
+        grid_file = dir(strcat(gridsearchdir,'/',grid_folders(curr_cell).name,'/optimal_parameters.csv'));
+        if isempty(grid_file) == 0
+            count = count + 1;
+            grid_data = csvread(strcat(gridsearchdir,'/',grid_folders(curr_cell).name,'/',grid_file.name));
+            modularity_data(count,1) = grid_data(1);
+            modularity_data(count,2) = grid_data(2);
+            modularity_data(count,3) = grid_data(3);
+            modularity_data(count,4) = grid_data(4);
+            if grid_data(1) > modularitygridmax
+                modularitygridmax=grid_data(1);
+                lowdensity=grid_data(2)
+                stepdensity=grid_data(3);
+                highdensity=grid_data(4);
+            end
+        end
+    end
     %plot low vs high grid for edge density
     figure(1)
-    comparison_graph=gramm('x',modularity_low,'y',modularity_high,'lightness',round(modularity_values,4));
+    comparison_graph=gramm('x',modularity_data(:,2),'y',modularity_data(:,4),'lightness',round(modularity_data(:,1),4));
     comparison_graph.geom_point();
     comparison_graph.set_names('x','low edge density','y','high edge density','lightness','modularity');
     comparison_graph.set_title('low/high edge density grid');
@@ -101,7 +117,7 @@ if use_search_params
 
     %plot modularity by low edge density
     figure(2)
-    comparison_graph=gramm('x',modularity_low,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph=gramm('x',modularity_data(:,2),'y',modularity_data(:,1),'lightness',round(modularity_data(:,1),4));
     comparison_graph.geom_point();
     comparison_graph.set_names('x','low edge density','y','modularity');
     comparison_graph.set_title('modularity by low edge density');
@@ -118,7 +134,7 @@ if use_search_params
 
     %plot modularity by step edge density
     figure(3)
-    comparison_graph=gramm('x',modularity_step,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph=gramm('x',modularity_data(:,3),'y',modularity_data(:,1),'lightness',round(modularity_data(:,1),4));
     comparison_graph.geom_point();
     comparison_graph.set_names('x','step edge density','y','modularity');
     comparison_graph.set_title('modularity by step edge density');
@@ -136,7 +152,7 @@ if use_search_params
 
     %plot modularity by high edge density
     figure(4)
-    comparison_graph=gramm('x',modularity_high,'y',modularity_values,'lightness',round(modularity_values,4));
+    comparison_graph=gramm('x',modularity_data(:,4),'y',modularity_data(:,1),'lightness',round(modularity_data(:,1),4));
     comparison_graph.geom_point();
     comparison_graph.set_names('x','high edge density','y','modularity');
     comparison_graph.set_title('modularity by high edge density');
@@ -152,10 +168,6 @@ if use_search_params
     comparison_graph.export('file_name',strcat(outdirpath,filesep,'high_edge_density_by_modularity'));
 
     close all
-    modularity_data_sorted = sort(modularity_data,'descend');
-    lowdensity = modularity_data_sorted(1,2);
-    stepdensity = modularity_data_sorted(1,3);
-    highdensity = modularity_data_sorted(1,4);
 end
 rng('Shuffle');
 for density = lowdensity:stepdensity:highdensity

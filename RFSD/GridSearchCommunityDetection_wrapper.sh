@@ -40,7 +40,7 @@ for LowDensity in $(seq $LowDensityMin $LowDensityStep $LowDensityMax); do
         echo ${GRID_files}/sbatch_logs/${new_output_root}.out
         echo ${GRID_files}/sbatch_logs/${new_output_root}.err
         echo ${GRID_program}/bin/run_GridSearchCommunityDetection.sh
-        sbatch --job-name=${new_output_root} --output=${GRID_files}/sbatch_logs/${new_output_root}.out --error=${GRID_files}/sbatch_logs/${new_output_root}.err "$@" ${GRID_program}/bin/run_GridSearchCommunityDetection.sh ${matlab_command} ${new_output_root}.m
+        sbatch --job-name=${new_output_root} --output=${GRID_files}/sbatch_logs/${new_output_root}.out --error=${GRID_files}/sbatch_logs/${new_output_root}.err "$@" ${GRID_program}/run_GridSearchCommunityDetection.sh ${matlab_command} ${new_output_root}
         popd
         sleep 5
       fi

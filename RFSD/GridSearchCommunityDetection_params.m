@@ -6,10 +6,11 @@
 %   have a single 2D matrix variable, you should encapsulate it in a 1x1 cell
 %   (e.g. corrmat={corrmat}) and resave your .mat file
 
-% path and filename where group1's data is located
+% path and filename where the correlation/adjacency/proximity matrix is
+% stored
 corrmatpath='/example_XCCvsUCC.mat';
 
-% the name of the variable within group1's matrix (.mat) file. This should
+% the name of the variable within the  .mat file. This should
 %   represent a (cell array that contains a) 2D matrix
 corrmatvar='proxmat';
 
