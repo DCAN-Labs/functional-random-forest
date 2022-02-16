@@ -211,6 +211,16 @@ estimate_predictors=false
 OOB_error=false
 
 # =====================
+# == Visualization options
+# =====================
+
+# set to the path where the matlab gramm toolbox is located
+gramm_path=/home/faird/shared/code/external/utilities/gramm/
+
+#set to the path where Oscar's showm toolbox is located
+showm_path=/home/faird/shared/code/internal/utilities/plotting-tools/showM/
+
+# =====================
 # == Legacy options should not be used and are disabled by default
 # =====================
 # if set to true, the random forest algorithm will attempt to estimate the
@@ -246,3 +256,13 @@ infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
 
 # The full path and filename of simple_infomap.py
 infomap_command_file=/mnt/max/home/robinsph/git/Analysis/simple_infomap/simple_infomap.py
+
+# if a gridsearch has been run, set this flag to 1
+use_gridsearch=true
+  #set this path to the gridsearch parent directory
+gridsearch=/path/to/gridsearch
+#set this path to the Brain Connectivity Toolbox
+bct_path=/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT
+#choose the graph connectedness threshold
+connectedness_thresh=0.7
+

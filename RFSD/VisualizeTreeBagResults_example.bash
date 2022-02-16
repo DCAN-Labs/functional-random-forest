@@ -36,6 +36,9 @@ stepdensity=0.1
 # used for community detection -- highest edge density to examine community structure
 highdensity=1
 
+# use for determining the junk threshold for communities
+junk_threshold=30
+
 # the full path and filename for the Infomap executable, must be installed from http://mapequation.org
 infomapfile=/mnt/max/home/robinsph/git/infomap/Infomap
 
@@ -45,3 +48,22 @@ repopath=/mnt/max/home/robinsph/git/Analysis/RFSD
 # the name of the matlab command line executable, can include arguments additional
 #   options, etc. SingleCompThread is enabled by default.
 matlab_command=matlab
+
+# if a gridsearch has been run, set this flag to 1
+use_gridsearch=true
+  #set this path to the gridsearch parent directory
+  gridsearch=/path/to/gridsearch
+  #set this path to the Brain Connectivity Toolbox
+  bct_path=/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT
+  #choose the graph connectedness threshold
+connectedness_thresh=0.7
+
+# =====================
+# == Visualization options
+# =====================
+
+# set to the path where the matlab gramm toolbox is located
+gramm_path=/home/faird/shared/code/external/utilities/gramm/
+
+#set to the path where Oscar's showm toolbox is located
+showm_path=/home/faird/shared/code/internal/utilities/plotting-tools/showM/

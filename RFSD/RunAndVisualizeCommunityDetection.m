@@ -1,4 +1,4 @@
-function [community, sorting_order,commproxmat,unsorted_community,reverse_sorting_order] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
+function [community, sorting_order,commproxmat,unsorted_community,reverse_sorting_order,lowdensity,stepdensity,highdensity] = RunAndVisualizeCommunityDetection(proxmat,outdir,command_file,nreps,varargin)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 blah = version;
@@ -14,10 +14,12 @@ end
 if iscell(proxmat) == 0
     proxmat = {proxmat};
 end
+bctpath='/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT';
 lowdensity = 0.2;
 highdensity = 1;
 stepdensity = 0.05;
 use_search_params=0;
+connectedness_thresh = 0.5;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -33,10 +35,15 @@ if isempty(varargin) == 0
                 case('GridSearchDir')
                     use_search_params=1;
                     gridsearchdir = varargin{i+1};
+                case('BCTPath')
+                    bctpath=varargin{i+1};
+                case('ConnectednessThreshold')
+                    connectedness_thresh = varargin{i+1};
             end
         end
     end
 end
+addpath(genpath(bctpath))
 ncomps_per_rep = length(lowdensity:stepdensity:highdensity);
 if size(dir(outdir),1) == 0
     try
@@ -92,10 +99,21 @@ if use_search_params
             modularity_data(count,3) = grid_data(3);
             modularity_data(count,4) = grid_data(4);
             if grid_data(1) > modularitygridmax
-                modularitygridmax=grid_data(1);
-                lowdensity=grid_data(2)
-                stepdensity=grid_data(3);
-                highdensity=grid_data(4);
+                ndensities = length(grid_data(2):grid_data(3):grid_data(4));
+                proxmat_connectedness = zeros(ndensities,1);
+                curr_connectedness = 1;
+                for curr_density = grid_data(2):grid_data(3):grid_data(4)
+                    binary_matrix = matrix_thresholder_simple(proxmat_sum, curr_density);
+                    [~,comp_sizes] = get_components(binary_matrix);
+                    proxmat_connectedness(curr_connectedness) = comp_sizes/nnodes;
+                    curr_connectedness = curr_connectedness + 1;
+                end
+                if median(proxmat_connectedness) > connectedness_thresh    
+                    modularitygridmax=grid_data(1);
+                    lowdensity=grid_data(2);
+                    stepdensity=grid_data(3);
+                    highdensity=grid_data(4);
+                end
             end
         end
     end

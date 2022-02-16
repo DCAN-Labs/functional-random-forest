@@ -28,8 +28,15 @@ cross_validate=${cross_validate:-'true'}
 dim_reduce=${dim_reduce:-'false'}
 graph_reduce=${graph_reduce:-'false'}
 connmat_reduce=${connmat_reduce:-'false'}
+showmpath=${showmpath:-'/home/faird/shared/code/internal/utilities/plotting-tools/showM/'}
+grammpath=${grammpath:-'/home/faird/shared/code/external/utilities/gramm'}
+bct_path=${bct_path:-'/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT'}
+connectedness_thresh=${connectedness_thresh:-0.7}
+gridsearch=${gridsearch:-'NULL'}
+use_gridsearch=${use_gridsearch:-'false'}
 
 #parameters set from the TreeBagParamFile
+if $use_gridsearch; then gridsearch_flag='GridSearchDir'; else gridsearch_flag='NULL'; fi
 if $use_group2_data; then group2_data="struct('path','"${group2path}"','variable','"${group2var}"')"; else group2_data=0; fi
 if $estimate_trees; then estimate_trees='EstimateTrees'; else estimate_trees='NONE'; fi
 if $weight_trees; then weight_trees='WeightForest'; else weight_trees='NONE'; fi
@@ -90,4 +97,4 @@ bctpath=${bctpath:-'/mnt/max/shared/code/external/utilities/BCT/'}
 
 module load matlab
 #Construct the model, which will save outputs to a filename.mat file
-${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds",'InfomapFile','"$infomapfile"','CommandFile','"$infomap_command_file"','"${reducedim}"',struct('path','"${modpath}"','variable','"${modvar}"'),'"${dim_type}"',"$num_components",'"${reducegraph}"',struct('path','"${systempath}"','variable','"${systemvar}"'),struct('path','"${grphmodpath}"','variable','"${grphmodvar}"'),"$edgedensity",'"${bctpath}"','"${reduceconnmat}"','InfomapNreps',"$infomap_nreps"); exit"
+${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath('"${repopath}"') ; ConstructModelTreeBag(struct('path','"${group1path}"','variable','"${group1var}"'),"$group2_data","$datasplit","$nreps","$ntrees","$nperms",'"${filename}"',"$proxsublimit_num",'"${estimate_trees}"','"${weight_trees}"','"${trim_features}"',"$nfeatures",'"${OOB_error}"','"${fisher_z_transform}"','"${disable_treebag}"','"${holdout}"','"${holdout_data}"',"$group_holdout",'"${estimate_predictors}"','"${estimate_treepred}"','"${npredictors}"',"$num_predictors",'"${surrogate}"','"${regression}"','"${outcome_variable_exist}"',"$group1outcome","$group2outcome",'"${group2test}"','Prior','"${priors}"','"${unsupervised}"','"${matchgroups}"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'"${cv}"',"$nfolds",'InfomapFile','"$infomapfile"','CommandFile','"$infomap_command_file"','"${reducedim}"',struct('path','"${modpath}"','variable','"${modvar}"'),'"${dim_type}"',"$num_components",'"${reducegraph}"',struct('path','"${systempath}"','variable','"${systemvar}"'),struct('path','"${grphmodpath}"','variable','"${grphmodvar}"'),"$edgedensity",'"${bctpath}"','"${reduceconnmat}"','InfomapNreps',"$infomap_nreps",'ShowMPath','"$showmpath"','GrammPath','"$grammpath"','"$gridsearch_flag"','"$gridsearch"','BCTPath','"$bct_path"','ConnectednessThreshold',"$connectedness_thresh"); exit"

@@ -99,13 +99,18 @@ end
 regression = 0;
 unsupervised = 0;
 classification_method='classification';
-lowdensity = 0.2;
-highdensity = 1;
-stepdensity = 0.05;
+lowdensity = 0.01;
+highdensity = 0.05;
+stepdensity = 0.01;
 cross_validation = 0;
 write_file = logical(1);
 data_reduce = 0;
-infomapnreps = 10;
+infomapnreps = 200;
+use_search_params = 0;
+grammpath='/home/faird/shared/code/external/utilities/gramm/';
+showmpath='/home/faird/shared/code/internal/utilities/plotting-tools/showM/';
+bctpath='/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT';
+connectedness_thresh = 0.5;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0
@@ -153,6 +158,17 @@ if isempty(varargin) == 0
                     group2_varname = varargin{i+1};
                 case('InfomapNreps')
                     infomapnreps = varargin{i+1};
+                case('GridSearchDir')
+                    gridsearchdir = varargin{i+1};
+                    use_search_params = 1;
+                case('GrammPath')
+                    grammpath = varargin{i+1};
+                case('ShowMPath')
+                    showmpath = varargin{i+1};    
+                case('BCTPath')
+                    bctpath=varargin{i+1};
+                case('ConnectednessThreshold')
+                    connectedness_thresh = varargin{i+1};    
             end
         end
     end
@@ -234,10 +250,10 @@ if write_file
         errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
         error('TB:comfilechk',errmsg);
     end
-    if data_reduce
-        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data_reduced,group2_data_reduced,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps);
+    if use_search_params
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps,'GrammPath',grammpath,'ShowMPath',showmpath,'GridSearchDir',gridsearchdir,'BCTPath',bctpath,'ConnectednessThreshold',connectedness_thresh);
     else
-        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,group1_data,group2_data,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps);
+        VisualizeTreeBaggingResults(strcat(filename,'.mat'),strcat(filename,'_output'),classification_method,command_file,'LowDensity',lowdensity,'StepDensity',stepdensity,'HighDensity',highdensity,'InfomapFile',infomapfile,'InfomapNreps',infomapnreps,'GrammPath',grammpath,'ShowMPath',showmpath,'BCTPath',bctpath,'ConnectednessThreshold',connectedness_thresh);
     end
 end
 end
