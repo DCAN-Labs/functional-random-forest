@@ -74,8 +74,12 @@ saveas(partial_sorted_figure,strcat(output_directory,filesep,...
     'similarity_matrix_sorted_filtered.svg'));
 close all
 proxmat_vector = similarity_matrix(abs((triu(similarity_matrix,1))) > 0);
-proxmat_threshold = quantile(proxmat_vector,1-edge_density);
-partial_matrix_thresh = partial_matrix > proxmat_threshold;
+if edge_density < 1
+    proxmat_threshold = quantile(proxmat_vector,1-edge_density);
+    partial_matrix_thresh = partial_matrix > proxmat_threshold;
+else
+    partial_matrix_thresh = partial_matrix;
+end
 commproxgraph = graph(partial_matrix_thresh,'omitselfloops','upper');
 graph_layout=plot(commproxgraph,'Layout','force','NodeCData',...
     threshold_communities_filtered+1,'EdgeAlpha',0.8,'EdgeColor',...
@@ -193,6 +197,8 @@ else
                     maxy = max(max(accuracy_graph_test.results.stat_summary(iter).yci));
                    end
                end
+               close all
+               figure()
                accuracy_graph=gramm('x',threshold_communities+1,'y',performance_data','color',threshold_communities+1);
                accuracy_graph.stat_summary('geom',{'bar'},'dodge',0.7,'width',0.7);
                accuracy_graph.set_names('x','metric','y','value','color','metric');

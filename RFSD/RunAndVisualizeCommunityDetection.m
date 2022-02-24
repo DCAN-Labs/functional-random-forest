@@ -99,16 +99,13 @@ if use_search_params
             modularity_data(count,3) = grid_data(3);
             modularity_data(count,4) = grid_data(4);
             if grid_data(1) > modularitygridmax
-                ndensities = length(grid_data(2):grid_data(3):grid_data(4));
-                proxmat_connectedness = zeros(ndensities,1);
-                curr_connectedness = 1;
-                for curr_density = grid_data(2):grid_data(3):grid_data(4)
-                    binary_matrix = matrix_thresholder_simple(proxmat_sum, curr_density);
-                    [~,comp_sizes] = get_components(binary_matrix);
-                    proxmat_connectedness(curr_connectedness) = comp_sizes/nnodes;
-                    curr_connectedness = curr_connectedness + 1;
-                end
-                if median(proxmat_connectedness) > connectedness_thresh    
+                grid_mat = dir(strcat(gridsearchdir,'/',grid_folders(curr_cell).name,'/commproxmat.mat'));
+                load(strcat(grid_mat.folder,'/',grid_mat.name))
+                binary_matrix = double(abs(commproxmat) > 0);
+                [~,comp_sizes] = get_components(binary_matrix);
+                max_comp_size = max(comp_sizes);
+                proxmat_connectedness = max_comp_size/nnodes;
+                if proxmat_connectedness > connectedness_thresh    
                     modularitygridmax=grid_data(1);
                     lowdensity=grid_data(2);
                     stepdensity=grid_data(3);
@@ -186,6 +183,7 @@ if use_search_params
     comparison_graph.export('file_name',strcat(outdirpath,filesep,'high_edge_density_by_modularity'));
 
     close all
+commproxmat = zeros(max(size(proxmat_sum)),max(size(proxmat_sum)));
 end
 rng('Shuffle');
 for density = lowdensity:stepdensity:highdensity

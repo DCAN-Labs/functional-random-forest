@@ -25,5 +25,7 @@ highdensity=${highdensity:-1}
 junk_threshold=${junk_threshold:-30}
 bct_path=${bct_path:-'/home/faird/shared/code/external/utilities/BCT/BCT/2019_03_03_BCT'}
 connectedness_thresh=${connectedness_thresh:-0.7}
+
+module load matlab
 #Construct the model, which will save outputs to a filename.mat file
 ${matlab_command} -nodisplay -nosplash -singleCompThread -r "addpath(genpath('"${repopath}"')) ; VisualizeTreeBaggingResults('"$results_matfile"','"$filename"','"$regression"','"$infomap_command_file"','LowDensity',"$lowdensity",'StepDensity',"$stepdensity",'HighDensity',"$highdensity",'InfomapFile','"$infomapfile"','ShowMPath','"$showmpath"','GrammPath','"$grammpath"','"$gridsearch_flag"','"$gridsearch"','JunkThreshold',"$junk_threshold",'BCTPath','"$bct_path"','ConnectednessThreshold',"$connectedness_thresh"); exit"

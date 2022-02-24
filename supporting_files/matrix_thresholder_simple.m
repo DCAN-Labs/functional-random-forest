@@ -1,4 +1,4 @@
-function indices = matrix_thresholder_simple(matrix,threshold)
+function [indices,mask] = matrix_thresholder_simple(matrix,threshold)
 %i = matrix_thresholder_simple(matrix,threshold)
 %
 % This script takes a 2D matrix and thresholds it at a given edge density,
@@ -33,6 +33,7 @@ mask(mask) = mask_matrix_triu;
 indices = find(mask);
 [~,order] = sort(matrix(indices),'descend');
 indices = indices(order);
+mask=double(mask);
 
 
 

@@ -159,14 +159,15 @@ for i = 1:max(size(proxmat))
 proxmat_sum = proxmat_sum + proxmat{i};
 end
 h = figure();
-imagesc(proxmat_sum./max(size(proxmat)));
+proxmat_sum = proxmat_sum./max(size(proxmat));
+imagesc(proxmat_sum);
 colormap(gray)
 xlabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
 ylabel('subject #','FontSize',20,'FontName','Arial','FontWeight','Bold');
 title('proximity matrix','FontName','Arial','FontSize',24,'FontWeight','Bold');
 set(gca,'FontName','Arial','FontSize',18);
 set(gcf,'Position',[0 0 1024 768],'PaperUnits','points','PaperPosition',[0 0 1024 768]);
-caxis([quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.05),0.05) quantile(quantile(triu(proxmat_sum./max(size(proxmat)),1),0.95),0.95)]);
+caxis([quantile(quantile(triu(proxmat_sum,1),0.05),0.05) quantile(quantile(triu(proxmat_sum,1),0.95),0.95)]);
 colorbar
 saveas(h,strcat(output_directory,'/proximity_matrix.tif'));
 close all
@@ -222,7 +223,7 @@ ColorData = all_colors;
     end
     proxsub_outdir = strcat(output_directory,'/proximity_by_subgroup/');
     mkdir(proxsub_outdir)
-    See_communities(proxmat_sum,unsorted_community,final_data,outcome_performance,[],proxsub_outdir,junkthreshold,all_colors,highdensity,[],1);
+    See_communities(commproxmat,unsorted_community,final_data,outcome_performance,[],proxsub_outdir,junkthreshold,all_colors,1,[],1);
     save(strcat(output_directory,'/community_outputs.mat'),'modularity_communities','modularity_communities_p',...
         'community_matrix','sorting_order','commproxmat',...
         'unsorted_community','reverse_sorting_order','lowdensity',...
