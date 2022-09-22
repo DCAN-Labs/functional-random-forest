@@ -80,16 +80,16 @@ if edge_density < 1
 else
     partial_matrix_thresh = partial_matrix;
 end
-commproxgraph = graph(partial_matrix_thresh,'omitselfloops','upper');
-graph_layout=plot(commproxgraph,'Layout','force','NodeCData',...
-    threshold_communities_filtered+1,'EdgeAlpha',0.8,'EdgeColor',...
-    [.7 .7 .7],'Marker','o');
-colormap(community_colormap)
-caxis([1 length(community_colormap)])
-title('Graph of connected nodes','FontName','courier','FontSize',16,...
-    'FontWeight','bold')
-saveas(graph_layout,strcat(output_directory,filesep,...
-    'community_graph_layout.svg'))
+%commproxgraph = graph(partial_matrix_thresh,'omitselfloops','upper');
+%graph_layout=plot(commproxgraph,'Layout','force','NodeCData',...
+%    threshold_communities_filtered+1,'EdgeAlpha',0.8,'EdgeColor',...
+%    [.7 .7 .7],'Marker','o');
+%colormap(community_colormap)
+%caxis([1 length(community_colormap)])
+%title('Graph of connected nodes','FontName','courier','FontSize',16,...
+%    'FontWeight','bold')
+%saveas(graph_layout,strcat(output_directory,filesep,...
+%    'community_graph_layout.svg'))
 if parcellate_features 
     mkdir(strcat(output_directory,'/polyneuro_subtype_plots_by_network'))
     load(parcel,'parcel')

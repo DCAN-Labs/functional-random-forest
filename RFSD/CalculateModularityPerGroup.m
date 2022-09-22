@@ -2,6 +2,7 @@ function [modularity_all,modularity] = CalculateModularityPerGroup(adj_mat,modul
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 edgedensity = 1;
+junkthreshold = 5;
 if isempty(varargin) == 0
     for i = 1:size(varargin,2)
         if isstruct(varargin{i}) == 0

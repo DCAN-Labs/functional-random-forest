@@ -188,43 +188,45 @@ end
 rng('Shuffle');
 for density = lowdensity:stepdensity:highdensity
     try
-        outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
-        mkdir(outfoldname); 
-        system(strcat("rm -rf ",outfoldname,filesep,'*'));
-       % EF 3/12/21 -- refactoring out simple_infomap.py so running
-        % threhsolding and map2pajek here
-        indices = matrix_thresholder_simple(proxmat_sum,density);
-        pajekfilename = strcat(outfoldname,filesep,'community0p',num2str(density*100),'_pajekfile.net');
-        mat2pajek_byindex(proxmat_sum,indices,pajekfilename);
-        command = strcat(infomapfile," ",pajekfilename," ",outfoldname,...
-            " --clu -2 --tree --ftree -i pajek -fundirected -s ",num2str(randi(9999))," -N ",num2str(nreps));
-        system(command);        
-        temp = num2str(density,'%2.2f');
-        density_str=temp(strfind(temp,'.')+1:end);
-        if density < 0.1
-            density_dir=num2str(density*100);
-        elseif density == 1
-            density_dir='100';
-        else
-            density_dir=density_str;
-        end
-        commfile=dir(strcat(outdirpath,'community0p',density_dir,filesep,'*.clu'));
-        commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
-        clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
-        if strcmp(matlab_version,'R2021')
-            cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
-        else
-            cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
-        end
-        temp_community_matrix = cluarray(:,2);
-        temp_sorting_order = cluarray(:,1);
-        [~,reverse_sorting_order] = sort(temp_sorting_order,'ascend');
-        temp_unsorted_communities = temp_community_matrix(reverse_sorting_order);
-        dlmwrite(strcat(outdirpath,'community0p',density_dir,filesep,'community0p',density_dir,'_communities.txt'),temp_unsorted_communities);
-        ncomms_temp = unique(temp_unsorted_communities);
-        for j = 1:max(size(ncomms_temp))
-            ROIs_in_comm = find(temp_unsorted_communities == ncomms_temp(j));
-            commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
+        for iter = 1:5 % EF 2/23/22 adding back in repetitions for stability
+            outfoldname = strcat(outdirpath,'community0p',num2str(density*100));
+            mkdir(outfoldname); 
+            system(strcat("rm -rf ",outfoldname,filesep,'*'));
+           % EF 3/12/21 -- refactoring out simple_infomap.py so running
+            % threhsolding and map2pajek here
+            indices = matrix_thresholder_simple(proxmat_sum,density);
+            pajekfilename = strcat(outfoldname,filesep,'community0p',num2str(density*100),'_pajekfile.net');
+            mat2pajek_byindex(proxmat_sum,indices,pajekfilename);
+            command = strcat(infomapfile," ",pajekfilename," ",outfoldname,...
+                " --clu -2 --tree --ftree -i pajek -fundirected -s ",num2str(randi(9999))," -N ",num2str(nreps));
+            system(command);        
+            temp = num2str(density,'%2.2f');
+            density_str=temp(strfind(temp,'.')+1:end);
+            if density < 0.1
+                density_dir=num2str(density*100);
+            elseif density == 1
+                density_dir='100';
+            else
+                density_dir=density_str;
+            end
+            commfile=dir(strcat(outdirpath,'community0p',density_dir,filesep,'*.clu'));
+            commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
+            clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
+            if strcmp(matlab_version,'R2021')
+                cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
+            else
+                cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
+            end
+            temp_community_matrix = cluarray(:,2);
+            temp_sorting_order = cluarray(:,1);
+            [~,reverse_sorting_order] = sort(temp_sorting_order,'ascend');
+            temp_unsorted_communities = temp_community_matrix(reverse_sorting_order);
+            dlmwrite(strcat(outdirpath,'community0p',density_dir,filesep,'community0p',density_dir,'_communities.txt'),temp_unsorted_communities);
+            ncomms_temp = unique(temp_unsorted_communities);
+            for j = 1:max(size(ncomms_temp))
+                ROIs_in_comm = find(temp_unsorted_communities == ncomms_temp(j));
+                commproxmat(ROIs_in_comm,ROIs_in_comm) = commproxmat(ROIs_in_comm,ROIs_in_comm) + 1;
+            end
         end
     catch
     warning(strcat('Error in running infomap. This typically occurs because the edge density used:',num2str(density*100),' does not contain a sufficiently connected graph. Please consult the file to be sure. The program will now skip this specific edge density.'))
