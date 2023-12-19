@@ -71,7 +71,7 @@ catch
     errmsg = strcat('error: infomap repo not found, infomapfile variable not valid, quitting...',infomapfile);
     error('TB:comfilechk',errmsg);
 end
-ncomps = ncomps_per_rep;
+ncomps = ncomps_per_rep*5;
 outdirpath = strcat(outdir,filesep);
 proxmat_sum = zeros(size(proxmat{1}));
 for i = 1:max(size(proxmat))
@@ -213,6 +213,8 @@ for density = lowdensity:stepdensity:highdensity
             commdirplusfile=strcat(outdirpath,'community0p',density_dir,filesep,commfile.name);
             clutable = readtable(commdirplusfile,'FileType','text','Delimiter',' ','ReadVariableNames',true,'HeaderLines',5);
             if strcmp(matlab_version,'R2021')
+                cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
+            elseif (str2double(matlab_version(2:5)) > 2021)
                 cluarray = cell2mat(table2cell(clutable(4:end,1:2)));
             else
                 cluarray = cellfun(@str2num, table2cell(clutable(4:end,1:2)));
